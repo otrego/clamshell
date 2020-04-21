@@ -7,40 +7,46 @@ import (
 )
 
 const (
-	Eof             = iota
+	Eof = iota
 	Whitespace
 	LeftParen
-    RightParen
-    LeftBracket
-    RightBracket
-    Semicolon
-    Backslash
-    String
+	RightParen
+	LeftBracket
+	RightBracket
+	Semicolon
+	Backslash
+	String
 )
 
 var eof = rune(0)
 
+// isWhiteSpace is a check to see if a rune is whitespace (space, tab, newline, carriage return)
 func isWhitespace(ch rune) bool {
 	return ch == ' ' || ch == '\t' || ch == '\n' || ch == '\r'
 }
 
+// isSpecial is a check for special characters used in SGF files
 func isSpecial(ch rune) bool {
 	return ch == '(' || ch == ')' || ch == '[' || ch == ']' || ch == ';'
 }
 
+// The scanner will "tokenize" the input into Token structs
 type Token struct {
-    Type    int
-    Raw     string
+	Type int
+	Raw  string
 }
 
+// Scanner wraps bufio.Reader but has the public Scan() function to scan tokens
 type Scanner struct {
 	*bufio.Reader
 }
 
+// Creates a new scanner object out of an io.Reader interface
 func NewScanner(r io.Reader) *Scanner {
 	return &Scanner{bufio.NewReader(r)}
 }
 
+// Either return the current rune or EOF (null)
 func (s *Scanner) read() rune {
 	ch, _, err := s.ReadRune()
 	if err != nil {
@@ -49,54 +55,64 @@ func (s *Scanner) read() rune {
 	return ch
 }
 
+// Go back one rune
 func (s *Scanner) unread() {
 	s.UnreadRune()
 }
 
+// Scan is the function that tokenizes the input and outputs tokens
 func (s *Scanner) Scan() *Token {
+	// read in a character
 	ch := s.read()
+
+	// if it's whitespace
 	if isWhitespace(ch) {
+		// then go back and scan as much whitespace as possible
 		s.unread()
 		return s.scanWhitespace()
+		// if it's not a special character or EOF, then it's a "string"
 	} else if !isSpecial(ch) && ch != eof {
+		// go back and scan as much of the string as possible
 		s.unread()
 		return s.scanString()
 	}
 
+	// otherwise, handle the special characters
 	switch ch {
 	case '(':
 		return &Token{
-            Type: LeftParen,
-            Raw: "(",
-        }
+			Type: LeftParen,
+			Raw:  "(",
+		}
 	case ')':
 		return &Token{
-            Type: RightParen,
-            Raw: ")",
-        }
+			Type: RightParen,
+			Raw:  ")",
+		}
 	case '[':
 		return &Token{
-            Type: LeftBracket,
-            Raw: "[",
-        }
+			Type: LeftBracket,
+			Raw:  "[",
+		}
 	case ']':
 		return &Token{
-            Type: RightBracket,
-            Raw: "]",
-        }
+			Type: RightBracket,
+			Raw:  "]",
+		}
 	case ';':
 		return &Token{
-            Type: Semicolon,
-            Raw: ";",
-        }
-    default:
-        return &Token{
-            Type: Eof,
-            Raw: "",
-        }
+			Type: Semicolon,
+			Raw:  ";",
+		}
+	default:
+		return &Token{
+			Type: Eof,
+			Raw:  "",
+		}
 	}
 }
 
+// scanWhiteSpace consumes as much as whitespace as possible
 func (s *Scanner) scanWhitespace() *Token {
 	buf := new(bytes.Buffer)
 	buf.WriteRune(s.read())
@@ -112,11 +128,12 @@ func (s *Scanner) scanWhitespace() *Token {
 		}
 	}
 	return &Token{
-        Type: Whitespace,
-        Raw: buf.String(),
-    }
+		Type: Whitespace,
+		Raw:  buf.String(),
+	}
 }
 
+// scanString consumes as much (not whitespace, not special, not eof) as possible
 func (s *Scanner) scanString() *Token {
 	buf := new(bytes.Buffer)
 	buf.WriteRune(s.read())
@@ -127,15 +144,17 @@ func (s *Scanner) scanString() *Token {
 		} else if isSpecial(ch) {
 			s.unread()
 			break
+			// backslash is sort of a special case in that we will consume
+			// the next character *no matter what* (i.e., even if it's a special character)
 		} else if ch == '\\' {
-            buf.WriteRune(ch)
-            buf.WriteRune(s.read())
-        } else {
+			buf.WriteRune(ch)
+			buf.WriteRune(s.read())
+		} else {
 			buf.WriteRune(ch)
 		}
 	}
-    return &Token{
-        Type: String,
-        Raw: buf.String(),
-    }
+	return &Token{
+		Type: String,
+		Raw:  buf.String(),
+	}
 }

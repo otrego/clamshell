@@ -38,7 +38,7 @@ PW[Player White [1k\]]PB[Player Black [3k\]]C[This (yes;) is a [5k\] comment]
 	if pb := game.Nodes[0].Fields["PB"]; pb != "Player Black [3k\\]" {
 		t.Errorf("PB=%v, expected %v", pb, "Player Black [3k\\]")
 	}
-    for i:=0; i < game.Index; i++ {
-        fmt.Println(game.Nodes[i])
-    }
+	for i := 0; i < game.Index; i++ {
+		fmt.Println(game.Nodes[i])
+	}
 }
