@@ -15,8 +15,8 @@ PW[Player White [1k\]]PB[Player Black [3k\]]C[This (yes;) is a [5k\] comment]
 ;W[dd]
 ;B[pq]
 ;W[dp]
-;B[qk]
-;W[fq]
+(;B[qk]
+(;W[fq]
 ;B[nc]
 ;W[fc]
 ;B[cj]
@@ -25,7 +25,20 @@ PW[Player White [1k\]]PB[Player Black [3k\]]C[This (yes;) is a [5k\] comment]
 ;W[mp]
 ;B[po]
 ;W[jp]
-;B[ej])`
+;B[ej])
+(;W[nc]
+;B[pf]
+;W[pb]
+(;B[qc]
+;W[kc])
+(;B[fq]))
+(;W[mp]
+;B[po]
+;W[jp]))
+(;B[fq]
+(;W[cn]
+;B[jp])
+(;W[qo])))`
 	r := strings.NewReader(s)
 	parser := NewParser(r)
 	game, err := parser.Parse()

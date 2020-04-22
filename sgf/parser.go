@@ -5,6 +5,31 @@ import (
 	"io"
 )
 
+// A node is comprised of key-value pairs (might hold other info someday)
+type Node struct {
+	Fields map[string]string
+}
+
+func NewNode() *Node {
+	n := &Node{}
+	n.Fields = make(map[string]string)
+	return n
+}
+
+// A game record (sgf) struct for now is just a collection of nodes
+// TODO: this struct should retain the branch structure of game variations
+type Sgf struct {
+	Index int
+	Nodes map[int]*Node
+}
+
+func NewSgf() *Sgf {
+	s := &Sgf{Index: 0}
+	s.Nodes = make(map[int]*Node)
+
+	return s
+}
+
 // the Parser uses a scanner to construct an Sgf object (the Game attribute)
 // By including the token and save attributes, we can "cache" one token
 // and "unscan" once
@@ -51,8 +76,11 @@ func (p *Parser) scanSkipWhitespace() *Token {
 	return tok
 }
 
-// TODO: currently only parses a single branch
+// Parses the root branch
 func (p *Parser) Parse() (*Sgf, error) {
+	if tok := p.scanSkipWhitespace(); tok.Type != LeftParen {
+		return nil, errors.New("Corrupted sgf: must start with '('")
+	}
 	err := p.parseBranch()
 	if err != nil {
 		return nil, err
@@ -96,56 +124,45 @@ func (p *Parser) parseFieldValue() (string, string, error) {
 	return field, value, nil
 }
 
-// parse a branch starting with "("
+// parseBranch only gets called right after we consumed a "("
 func (p *Parser) parseBranch() error {
-	if tok := p.scanSkipWhitespace(); tok.Type != LeftParen {
-		return errors.New("Corrupted sgf")
-	}
-
+	// loop through looking for nodes and branches
 	for {
-		node := p.parseNode()
-		if node == nil {
-			break
+		// scan a token
+		tok := p.scanSkipWhitespace()
+		switch tok.Type {
+		// if it's a semicolon, parse a node
+		case Semicolon:
+			node := p.parseNode()
+			p.Game.Nodes[p.Game.Index] = node
+			p.Game.Index++
+		// if it's a left paren, parse a branch (recursive)
+		case LeftParen:
+			p.parseBranch()
+		// if it's a right paren, return
+		case RightParen:
+			return nil
+		// otherwise throw an error
+		default:
+			return errors.New("Corrupted sgf: error parsing branch")
 		}
-		p.Game.Nodes[p.Game.Index] = node
-		p.Game.Index++
 	}
-
-	/*
-	   do stuff here
-	*/
-
-	if tok := p.scanSkipWhitespace(); tok.Type != RightParen {
-		return errors.New("Corrupted sgf")
-	}
-
 	return nil
 }
 
-type Node struct {
-	Fields map[string]string
-}
-
-func NewNode() *Node {
-	n := &Node{}
-	n.Fields = make(map[string]string)
-	return n
-}
-
+// parseNode only gets called right after we consumed a ";"
 func (p *Parser) parseNode() *Node {
-	if tok := p.scanSkipWhitespace(); tok.Type != Semicolon {
-		p.unscan()
-		return nil
-	}
-
 	node := NewNode()
 
+	// the data in a node is pairs of fields and values
 	for {
-		if tok := p.scanSkipWhitespace(); tok.Type == Semicolon || tok.Type == RightParen || tok.Type == LeftParen {
-			p.unscan()
+		tok := p.scanSkipWhitespace()
+		p.unscan()
+		// a semicolon, rightparen, or leftparen all end the node
+		if tok.Type == Semicolon || tok.Type == RightParen || tok.Type == LeftParen {
 			break
+			// otherwise, parse a field and value
 		} else {
-			p.unscan()
 			field, value, err := p.parseFieldValue()
 			if err == nil {
 				node.Fields[field] = value
