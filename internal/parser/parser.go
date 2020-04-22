@@ -2,13 +2,13 @@ package parser
 
 import (
 	"errors"
-	"github.com/otrego/clamshell/internal/game"
+	"github.com/otrego/clamshell/game"
 	"github.com/otrego/clamshell/internal/scanner"
 	"io"
 	"strings"
 )
 
-// the Parser uses a scanner to construct an Sgf object (the Game attribute)
+// Parser uses a scanner to construct an Sgf object (the Game attribute)
 // By including the token and save attributes, we can "cache" one token
 // and "unscan" once
 type Parser struct {
@@ -18,12 +18,13 @@ type Parser struct {
 	save    bool
 }
 
+// FromString creates a Parser using a string as input
 func FromString(s string) *Parser {
 	r := strings.NewReader(s)
 	return FromReader(r)
 }
 
-// create a new Parser struct, must initialize the Game attribute as well
+// FromReader creates a Parser struct using io.reader as input
 func FromReader(r io.Reader) *Parser {
 	game := game.NewGame()
 	return &Parser{
@@ -59,7 +60,7 @@ func (p *Parser) scanSkipWhitespace() *scanner.Token {
 	return tok
 }
 
-// Parses the root branch
+// Parse parses the root branch
 func (p *Parser) Parse() (*game.Game, error) {
 	if tok := p.scanSkipWhitespace(); tok.Type != scanner.LeftParen {
 		return nil, errors.New("Corrupted sgf: must start with '('")
@@ -83,9 +84,8 @@ func (p *Parser) parseFieldValue() (string, string, error) {
 	// TODO: better erroring
 	if tok = p.scanSkipWhitespace(); tok.Type != scanner.String {
 		return "", "", errors.New("Corrupted sgf: 3")
-	} else {
-		field = tok.Raw
 	}
+	field = tok.Raw
 
 	// parse a left bracket
 	// TODO: better erroring
@@ -96,7 +96,7 @@ func (p *Parser) parseFieldValue() (string, string, error) {
 	// parse anything until a right bracket
 	for {
 		tok = p.scan()
-		if tok.Type == scanner.Eof {
+		if tok.Type == scanner.EOF {
 			return "", "", errors.New("EOF")
 		}
 		if tok.Type == scanner.RightBracket {

@@ -1,10 +1,11 @@
 package game
 
-// A game record (sgf) struct for now is just a root node
+// Game contains the game tree information
 type Game struct {
 	Root *Node
 }
 
+// NewGame creates a Game struct
 func NewGame() *Game {
 	g := &Game{
 		Root: NewNode(),
@@ -12,14 +13,14 @@ func NewGame() *Game {
 	return g
 }
 
-// A node is comprised of key-value pairs (might hold other info someday)
-// keys can be repeated
+// Node contains Properties, Children nodes, and Parent node
 type Node struct {
 	Properties map[string][]string
 	Children   []*Node
 	Parent     *Node
 }
 
+// NewNode creates a Node
 func NewNode() *Node {
 	return &Node{
 		Properties: make(map[string][]string),

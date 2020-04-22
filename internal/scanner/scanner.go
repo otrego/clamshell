@@ -6,8 +6,9 @@ import (
 	"io"
 )
 
+// constants
 const (
-	Eof = iota
+	EOF = iota
 	Whitespace
 	LeftParen
 	RightParen
@@ -21,7 +22,8 @@ const (
 
 var eof = rune(0)
 
-// isWhiteSpace is a check to see if a rune is whitespace (space, tab, newline, carriage return)
+// isWhiteSpace is a check to see if a rune is whitespace
+// (space, tab, newline, carriage return)
 func isWhitespace(ch rune) bool {
 	return ch == ' ' || ch == '\t' || ch == '\n' || ch == '\r'
 }
@@ -31,7 +33,7 @@ func isSpecial(ch rune) bool {
 	return ch == '(' || ch == ')' || ch == '[' || ch == ']' || ch == ';'
 }
 
-// The scanner will "tokenize" the input into Token structs
+// Token contains attributes for the Type of token and the raw string
 type Token struct {
 	Type int
 	Raw  string
@@ -42,7 +44,7 @@ type Scanner struct {
 	*bufio.Reader
 }
 
-// Creates a new scanner object out of an io.Reader interface
+// New creates a scanner object out of an io.Reader interface
 func New(r io.Reader) *Scanner {
 	return &Scanner{bufio.NewReader(r)}
 }
@@ -107,7 +109,7 @@ func (s *Scanner) Scan() *Token {
 		}
 	case eof:
 		return &Token{
-			Type: Eof,
+			Type: EOF,
 			Raw:  "",
 		}
 	default:
