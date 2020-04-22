@@ -1,56 +1,39 @@
-package sgf
+package parser
 
 import (
 	"errors"
+	"github.com/otrego/clamshell/internal/game"
+	"github.com/otrego/clamshell/internal/scanner"
 	"io"
+	"strings"
 )
-
-// A node is comprised of key-value pairs (might hold other info someday)
-type Node struct {
-	Fields map[string]string
-}
-
-func NewNode() *Node {
-	n := &Node{}
-	n.Fields = make(map[string]string)
-	return n
-}
-
-// A game record (sgf) struct for now is just a collection of nodes
-// TODO: this struct should retain the branch structure of game variations
-type Sgf struct {
-	Index int
-	Nodes map[int]*Node
-}
-
-func NewSgf() *Sgf {
-	s := &Sgf{Index: 0}
-	s.Nodes = make(map[int]*Node)
-
-	return s
-}
 
 // the Parser uses a scanner to construct an Sgf object (the Game attribute)
 // By including the token and save attributes, we can "cache" one token
 // and "unscan" once
 type Parser struct {
-	Game    *Sgf
-	scanner *Scanner
-	token   *Token
+	Game    *game.Game
+	scanner *scanner.Scanner
+	token   *scanner.Token
 	save    bool
 }
 
+func FromString(s string) *Parser {
+	r := strings.NewReader(s)
+	return FromReader(r)
+}
+
 // create a new Parser struct, must initialize the Game attribute as well
-func NewParser(r io.Reader) *Parser {
-	game := NewSgf()
+func FromReader(r io.Reader) *Parser {
+	game := game.NewGame()
 	return &Parser{
 		Game:    game,
-		scanner: NewScanner(r),
+		scanner: scanner.New(r),
 	}
 }
 
 // scan one token using the scanner
-func (p *Parser) scan() *Token {
+func (p *Parser) scan() *scanner.Token {
 	// the save bool is used to "rewind" once
 	if p.save {
 		p.save = false
@@ -68,36 +51,37 @@ func (p *Parser) unscan() {
 }
 
 // scanSkipWhitespace is a wrapper around scan() that skips whitespace
-func (p *Parser) scanSkipWhitespace() *Token {
+func (p *Parser) scanSkipWhitespace() *scanner.Token {
 	tok := p.scan()
-	if tok.Type == Whitespace {
+	if tok.Type == scanner.Whitespace {
 		tok = p.scan()
 	}
 	return tok
 }
 
 // Parses the root branch
-func (p *Parser) Parse() (*Sgf, error) {
-	if tok := p.scanSkipWhitespace(); tok.Type != LeftParen {
+func (p *Parser) Parse() (*game.Game, error) {
+	if tok := p.scanSkipWhitespace(); tok.Type != scanner.LeftParen {
 		return nil, errors.New("Corrupted sgf: must start with '('")
 	}
-	err := p.parseBranch()
+	g := game.NewGame()
+	err := p.parseBranch(g.Root)
 	if err != nil {
 		return nil, err
 	}
-	return p.Game, nil
+	return g, nil
 }
 
 // parse, for example "PW[Player White]" into
 // field="PW"
 // value="Player White"
 func (p *Parser) parseFieldValue() (string, string, error) {
-	var tok *Token
+	var tok *scanner.Token
 	var field string
 	var value string
 	// parse a string
 	// TODO: better erroring
-	if tok = p.scanSkipWhitespace(); tok.Type != String {
+	if tok = p.scanSkipWhitespace(); tok.Type != scanner.String {
 		return "", "", errors.New("Corrupted sgf: 3")
 	} else {
 		field = tok.Raw
@@ -105,17 +89,17 @@ func (p *Parser) parseFieldValue() (string, string, error) {
 
 	// parse a left bracket
 	// TODO: better erroring
-	if tok = p.scanSkipWhitespace(); tok.Type != LeftBracket {
+	if tok = p.scanSkipWhitespace(); tok.Type != scanner.LeftBracket {
 		return "", "", errors.New("Corrupted sgf: 4")
 	}
 
 	// parse anything until a right bracket
 	for {
 		tok = p.scan()
-		if tok.Type == Eof {
+		if tok.Type == scanner.Eof {
 			return "", "", errors.New("EOF")
 		}
-		if tok.Type == RightBracket {
+		if tok.Type == scanner.RightBracket {
 			break
 		}
 		value += tok.Raw
@@ -125,22 +109,25 @@ func (p *Parser) parseFieldValue() (string, string, error) {
 }
 
 // parseBranch only gets called right after we consumed a "("
-func (p *Parser) parseBranch() error {
+func (p *Parser) parseBranch(cur *game.Node) error {
 	// loop through looking for nodes and branches
 	for {
 		// scan a token
 		tok := p.scanSkipWhitespace()
 		switch tok.Type {
 		// if it's a semicolon, parse a node
-		case Semicolon:
+		case scanner.Semicolon:
 			node := p.parseNode()
-			p.Game.Nodes[p.Game.Index] = node
-			p.Game.Index++
+			cur.Children = append(cur.Children, node)
+			node.Parent = cur
+			cur = node
 		// if it's a left paren, parse a branch (recursive)
-		case LeftParen:
-			p.parseBranch()
+		case scanner.LeftParen:
+			if err := p.parseBranch(cur); err != nil {
+				return err
+			}
 		// if it's a right paren, return
-		case RightParen:
+		case scanner.RightParen:
 			return nil
 		// otherwise throw an error
 		default:
@@ -151,21 +138,24 @@ func (p *Parser) parseBranch() error {
 }
 
 // parseNode only gets called right after we consumed a ";"
-func (p *Parser) parseNode() *Node {
-	node := NewNode()
+func (p *Parser) parseNode() *game.Node {
+	node := game.NewNode()
 
 	// the data in a node is pairs of fields and values
 	for {
 		tok := p.scanSkipWhitespace()
 		p.unscan()
 		// a semicolon, rightparen, or leftparen all end the node
-		if tok.Type == Semicolon || tok.Type == RightParen || tok.Type == LeftParen {
+		if tok.Type == scanner.Semicolon || tok.Type == scanner.RightParen || tok.Type == scanner.LeftParen {
 			break
 			// otherwise, parse a field and value
 		} else {
 			field, value, err := p.parseFieldValue()
 			if err == nil {
-				node.Fields[field] = value
+				if v := node.Properties[field]; v == nil {
+					node.Properties[field] = []string{}
+				}
+				node.Properties[field] = append(node.Properties[field], value)
 			}
 		}
 	}

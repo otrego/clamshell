@@ -1,8 +1,7 @@
-package sgf
+package parser_test
 
 import (
-	"fmt"
-	"strings"
+	"github.com/otrego/clamshell/internal/parser"
 	"testing"
 )
 
@@ -39,19 +38,17 @@ PW[Player White [1k\]]PB[Player Black [3k\]]C[This (yes;) is a [5k\] comment]
 (;W[cn]
 ;B[jp])
 (;W[qo])))`
-	r := strings.NewReader(s)
-	parser := NewParser(r)
-	game, err := parser.Parse()
+	p := parser.FromString(s)
+	game, err := p.Parse()
 	if err != nil {
 		t.Error(err)
 	}
-	if pw := game.Nodes[0].Fields["PW"]; pw != "Player White [1k\\]" {
+	node := game.Root.Children[0]
+
+	if pw := node.Properties["PW"][0]; pw != "Player White [1k\\]" {
 		t.Errorf("PW=%v, expected %v", pw, "Player White [1k\\]")
 	}
-	if pb := game.Nodes[0].Fields["PB"]; pb != "Player Black [3k\\]" {
+	if pb := node.Properties["PB"][0]; pb != "Player Black [3k\\]" {
 		t.Errorf("PB=%v, expected %v", pb, "Player Black [3k\\]")
-	}
-	for i := 0; i < game.Index; i++ {
-		fmt.Println(game.Nodes[i])
 	}
 }

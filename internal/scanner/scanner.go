@@ -1,4 +1,4 @@
-package sgf
+package scanner
 
 import (
 	"bufio"
@@ -16,6 +16,7 @@ const (
 	Semicolon
 	Backslash
 	String
+	Illegal
 )
 
 var eof = rune(0)
@@ -42,7 +43,7 @@ type Scanner struct {
 }
 
 // Creates a new scanner object out of an io.Reader interface
-func NewScanner(r io.Reader) *Scanner {
+func New(r io.Reader) *Scanner {
 	return &Scanner{bufio.NewReader(r)}
 }
 
@@ -104,9 +105,14 @@ func (s *Scanner) Scan() *Token {
 			Type: Semicolon,
 			Raw:  ";",
 		}
-	default:
+	case eof:
 		return &Token{
 			Type: Eof,
+			Raw:  "",
+		}
+	default:
+		return &Token{
+			Type: Illegal,
 			Raw:  "",
 		}
 	}
