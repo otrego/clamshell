@@ -10,6 +10,7 @@ func TestCreate(t *testing.T) {
 (;GM[1]FF[4]CA[UTF-8]AP[CGoban:3]ST[2]
 RU[Japanese]SZ[19]KM[6.50]
 PW[Player White [1k\]]PB[Player Black [3k\]]C[This (yes;) is a [5k\] comment]
+;AW[jj][ki]
 ;B[pd]C[Watcher [10k\]: hello world]
 ;W[dd]
 ;B[pq]
@@ -50,5 +51,9 @@ PW[Player White [1k\]]PB[Player Black [3k\]]C[This (yes;) is a [5k\] comment]
 	}
 	if pb := node.Properties["PB"][0]; pb != "Player Black [3k\\]" {
 		t.Errorf("PB=%v, expected %v", pb, "Player Black [3k\\]")
+	}
+	nxt := node.Children[0]
+	if aw := nxt.Properties["AW"]; len(aw) < 2 || aw[0] != "jj" || aw[1] != "ki" {
+		t.Errorf("AW=%v, expected %v", aw, []string{"jj", "ki"})
 	}
 }

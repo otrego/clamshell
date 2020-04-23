@@ -76,36 +76,44 @@ func (p *Parser) Parse() (*game.Game, error) {
 // parse, for example "PW[Player White]" into
 // field="PW"
 // value="Player White"
-func (p *Parser) parseFieldValue() (string, string, error) {
+func (p *Parser) parseProperties() (string, []string, error) {
 	var tok *scanner.Token
 	var field string
-	var value string
+	values := []string{}
+	//var value string
 	// parse a string
 	// TODO: better erroring
 	if tok = p.scanSkipWhitespace(); tok.Type != scanner.String {
-		return "", "", errors.New("Corrupted sgf: 3")
+		return "", []string{}, errors.New("Error parsing properties")
 	}
 	field = tok.Raw
 
-	// parse a left bracket
-	// TODO: better erroring
-	if tok = p.scanSkipWhitespace(); tok.Type != scanner.LeftBracket {
-		return "", "", errors.New("Corrupted sgf: 4")
-	}
-
-	// parse anything until a right bracket
+	// can have multiple values
 	for {
-		tok = p.scan()
-		if tok.Type == scanner.EOF {
-			return "", "", errors.New("EOF")
-		}
-		if tok.Type == scanner.RightBracket {
+
+		// parse a left bracket
+		// TODO: better erroring
+		if tok = p.scanSkipWhitespace(); tok.Type != scanner.LeftBracket {
+			p.unscan()
 			break
 		}
-		value += tok.Raw
+		value := ""
+
+		// parse anything until a right bracket
+		for {
+			tok = p.scan()
+			if tok.Type == scanner.EOF {
+				return "", []string{}, errors.New("EOF")
+			}
+			if tok.Type == scanner.RightBracket {
+				break
+			}
+			value += tok.Raw
+		}
+		values = append(values, value)
 	}
 
-	return field, value, nil
+	return field, values, nil
 }
 
 // parseBranch only gets called right after we consumed a "("
@@ -150,12 +158,12 @@ func (p *Parser) parseNode() *game.Node {
 			break
 			// otherwise, parse a field and value
 		} else {
-			field, value, err := p.parseFieldValue()
+			field, values, err := p.parseProperties()
 			if err == nil {
 				if v := node.Properties[field]; v == nil {
 					node.Properties[field] = []string{}
 				}
-				node.Properties[field] = append(node.Properties[field], value)
+				node.Properties[field] = append(node.Properties[field], values...)
 			}
 		}
 	}
