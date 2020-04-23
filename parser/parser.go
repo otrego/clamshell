@@ -3,7 +3,7 @@ package parser
 import (
 	"errors"
 	"github.com/otrego/clamshell/game"
-	"github.com/otrego/clamshell/internal/scanner"
+	"github.com/otrego/clamshell/scanner"
 	"io"
 	"strings"
 )
