@@ -5,3 +5,5 @@ weiqi, igo).
 
 For getting started with Clamshell and the technologies we use (Git, Go), check
 out our [Contributing guide](CONTRIBUTING.md).
+
+HEY!
