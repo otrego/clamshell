@@ -1,7 +1,7 @@
 package parser_test
 
 import (
-	"github.com/otrego/clamshell/parser"
+	"github.com/otrego/clamshell/core/parser"
 	"testing"
 )
 
