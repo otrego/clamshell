@@ -22,7 +22,7 @@ const (
 
 var eof = rune(0)
 
-// isWhiteSpace is a check to see if a rune is whitespace
+// isWhitespace is a check to see if a rune is whitespace
 // (space, tab, newline, carriage return)
 func isWhitespace(ch rune) bool {
 	return ch == ' ' || ch == '\t' || ch == '\n' || ch == '\r'

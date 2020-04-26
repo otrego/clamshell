@@ -6,7 +6,7 @@ type Game struct {
 }
 
 // NewGame creates a Game struct
-func NewGame() *Game {
+func New() *Game {
 	g := &Game{
 		Root: NewNode(),
 	}

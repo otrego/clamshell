@@ -8,11 +8,10 @@ import (
 	"strings"
 )
 
-// Parser uses a scanner to construct an Sgf object (the Game attribute)
+// Parser uses a scanner to construct an Sgf object
 // By including the token and save attributes, we can "cache" one token
 // and "unscan" once
 type Parser struct {
-	Game    *game.Game
 	scanner *scanner.Scanner
 	token   *scanner.Token
 	save    bool
@@ -26,9 +25,7 @@ func FromString(s string) *Parser {
 
 // FromReader creates a Parser struct using io.reader as input
 func FromReader(r io.Reader) *Parser {
-	game := game.NewGame()
 	return &Parser{
-		Game:    game,
 		scanner: scanner.New(r),
 	}
 }
@@ -65,7 +62,7 @@ func (p *Parser) Parse() (*game.Game, error) {
 	if tok := p.scanSkipWhitespace(); tok.Type != scanner.LeftParen {
 		return nil, errors.New("Corrupted sgf: must start with '('")
 	}
-	g := game.NewGame()
+	g := game.New()
 	err := p.parseBranch(g.Root)
 	if err != nil {
 		return nil, err
