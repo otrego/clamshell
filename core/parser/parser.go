@@ -2,8 +2,8 @@ package parser
 
 import (
 	"errors"
-	"github.com/otrego/clamshell/game"
-	"github.com/otrego/clamshell/scanner"
+	"github.com/otrego/clamshell/core/game"
+	"github.com/otrego/clamshell/core/scanner"
 	"io"
 	"strings"
 )
