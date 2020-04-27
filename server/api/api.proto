@@ -1,11 +1,11 @@
 syntax = "proto3";
 
-option go_package = "github.com/otrego/clamshell/server";
+option go_package = "github.com/otrego/clamshell/server/api";
 
-package api;
+package server.api;
 
-// Interface exported by the server.
-service RouteGuide {
+// gRPC Interface.
+service FooService {
   // GetFoo gets a single Foo.
   rpc GetFoo(FooRequest) returns (Foo) {}
 
