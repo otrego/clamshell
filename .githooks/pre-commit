@@ -31,8 +31,10 @@ do
   OUTPUT=$(gofmt -d -e $FILE >&1)
   if [[ $OUTPUT != "" ]]; then
     echo "$OUTPUT"
-    echo "----"
+    printf "\tgofmt $FILE ${TERM_BLACK}${TERM_BACKGROUND_RED}FAILED${TERM_END_COLOR}\n"
     PASS=false
+  else
+    printf "\tgofmt $FILE ${TERM_GREEN}pass${TERM_END_COLOR}\n"
   fi
 
   # Run golint on the staged file and check the exit status
