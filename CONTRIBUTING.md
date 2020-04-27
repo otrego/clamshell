@@ -112,7 +112,7 @@ workflow. The general flow should be:
 3.  Get your code reviewed by a team member.
 4.  Once approved, submit the changes.
 
-Despite it's perils, I've found that rebase is a little easier to work with and
+Despite its perils, I've found that rebase is a little easier to work with and
 understand than merge when doing development on the local copy of your fork.
 
 Word of caution: **Avoid using merge and rebase together**. That way lies peril.
