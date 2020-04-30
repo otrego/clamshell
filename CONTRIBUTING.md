@@ -50,6 +50,16 @@ In general, once you install the Go programming language, you should set
 setting GOPATH, check out the 
 [golang wiki](https://github.com/golang/go/wiki/SettingGOPATH).
 
+Additionally, you will want to set up your `GOBIN` path. This is the path where binaries from programs built by go
+should reside and will enable you to run applications like `golint`.  This can be done just like setting `GOPATH` with 
+the addition of adding `GOBIN` to your system's `PATH`. On OSX or Linux using bash, you could use the following to
+ append these to your `$HOME/.bash_profile`:
+```shell
+export GOPATH=$HOME/go
+export GOBIN=$GOPATH/bin
+export PATH=$GOBIN:$PATH
+``` 
+
 Assuming you have created a fork of Clamshell (see Development Model), then
 create the relevant directories & clone the repo:
 
@@ -73,6 +83,23 @@ Then, make sure it builds!
 ```shell
 cd $GOPATH/src/github.com/otrego/clamshell
 go test ./...
+```
+
+Before you are ready to commit your changes, we recommend doing the following:
+1. Install golint
+```shell
+go get -u golang.org/x/lint/golint
+``` 
+2. Enable the pre-commit hooks in this repository
+```shell
+git config core.hooksPath .githooks
+```
+
+3. Run the following to ensure go code quality
+```shell
+gofmt
+golint
+govet 
 ```
 
 ## Change Workflow
