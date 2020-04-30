@@ -29,5 +29,5 @@ message Foo {
 
 // Many Foos.
 message FooCollection {
-  repeated Foo foo = 1;
+  repeated Foo foos = 1;
 }
