@@ -1,6 +1,6 @@
 # API
 
-Protocol buffer installation:
+Installing Protocol buffers:
 
 1. `go get google.golang.org/grpc`
 2. `go get github.com/golang/protobuf`
@@ -10,7 +10,7 @@ Protocol buffer installation:
 
 
 Note:  Don't install: `google.golang.org/protobuf/cmd/protoc-gen-go`. This
-doesn't support gRPC yet. See: https://stackoverflow.com/questions/60578892/protoc-gen-go-grpc-program-not-found-or-is-not-executable
+does not support gRPC yet. See: this [StackOverflow Article](https://stackoverflow.com/questions/60578892/protoc-gen-go-grpc-program-not-found-or-is-not-executable)
 
 Generation:
 

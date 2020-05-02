@@ -19,3 +19,6 @@
 # vendor/
 
 tmp
+
+# Ignore server binary
+/server/server
