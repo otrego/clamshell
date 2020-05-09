@@ -32,6 +32,25 @@ If you're new to Git / Github, check out:
         Specifically, we use an [Integration-Manager workflow (Github)](https://git-scm.com/book/en/v2/Distributed-Git-Distributed-Workflows#wfdiag_b).
 2.  [Getting Started with Github](https://help.github.com/en/github/getting-started-with-github)
 
+## Editors
+
+You are, of course, free to use whichever text editor you feel most comfortable
+with. Many people working on Clamshell use Vim or IntelliJ, so we can help you
+get started with these editors.
+
+**Vim**
+*   [`vimtutor`](https://superuser.com/questions/246487/how-to-use-vimtutor) run
+    from the Bash command-line is the easiest way to get started with Vim.
+*   If you want to delve deep into learning about Vim, check out
+    [Vim the Hard Way](https://learnvimscriptthehardway.stevelosh.com/)
+*   Install a plugin manager: [Vim-Plug](https://github.com/junegunn/vim-plug) or
+    [Vundle](https://github.com/VundleVim/Vundle.vim) are good choices.
+*   Install the go-plugin for Vim: [vim-go](https://github.com/fatih/vim-go)
+
+**IntelliJ**
+
+TODO: Add some details about IntelliJ. Pull requests welcome!
+
 ## Setting Up Your Dev Environment
 
 First, make sure you have
