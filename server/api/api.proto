@@ -2,15 +2,26 @@ syntax = "proto3";
 
 option go_package = "github.com/otrego/clamshell/server/api";
 
+import "google/api/annotations.proto";
+import "protoc-gen-swagger/options/annotations.proto";
+
 package server.api;
 
 // gRPC Interface.
 service FooService {
   // GetFoo gets a single Foo.
-  rpc GetFoo(FooRequest) returns (Foo) {}
+  rpc GetFoo(FooRequest) returns (Foo) {
+    option (google.api.http) = {
+      post: "/v1/foo/{id}"
+    };
+  }
 
   // ListFoo lists all the Foos.
-  rpc ListFoo(EmptyRequest) returns (FooCollection) {}
+  rpc ListFoo(EmptyRequest) returns (FooCollection) {
+    option (google.api.http) = {
+      get: "/v1/foo"
+    };
+  }
 }
 
 // EmptyRequest is contains no content.
@@ -19,7 +30,7 @@ message EmptyRequest {}
 
 // FooRequest requests a single Foo
 message FooRequest {
-  string id = 1;
+  string id = 1 [(grpc.gateway.protoc_gen_swagger.options.openapiv2_field) = {description: "Foo ID."}];
 }
 
 // A Foo.
