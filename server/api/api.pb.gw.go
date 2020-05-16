@@ -31,8 +31,8 @@ var _ = runtime.String
 var _ = utilities.NewDoubleArray
 var _ = descriptor.ForMessage
 
-func request_FooService_GetFoo_0(ctx context.Context, marshaler runtime.Marshaler, client FooServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq FooRequest
+func request_EchoService_GetEchoMessage_0(ctx context.Context, marshaler runtime.Marshaler, client EchoServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq EchoRequest
 	var metadata runtime.ServerMetadata
 
 	var (
@@ -53,13 +53,13 @@ func request_FooService_GetFoo_0(ctx context.Context, marshaler runtime.Marshale
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
 	}
 
-	msg, err := client.GetFoo(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	msg, err := client.GetEchoMessage(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 
 }
 
-func local_request_FooService_GetFoo_0(ctx context.Context, marshaler runtime.Marshaler, server FooServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq FooRequest
+func local_request_EchoService_GetEchoMessage_0(ctx context.Context, marshaler runtime.Marshaler, server EchoServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq EchoRequest
 	var metadata runtime.ServerMetadata
 
 	var (
@@ -80,35 +80,35 @@ func local_request_FooService_GetFoo_0(ctx context.Context, marshaler runtime.Ma
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
 	}
 
-	msg, err := server.GetFoo(ctx, &protoReq)
+	msg, err := server.GetEchoMessage(ctx, &protoReq)
 	return msg, metadata, err
 
 }
 
-func request_FooService_ListFoo_0(ctx context.Context, marshaler runtime.Marshaler, client FooServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_EchoService_ListEchoMessages_0(ctx context.Context, marshaler runtime.Marshaler, client EchoServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq EmptyRequest
 	var metadata runtime.ServerMetadata
 
-	msg, err := client.ListFoo(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	msg, err := client.ListEchoMessages(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 
 }
 
-func local_request_FooService_ListFoo_0(ctx context.Context, marshaler runtime.Marshaler, server FooServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_EchoService_ListEchoMessages_0(ctx context.Context, marshaler runtime.Marshaler, server EchoServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq EmptyRequest
 	var metadata runtime.ServerMetadata
 
-	msg, err := server.ListFoo(ctx, &protoReq)
+	msg, err := server.ListEchoMessages(ctx, &protoReq)
 	return msg, metadata, err
 
 }
 
-// RegisterFooServiceHandlerServer registers the http handlers for service FooService to "mux".
-// UnaryRPC     :call FooServiceServer directly.
+// RegisterEchoServiceHandlerServer registers the http handlers for service EchoService to "mux".
+// UnaryRPC     :call EchoServiceServer directly.
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
-func RegisterFooServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, server FooServiceServer) error {
+func RegisterEchoServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, server EchoServiceServer) error {
 
-	mux.Handle("POST", pattern_FooService_GetFoo_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("GET", pattern_EchoService_GetEchoMessage_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
@@ -117,18 +117,18 @@ func RegisterFooServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_FooService_GetFoo_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_EchoService_GetEchoMessage_0(rctx, inboundMarshaler, server, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_FooService_GetFoo_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_EchoService_GetEchoMessage_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
-	mux.Handle("GET", pattern_FooService_ListFoo_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("GET", pattern_EchoService_ListEchoMessages_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
@@ -137,23 +137,23 @@ func RegisterFooServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_FooService_ListFoo_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_EchoService_ListEchoMessages_0(rctx, inboundMarshaler, server, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_FooService_ListFoo_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_EchoService_ListEchoMessages_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
 	return nil
 }
 
-// RegisterFooServiceHandlerFromEndpoint is same as RegisterFooServiceHandler but
+// RegisterEchoServiceHandlerFromEndpoint is same as RegisterEchoServiceHandler but
 // automatically dials to "endpoint" and closes the connection when "ctx" gets done.
-func RegisterFooServiceHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
+func RegisterEchoServiceHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
 	conn, err := grpc.Dial(endpoint, opts...)
 	if err != nil {
 		return err
@@ -173,23 +173,23 @@ func RegisterFooServiceHandlerFromEndpoint(ctx context.Context, mux *runtime.Ser
 		}()
 	}()
 
-	return RegisterFooServiceHandler(ctx, mux, conn)
+	return RegisterEchoServiceHandler(ctx, mux, conn)
 }
 
-// RegisterFooServiceHandler registers the http handlers for service FooService to "mux".
+// RegisterEchoServiceHandler registers the http handlers for service EchoService to "mux".
 // The handlers forward requests to the grpc endpoint over "conn".
-func RegisterFooServiceHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn) error {
-	return RegisterFooServiceHandlerClient(ctx, mux, NewFooServiceClient(conn))
+func RegisterEchoServiceHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn) error {
+	return RegisterEchoServiceHandlerClient(ctx, mux, NewEchoServiceClient(conn))
 }
 
-// RegisterFooServiceHandlerClient registers the http handlers for service FooService
-// to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "FooServiceClient".
-// Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "FooServiceClient"
+// RegisterEchoServiceHandlerClient registers the http handlers for service EchoService
+// to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "EchoServiceClient".
+// Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "EchoServiceClient"
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
-// "FooServiceClient" to call the correct interceptors.
-func RegisterFooServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, client FooServiceClient) error {
+// "EchoServiceClient" to call the correct interceptors.
+func RegisterEchoServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, client EchoServiceClient) error {
 
-	mux.Handle("POST", pattern_FooService_GetFoo_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("GET", pattern_EchoService_GetEchoMessage_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
@@ -198,18 +198,18 @@ func RegisterFooServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_FooService_GetFoo_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_EchoService_GetEchoMessage_0(rctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_FooService_GetFoo_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_EchoService_GetEchoMessage_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
-	mux.Handle("GET", pattern_FooService_ListFoo_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("GET", pattern_EchoService_ListEchoMessages_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
@@ -218,14 +218,14 @@ func RegisterFooServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_FooService_ListFoo_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_EchoService_ListEchoMessages_0(rctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_FooService_ListFoo_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_EchoService_ListEchoMessages_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -233,13 +233,13 @@ func RegisterFooServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 }
 
 var (
-	pattern_FooService_GetFoo_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "foo", "id"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_EchoService_GetEchoMessage_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "echo", "id"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_FooService_ListFoo_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "foo"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_EchoService_ListEchoMessages_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "echo"}, "", runtime.AssumeColonVerbOpt(true)))
 )
 
 var (
-	forward_FooService_GetFoo_0 = runtime.ForwardResponseMessage
+	forward_EchoService_GetEchoMessage_0 = runtime.ForwardResponseMessage
 
-	forward_FooService_ListFoo_0 = runtime.ForwardResponseMessage
+	forward_EchoService_ListEchoMessages_0 = runtime.ForwardResponseMessage
 )

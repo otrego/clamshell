@@ -8,18 +8,18 @@ import "protoc-gen-swagger/options/annotations.proto";
 package server.api;
 
 // gRPC Interface.
-service FooService {
-  // GetFoo gets a single Foo.
-  rpc GetFoo(FooRequest) returns (Foo) {
+service EchoService {
+  // GetEchoMessage gets a single EchoMessage
+  rpc GetEchoMessage(EchoRequest) returns (EchoMessage) {
     option (google.api.http) = {
-      post: "/v1/foo/{id}"
+      get: "/v1/echo/{id}"
     };
   }
 
-  // ListFoo lists all the Foos.
-  rpc ListFoo(EmptyRequest) returns (FooCollection) {
+  // ListEchoMessage lists all the EchoMessages.
+  rpc ListEchoMessages(EmptyRequest) returns (EchoMessageCollection) {
     option (google.api.http) = {
-      get: "/v1/foo"
+      get: "/v1/echo"
     };
   }
 }
@@ -28,17 +28,17 @@ service FooService {
 message EmptyRequest {}
 
 
-// FooRequest requests a single Foo
-message FooRequest {
-  string id = 1 [(grpc.gateway.protoc_gen_swagger.options.openapiv2_field) = {description: "Foo ID."}];
+// EchoRequest contains a request for an echo-message.
+message EchoRequest {
+  string id = 1 [(grpc.gateway.protoc_gen_swagger.options.openapiv2_field) = {description: "Echo Message ID."}];
 }
 
-// A Foo.
-message Foo {
+// An EchoMessage
+message EchoMessage {
   string content = 1;
 }
 
-// Many Foos.
-message FooCollection {
-  repeated Foo foos = 1;
+// EchoMessageCollection is a collection of EchoMessages
+message EchoMessageCollection {
+  repeated EchoMessage echo_messages = 1;
 }
