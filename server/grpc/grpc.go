@@ -25,7 +25,7 @@ func Run(opts *Options) {
 	addr := fmt.Sprintf("localhost:%d", opts.Port)
 	lis, err := net.Listen("tcp", addr)
 	if err != nil {
-		log.Fatalf("failed to dial to addr: %v", addr, err)
+		log.Fatalf("failed to dial to addr %s: %v", addr, err)
 	}
 	grpcServer := initGRPCServer(opts)
 	log.Infof("listening on :%d", opts.Port)
