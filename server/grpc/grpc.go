@@ -12,13 +12,13 @@ import (
 	"github.com/otrego/clamshell/server/echo"
 )
 
-// Options contains options for running gRPC
+// Options contains options for running gRPC.
 type Options struct {
-	// Port to listen on
+	// Port to listen on.
 	Port int
 }
 
-// Run starts an in-process gRPC gateway and gRPC server.
+// Run starts a gRPC server.
 //
 // The server will be shutdown when "ctx" is canceled.
 func Run(opts *Options) {
