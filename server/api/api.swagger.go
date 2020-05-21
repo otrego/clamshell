@@ -1,5 +1,6 @@
 package api
 
+// Swagger contains embedded swagger data.
 const Swagger = `
 {
   "swagger": "2.0",

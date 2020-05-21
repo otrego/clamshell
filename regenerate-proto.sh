@@ -31,6 +31,7 @@ protoc --swagger_out=logtostderr=true:. \
 SWAG_GO="./server/api/api.swagger.go"
 echo 'package api' > "${SWAG_GO}"
 echo '' >> "${SWAG_GO}"
+echo '// Swagger contains embedded swagger data.' >> "${SWAG_GO}"
 echo 'const Swagger = `' >> "${SWAG_GO}"
 cat ./server/api/api.swagger.json | sed 's/`/'"'"'/g' >> "${SWAG_GO}"
 echo '`' >> "${SWAG_GO}"

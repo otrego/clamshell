@@ -60,7 +60,7 @@ func initGRPCServer() *grpc.Server {
 	// just use gRPC Gateway directly and skip serving a gRPC endpoint.
 	var gopts []grpc.ServerOption
 	grpcServer := grpc.NewServer(gopts...)
-	pb.RegisterEchoServiceServer(grpcServer, &echo.EchoServer{})
+	pb.RegisterEchoServiceServer(grpcServer, &echo.Server{})
 	return grpcServer
 }
 
@@ -74,7 +74,7 @@ func serveSwaggerDefinition(mux *http.ServeMux) {
 func serveGRPCGateway(ctx context.Context, mux *http.ServeMux) {
 	// TODO(kashomon): Add TLS / credentials.
 	gwmux := runtime.NewServeMux()
-	pb.RegisterEchoServiceHandlerServer(ctx, gwmux, &echo.EchoServer{})
+	pb.RegisterEchoServiceHandlerServer(ctx, gwmux, &echo.Server{})
 	mux.Handle("/", gwmux)
 }
 
