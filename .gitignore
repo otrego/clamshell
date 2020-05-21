@@ -22,3 +22,5 @@ tmp
 
 # Ignore server binary
 /server/server
+# Ignore generated code
+server/gen
