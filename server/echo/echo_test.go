@@ -1,4 +1,4 @@
-// This is an integration-style test of test.
+// This is an integration-style test of the echo server.
 package echo
 
 import (
