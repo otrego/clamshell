@@ -3,7 +3,9 @@
 
 ## Our Values
 
-Clear communication is foundational for healthy collaboration. We value the time needed to be thoughtful in how we communicate and value the time contributors offer to the project. We make efforts to counter prejudice and biases against contributors and contributions. Ultimately, we put personal development ahead of production.
+Clear communication is foundational for healthy collaboration. We value the time needed to be thoughtful in how we communicate and value the time contributors offer to the project. We make efforts to counter prejudice and biases against contributors and contributions, and prioritize transparency in code and code reviews. Ultimately, we put personal development ahead of production.
+
+A culture of collaboration means valuing our contributors' different backgrounds and distinct contributions. We encourage reaching out to offer assistance and taking opportunities for mentorship that arise.
 
 As representatives of the go community, we strive for a welcoming environment. We aim to promote growth of the game and expand public knowledge of go, from the board to go’s intersections with technology and self-knowledge.
 
@@ -60,5 +62,4 @@ This Code of Conduct is adapted from the [Contributor Covenant](https://www.cont
 -   Don’t be destructive or inflammatory.
 -   Be mindful that your actions reflect on the wider go community.
 -   If you encounter an issue, please mail conduct@otrego.com.
-
 
