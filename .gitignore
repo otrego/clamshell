@@ -22,3 +22,8 @@ tmp
 
 # Ignore server binary
 /server/server
+
+# Terraform
+tf/.terraform
+tf/*.plan
+tf/*.state
