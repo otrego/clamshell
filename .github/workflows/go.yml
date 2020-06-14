@@ -48,18 +48,3 @@ jobs:
       - name: Terraform Apply
         id: tf-apply
         run: terraform apply plan.tfplan
-
-
-
-# https://github.com/otrego/clamshell/settings/secrets/new
-# https://github.com/GoogleCloudPlatform/github-actions
-  # deploy:
-  #   steps:
-  #   - uses: actions/checkout@v2
-  #   - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
-  #     with:
-  #       version: '290.0.1'
-  #       project_id: ${{ secrets.DEV_GCP_PROJECT_ID }}
-  #       service_account_key: ${{ secrets.DEV_GCP_SA_KEY }}
-  #       export_default_credentials: true
-  #   - run: gcloud info
