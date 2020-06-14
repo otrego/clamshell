@@ -29,7 +29,11 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: hashicorp/setup-terraform@v1
+
+      - name: Login to GCP
+        uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
         with:
+          version: '281.0.0'
           service_account_key: ${{ secrets.DEV_GCP_SA_KEY }}
           export_default_credentials: true
 
