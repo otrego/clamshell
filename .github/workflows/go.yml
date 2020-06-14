@@ -40,7 +40,6 @@ jobs:
       - name: Terraform Init
         id: init
         run: terraform init -input=false -var="api_docker_image=gcr.io/google-samples/hello-app:2.0" tf/
-        
 
       - name: Terraform Plan
         id: plan
