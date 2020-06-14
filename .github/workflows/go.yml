@@ -8,26 +8,39 @@ on:
 
 jobs:
 
-  build:
-    name: Build
+#   build:
+#     name: Build
+#     runs-on: ubuntu-latest
+#     steps:
+#     - uses: actions/checkout@v2
+#     - name: Set up Go 1.14
+#       uses: actions/setup-go@v2
+#       with:
+#         go-version: 1.14
+#       id: go
+#     - name: Test
+#       run: go test -coverprofile=cover.out ./...
+
+  deploy:
+    name: Deploy Dev
     runs-on: ubuntu-latest
+#     if: github.event.pull_request.merged == true
+
     steps:
-    - uses: actions/checkout@v2
-    - uses: hashicorp/setup-terraform@v1
+      - uses: actions/checkout@v2
+      - uses: hashicorp/setup-terraform@v1
 
-    - name: Set up Go 1.14
-      uses: actions/setup-go@v2
-      with:
-        go-version: 1.14
-      id: go
-    - name: Test
-      run: go test -coverprofile=cover.out ./...
+      - name: Terraform Init
+        id: init
+        run: terraform init -input=false tf/
 
-    - name: Terraform Init
-      id: init
-      run: terraform init -input=false -from-module=./tf
-      run: terraform plan -out=tfplan -input=false
-      run: terraform apply -input=false -auto-approve tfplan
+      - name: Terraform Plan
+        id: plan
+        run: terraform plan -out=out.tfplan $GITHUB_WORKSPACE/tf/
+
+      - name: Terraform Apply
+        id: tf-apply
+        run: terraform apply -out=plan.tfplan -var="api_docker_image=gcr.io/google-samples/hello-app:2.0" $GITHUB_WORKSPACE/tf/
 
 
 
