@@ -16,7 +16,7 @@ module "gce-container" {
   source = "terraform-google-modules/container-vm/google"
 
   container = {
-    image="gcr.io/google-samples/hello-app:2.0"
+    image = var.api_docker_image
     env = [
       {
         name = "TEST_VAR"
@@ -121,7 +121,3 @@ resource "google_compute_firewall" "default" {
 
   source_tags = ["web"]
 }
-#
-# resource "google_compute_network" "default" {
-#   name = "default"
-# }

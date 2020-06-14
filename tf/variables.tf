@@ -34,3 +34,8 @@ variable "cos_image_name" {
   description = "The forced COS image to use instead of latest"
   default     = "cos-stable-77-12371-89-0"
 }
+
+variable "api_docker_image" {
+  description = "Docker Image of the Otrego API"
+  type        = string
+}

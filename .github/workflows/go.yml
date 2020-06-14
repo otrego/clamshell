@@ -12,8 +12,9 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     steps:
-    - name: Check out code into the Go module directory
-      uses: actions/checkout@v2
+    - uses: actions/checkout@v2
+    - uses: hashicorp/setup-terraform@v1
+
     - name: Set up Go 1.14
       uses: actions/setup-go@v2
       with:
@@ -21,3 +22,24 @@ jobs:
       id: go
     - name: Test
       run: go test -coverprofile=cover.out ./...
+
+    - name: Terraform Init
+      id: init
+      run: terraform init -input=false -from-module=./tf
+      run: terraform plan -out=tfplan -input=false
+      run: terraform apply -input=false -auto-approve tfplan
+
+
+
+# https://github.com/otrego/clamshell/settings/secrets/new
+# https://github.com/GoogleCloudPlatform/github-actions
+  # deploy:
+  #   steps:
+  #   - uses: actions/checkout@v2
+  #   - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+  #     with:
+  #       version: '290.0.1'
+  #       project_id: ${{ secrets.DEV_GCP_PROJECT_ID }}
+  #       service_account_key: ${{ secrets.DEV_GCP_SA_KEY }}
+  #       export_default_credentials: true
+  #   - run: gcloud info
