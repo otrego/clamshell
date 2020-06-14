@@ -39,11 +39,11 @@ jobs:
 
       - name: Terraform Init
         id: init
-        run: terraform init -input=false -var="api_docker_image=gcr.io/google-samples/hello-app:2.0" tf/
+        run: terraform init -input=false tf/
 
       - name: Terraform Plan
         id: plan
-        run: terraform plan -out=out.tfplan $GITHUB_WORKSPACE/tf/
+        run: terraform plan -out=out.tfplan -var="api_docker_image=gcr.io/google-samples/hello-app:2.0" $GITHUB_WORKSPACE/tf/
 
       - name: Terraform Apply
         id: tf-apply
