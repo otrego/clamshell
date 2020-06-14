@@ -32,7 +32,7 @@ func Run(opts *Options) {
 	ctx := context.Background()
 
 	// Listen on addr
-	addr := fmt.Sprintf("localhost:%d", opts.Port)
+	addr := fmt.Sprintf("0.0.0.0:%d", opts.Port)
 
 	// Initialize both the http and grpc handlers.
 	grpcServer := initGRPCServer()

@@ -18,8 +18,9 @@ go test ./...
 
 This assumes that you have familiarity with and have installed the following:
 
-1.   [Go](https://golang.org/doc/install)
+1.   [Go(lang)](https://golang.org/doc/install)
 2.   [Git](https://git-scm.com/book/en/v2)
+2.   [Docker](https://www.docker.com/get-started). In particular, Docker Desktop.
 
 ### Inital OS Setup
 
