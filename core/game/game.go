@@ -5,7 +5,7 @@ type Game struct {
 	Root *Node
 }
 
-// NewGame creates a Game struct
+// New creates a Game struct.
 func New() *Game {
 	g := &Game{
 		Root: NewNode(),
