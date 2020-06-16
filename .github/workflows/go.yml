@@ -48,3 +48,25 @@ jobs:
       - name: Terraform Apply
         id: tf-apply
         run: terraform apply plan.tfplan
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    - name: check
+      uses: grandcolline/golang-github-actions@v1.1.0
+      with:
+        run: lint
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+  shadow:
+    name: Shadow
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    - name: check
+      uses: grandcolline/golang-github-actions@v1.1.0
+      with:
+        run: shadow
+        token: ${{ secrets.GITHUB_TOKEN }}
