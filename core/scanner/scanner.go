@@ -6,6 +6,7 @@ import (
 	"io"
 )
 
+// ControlChar is used to specify the "type" of a token
 type ControlChar int
 
 // constants
