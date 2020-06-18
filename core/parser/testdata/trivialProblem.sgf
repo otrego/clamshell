@@ -1,0 +1,9 @@
+(;GM[1]FF[4]CA[UTF-8]AP[CGoban:3]ST[2]
+RU[Japanese]SZ[19]KM[0.00]
+PW[White]PB[Black]GB[1]
+C[Here's an example diagram. I have marked 1 on the diagram.
+Let's pretend it was white's last move.  Think on this move, since
+it may be a problem in the near future!]
+LB[pb:1]
+AW[pb][mc][pc][qd][rd][qf][pg][qg]
+AB[jc][oc][qc][pd][pe][pf])

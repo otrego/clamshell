@@ -39,7 +39,6 @@ func isSpecial(ch rune) bool {
 type Token struct {
 	Type ControlChar
 	Raw  string
-	Num  int
 }
 
 // Scanner wraps bufio.Reader but has the public Scan() function to scan tokens
@@ -89,43 +88,36 @@ func (s *Scanner) Scan() *Token {
 		return &Token{
 			Type: LeftParen,
 			Raw:  "(",
-			Num:  1,
 		}
 	case ')':
 		return &Token{
 			Type: RightParen,
 			Raw:  ")",
-			Num:  1,
 		}
 	case '[':
 		return &Token{
 			Type: LeftBracket,
 			Raw:  "[",
-			Num:  1,
 		}
 	case ']':
 		return &Token{
 			Type: RightBracket,
 			Raw:  "]",
-			Num:  1,
 		}
 	case ';':
 		return &Token{
 			Type: Semicolon,
 			Raw:  ";",
-			Num:  1,
 		}
 	case eof:
 		return &Token{
 			Type: EOF,
 			Raw:  "",
-			Num:  0,
 		}
 	default:
 		return &Token{
 			Type: Illegal,
 			Raw:  "",
-			Num:  0,
 		}
 	}
 }
@@ -148,7 +140,6 @@ func (s *Scanner) scanWhitespace() *Token {
 	return &Token{
 		Type: Whitespace,
 		Raw:  buf.String(),
-		Num:  len(buf.String()),
 	}
 }
 
@@ -175,6 +166,5 @@ func (s *Scanner) scanString() *Token {
 	return &Token{
 		Type: String,
 		Raw:  buf.String(),
-		Num:  len(buf.String()),
 	}
 }

@@ -1,0 +1,14 @@
+(;GM[1]FF[4]CA[UTF-8]AP[CGoban:3]ST[2]
+RU[Japanese]SZ[19]KM[0.00]
+PW[White]PB[Black]AW[pb][mc][pc][qd][rd][qf][pg][qg]
+AB[jc][oc][qc][pd][pe][pf]
+C[Look Familiar?]
+(;B[ob]C[Bad style.]
+;W[qb]
+(;B[nd]C[White's stone can easily escape.])
+(;B[me]C[Lots of bad aji.]))
+(;B[nc]
+(;W[qb]
+;B[md]C[Correct]GB[1])
+(;W[md]
+;B[qb]GB[1]C[White loses his corner])))
