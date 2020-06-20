@@ -25,10 +25,12 @@ jobs:
     name: Deploy Dev
     runs-on: ubuntu-latest
     needs: build
-    if: github.event.pull_request.merged == true || github.event.push.ref == 'refs/heads/master'
+    if: github.event.pull_request.merged == true || (github.event_name == 'push' && github.ref == 'refs/heads/master')
     steps:
       - uses: actions/checkout@v2
       - uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: 0.12.26
 
       - name: Login to GCP
         uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
@@ -43,7 +45,9 @@ jobs:
 
       - name: Terraform Plan
         id: plan
-        run: terraform plan -out=plan.tfplan -var="api_docker_image=gcr.io/google-samples/hello-app:2.0" $GITHUB_WORKSPACE/tf/
+        env:
+          CONTAINER: api_docker_image=gcr.io/google-samples/hello-app:2.0
+        run: terraform plan -out=plan.tfplan -var="api_docker_image=${CONTAINER}" $GITHUB_WORKSPACE/tf/
 
       - name: Terraform Apply
         id: tf-apply

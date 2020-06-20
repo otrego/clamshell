@@ -17,7 +17,7 @@ export GOOGLE_APPLICATION_CREDENTIALS="/Users/mdhoak/.gcloud/otrego-dev-8b549007
 `terraform init`
 
 ### Plan updates to the infrastructure based on local changes.
-`terraform --plan --out=out.tf`
+`terraform --plan --out=out.tfplan`
 
 ### Apply changes to infrastructure.
-`terraform apply "out.tf"`
+`terraform apply "out.tfplan"`
