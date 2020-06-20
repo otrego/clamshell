@@ -3,6 +3,8 @@ terraform {
     bucket  = "otrego-dev-infrastructure"
     prefix  = "terraform/dev/api"
   }
+  # Fix terraform to version 0.12.x
+  required_version = ">= 0.12, < 0.13, < 1.0"
 }
 
 provider "google" {
