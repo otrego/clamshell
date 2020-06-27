@@ -12,7 +12,7 @@ jobs:
     name: Unit Test
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@master
+    - uses: actions/checkout@v2
     - name: Set up Go 1.14
       uses: actions/setup-go@v2
       with:
@@ -25,7 +25,7 @@ jobs:
     name: Lint
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@master
+    - uses: actions/checkout@v2
     - name: check
       uses: grandcolline/golang-github-actions@v1.1.0
       with:
@@ -36,7 +36,7 @@ jobs:
     name: Shadow
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@master
+    - uses: actions/checkout@v2
     - name: check
       uses: grandcolline/golang-github-actions@v1.1.0
       with:
@@ -50,7 +50,7 @@ jobs:
     needs: [test, lint, shadow]
     if: github.event_name == 'push' && github.ref == 'refs/heads/master' && github.repository == 'otrego/clamshell'
     steps:
-      - uses: actions/checkout@master
+      - uses: actions/checkout@v2
       - name: docker-build
         run: docker build -t us.gcr.io/otrego-dev/apiserver:${GITHUB_RUN_NUMBER} .
       - name: Login to GCP
