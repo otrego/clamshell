@@ -9,7 +9,7 @@ programming or to the tools/technologies.
 If you have any bugs, feature requests, questions, or comments, please file
 them on our Issue on our [github tracker](https://github.com/otrego/clamshell/issues)
 
-## Getting Started on Go
+## Getting Started on GoLang
 
 First, if you're new to Go, the language, check out:
 
