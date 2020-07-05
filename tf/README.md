@@ -2,7 +2,8 @@ Our infrastructure is managed with Terraform.
 
 # Setup
 
-## Install terraform
+## Install terraform.
+Note: version 0.12 is required at this time. 
 `brew install terraform`
 `brew install google-cloud-sdk`
 
