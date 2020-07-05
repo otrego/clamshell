@@ -142,7 +142,7 @@ First, here's what my workflow looks like (which is quite similar to this
     ```shell
     git checkout master
     git fetch upstream
-    git merge -i upstream master
+    git merge upstream/master
 
     # update my fork's master branch.
     git push
@@ -164,12 +164,12 @@ First, here's what my workflow looks like (which is quite similar to this
     ```shell
     git checkout master
     git fetch upstream
-    git merge -i upstream master
+    git merge upstream/master
     git push
 
     # Update feature branch
     git checkout somefeature
-    git merge -i master
+    git merge master
 
     git push
     ```
