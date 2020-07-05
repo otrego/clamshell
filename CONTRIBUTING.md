@@ -115,10 +115,11 @@ git config core.hooksPath .githooks
 ```
 
 3. Run the following to ensure go code quality
+
 ```shell
 gofmt
 golint
-govet 
+govet
 ```
 
 ## Change Workflow
@@ -131,11 +132,6 @@ workflow. The general flow should be:
 3.  Get your code reviewed by a team member.
 4.  Once approved, submit the changes.
 
-Despite its perils, I've found that rebase is a little easier to work with and
-understand than merge when doing development on the local copy of your fork.
-
-Word of caution: **Avoid using merge and rebase together**. That way lies peril.
-
 First, here's what my workflow looks like (which is quite similar to this
 [Atlassian guide](https://www.atlassian.com/git/tutorials/git-forks-and-upstreams).
 
@@ -146,7 +142,7 @@ First, here's what my workflow looks like (which is quite similar to this
     ```shell
     git checkout master
     git fetch upstream
-    git rebase -i upstream master
+    git merge -i upstream master
 
     # update my fork's master branch.
     git push
@@ -168,18 +164,14 @@ First, here's what my workflow looks like (which is quite similar to this
     ```shell
     git checkout master
     git fetch upstream
-    git rebase -i upstream master
+    git merge -i upstream master
     git push
 
     # Update feature branch
     git checkout somefeature
-    git rebase -i master
+    git merge -i master
 
     git push
-
-    # If necessary, you might need to force-push the changes, depending on the
-    # nature of the rebase changes.
-    git push --force
     ```
 
 4.  When your change is ready, use the Github UI to get code reviewed & merge
