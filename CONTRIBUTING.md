@@ -28,7 +28,7 @@ If you're new to Git / Github, check out:
 1.  [The Git Book](https://git-scm.com/book/en/v2). In particular, I find these
     sections very helpful:
     1.  [Basic Branching & Merging](https://git-scm.com/book/en/v2/Git-Branching-Basic-Branching-and-Merging)
-    2.  [Distributed Workflows](https://git-scm.com/book/en/v2/Distributed-Git-Distributed-Workflows#ch05-distributed-git). 
+    2.  [Distributed Workflows](https://git-scm.com/book/en/v2/Distributed-Git-Distributed-Workflows#ch05-distributed-git).
         Specifically, we use an [Integration-Manager workflow (Github)](https://git-scm.com/book/en/v2/Distributed-Git-Distributed-Workflows#wfdiag_b).
 2.  [Getting Started with Github](https://help.github.com/en/github/getting-started-with-github)
 
@@ -63,34 +63,33 @@ interact with Clamshell via a
 So generally, developers will fork the Clamshell repository and then submit
 pull requests to the primary `otrego/clamshell` repository.
 
-In general, once you install the Go programming language, you should set
-`GOPATH` to something that suits your tastes. I (kashomon) set `GOPATH` to be
-`$HOME/inprogress/go`, but feel free to set it as you wish. For more about
-setting GOPATH, check out the 
-[golang wiki](https://github.com/golang/go/wiki/SettingGOPATH).
+You will want to set up your `GOPATH` and `GOBIN` environment variables:
 
-Additionally, you will want to set up your `GOBIN` path. This is the path where binaries from programs built by go
-should reside and will enable you to run applications like `golint`.  This can be done just like setting `GOPATH` with 
-the addition of adding `GOBIN` to your system's `PATH`. On OSX or Linux using bash, you could use the following to
- append these to your `$HOME/.bash_profile`:
+- `GOPATH` controls where dependencies are downloaded via `go get`
+- `GOBIN` controls where go binaries are installed.
+
+On OSX or Linux using bash, you can set these by adding the following to your
+`$HOME/.bash_profile` or `$HOME/.bashrc`:
+
 ```shell
 export GOPATH=$HOME/go
 export GOBIN=$GOPATH/bin
 export PATH=$GOBIN:$PATH
 ``` 
 
-Assuming you have created a fork of Clamshell (see Development Model), then
-create the relevant directories & clone the repo:
+Assuming you have created a
+[fork](https://help.github.com/en/github/getting-started-with-github/fork-a-repo) 
+of Clamshell (see Development Model), then create the relevant directories &
+clone the repo:
 
 ```shell
-mkdir -p $GOPATH/src/github.com/otrego
-git clone github.com/<USERNAME>/clamshell $GOPATH/src/github.com/otrego/clamshell
+git clone github.com/<USERNAME>/clamshell
 ```
 
 Set the upsteams appropriately:
 
 ```shell
-cd $GOPATH/src/github.com/otrego/clamshell
+cd clamshell
 git remote add upstream git@github.com:otrego/clamshell.git
 
 # Check everything's set up correctly:
@@ -100,7 +99,7 @@ git remote -v
 Then, make sure it builds!
 
 ```shell
-cd $GOPATH/src/github.com/otrego/clamshell
+cd clamshell
 go test ./...
 ```
 
