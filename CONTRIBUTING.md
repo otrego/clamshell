@@ -100,7 +100,7 @@ First, here's what my workflow looks like (which is quite similar to this
     ```shell
     git checkout master
     git fetch upstream
-    git rebase -i upstream master
+    git rebase -i upstream/master
 
     # update my fork's master branch.
     git push
