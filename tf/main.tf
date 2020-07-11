@@ -112,4 +112,5 @@ resource "google_dns_record_set" "frontend" {
 resource "google_dns_managed_zone" "dev" {
   name     = "otrego-dev"
   dns_name = "dev.otrego.com."
+  project = var.project_id
 }
