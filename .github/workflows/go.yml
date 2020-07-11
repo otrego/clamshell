@@ -51,8 +51,6 @@ jobs:
     # if: github.event_name == 'push' && github.ref == 'refs/heads/master' && github.repository == 'otrego/clamshell'
     steps:
       - uses: actions/checkout@v2
-      - name: print-number:
-        run: echo "github run number:  ${GITHUB_RUN_NUMBER}"
       - name: docker-build
         run: docker build -t us.gcr.io/otrego-dev/apiserver:${GITHUB_RUN_NUMBER} .
       - name: Login to GCP
