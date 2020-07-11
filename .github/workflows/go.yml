@@ -48,9 +48,11 @@ jobs:
     name: Docker Build
     runs-on: ubuntu-latest
     needs: [test, lint, shadow]
-    if: github.event_name == 'push' && github.ref == 'refs/heads/master' && github.repository == 'otrego/clamshell'
+    # if: github.event_name == 'push' && github.ref == 'refs/heads/master' && github.repository == 'otrego/clamshell'
     steps:
       - uses: actions/checkout@v2
+      - name: print-number:
+        run: echo "github run number:  ${GITHUB_RUN_NUMBER}"
       - name: docker-build
         run: docker build -t us.gcr.io/otrego-dev/apiserver:${GITHUB_RUN_NUMBER} .
       - name: Login to GCP
@@ -69,7 +71,7 @@ jobs:
     name: Deploy Dev
     runs-on: ubuntu-latest
     needs: DockerBuild
-    if: github.event_name == 'push' && github.ref == 'refs/heads/master' && github.repository == 'otrego/clamshell'
+    # if: github.event_name == 'push' && github.ref == 'refs/heads/master' && github.repository == 'otrego/clamshell'
     steps:
       - uses: actions/checkout@v2
       - uses: hashicorp/setup-terraform@v1
