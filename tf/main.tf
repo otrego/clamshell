@@ -100,7 +100,7 @@ resource "google_compute_firewall" "default" {
 }
 
 resource "google_dns_record_set" "frontend" {
-  name = "frontend.dev.otrego.com"
+  name = "frontend.dev.otrego.com."
   type = "A"
   ttl  = 300
 
