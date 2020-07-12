@@ -100,17 +100,18 @@ resource "google_compute_firewall" "default" {
 }
 
 resource "google_dns_record_set" "frontend" {
-  name = "frontend.${google_dns_managed_zone.dev.dns_name}"
+  name = "frontend.dev.otrego.com"
   type = "A"
   ttl  = 300
 
-  managed_zone = google_dns_managed_zone.dev.name
+  managed_zone = "otrego-dev"
+  project = var.project_id
 
   rrdatas = [google_compute_instance.otrego_instance.network_interface[0].access_config[0].nat_ip]
 }
 
-resource "google_dns_managed_zone" "dev" {
-  name     = "otrego-dev"
-  dns_name = "dev.otrego.com."
-  project = var.project_id
-}
+# resource "google_dns_managed_zone" "dev" {
+#   name     = "otrego-dev"
+#   dns_name = "dev.otrego.com."
+#   project = var.project_id
+# }
