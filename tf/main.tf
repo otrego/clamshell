@@ -104,14 +104,8 @@ resource "google_dns_record_set" "frontend" {
   type = "A"
   ttl  = 300
 
-  managed_zone = "otrego-dev"
+  managed_zone = var.dns_managed_zone
   project = var.project_id
 
   rrdatas = [google_compute_instance.otrego_instance.network_interface[0].access_config[0].nat_ip]
 }
-
-# resource "google_dns_managed_zone" "dev" {
-#   name     = "otrego-dev"
-#   dns_name = "dev.otrego.com."
-#   project = var.project_id
-# }
