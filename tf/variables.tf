@@ -1,3 +1,8 @@
+variable "dns_managed_zone" {
+  description = "The dns managed zone in GCP Cloud DNS. This is where DNS entries should be writable."
+  default = "otrego-dev"
+}
+
 variable "project_id" {
   description = "The project ID to deploy resources into"
   default = "otrego-dev"

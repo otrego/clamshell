@@ -29,42 +29,17 @@ module "gce-container" {
     # Declare volumes to be mounted.
     # This is similar to how docker volumes are declared.
     volumeMounts = [
-    #   {
-    #     mountPath = "/cache"
-    #     name      = "tempfs-0"
-    #     readOnly  = false
-    #   },
-    #   {
-    #     mountPath = "/persistent-data"
-    #     name      = "data-disk-0"
-    #     readOnly  = false
-    #   },
     ]
   }
 
   # Declare the Volumes which will be used for mounting.
   volumes = [
-    # {
-    #   name = "tempfs-0"
-    #
-    #   emptyDir = {
-    #     medium = "Memory"
-    #   }
-    # },
-    # {
-    #   name = "data-disk-0"
-    #
-    #   gcePersistentDisk = {
-    #     pdName = "data-disk-0"
-    #     fsType = "ext4"
-    #   }
-    # },
   ]
 
   restart_policy = "Always"
 }
 
-resource "google_compute_instance" "vm" {
+resource "google_compute_instance" "otrego_instance" {
   project      = var.project_id
   name         = local.instance_name
   machine_type = "f1-micro"
@@ -122,4 +97,15 @@ resource "google_compute_firewall" "default" {
   source_ranges = ["0.0.0.0/0"]
 
   source_tags = ["web"]
+}
+
+resource "google_dns_record_set" "frontend" {
+  name = "dev.otrego.com."
+  type = "A"
+  ttl  = 300
+
+  managed_zone = var.dns_managed_zone
+  project = var.project_id
+
+  rrdatas = [google_compute_instance.otrego_instance.network_interface[0].access_config[0].nat_ip]
 }
