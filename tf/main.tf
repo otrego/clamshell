@@ -63,7 +63,7 @@ resource "google_compute_instance" "otrego_instance" {
   metadata = {
     gce-container-declaration = module.gce-container.metadata_value
     google-logging-enabled    = "true"
-    google-monitoring-enabled = "false"
+    google-monitoring-enabled = "true"
   }
 
   labels = {
