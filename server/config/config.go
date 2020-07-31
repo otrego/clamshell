@@ -1,4 +1,4 @@
-// Package contains logic and defaults for the otrego server.
+// Package config contains logic and defaults for the otrego server.
 //
 // Relies on https://github.com/kelseyhightower/envconfig, which is inspired by
 // 12-factor app configuration: https://12factor.net/confi.
