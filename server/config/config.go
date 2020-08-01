@@ -17,7 +17,8 @@ const (
 	envVarPrefix = "OTREGO"
 )
 
-// Spec is the dynamic configuration spec for the server, which is modified
+// Spec is the dynamic configuration spec for the server, which is modified at
+// runtime via environment variables.
 type Spec struct {
 	// Port for the server, specified with OTREGO_PORT environment variable and
 	// defaulting to 8080 if left unspecified.
