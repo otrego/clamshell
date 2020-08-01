@@ -12,8 +12,8 @@ import (
 
 const (
 	// envVarPrefix is a prefix to all environment variables.  For example, to
-	// specify FOO, you will actually need to specify FOO, unless the struct tag
-	// `envconfig:"OVERRIDE"` is supplied
+	// specify FOO, you will actually need to specify OTREGO_FOO, unless the
+	// struct tag `envconfig:"OVERRIDE"` is supplied
 	envVarPrefix = "OTREGO"
 )
 
