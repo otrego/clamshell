@@ -13,14 +13,9 @@ import (
 
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	pb "github.com/otrego/clamshell/server/api"
+	"github.com/otrego/clamshell/server/config"
 	"github.com/otrego/clamshell/server/echo"
 )
-
-// Options contains options for running gRPC.
-type Options struct {
-	// Port to listen on.
-	Port int
-}
 
 // Run starts a gRPC server.
 //
@@ -28,7 +23,7 @@ type Options struct {
 //
 // This method of serving both gRPC and gRPC-Gateway is inspired by:
 // https://github.com/philips/grpc-gateway-example/blob/master/cmd/serve.go
-func Run(opts *Options) {
+func Run(opts *config.Spec) {
 	ctx := context.Background()
 
 	// Listen on addr
