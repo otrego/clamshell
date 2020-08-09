@@ -139,7 +139,6 @@ func (p *Parser) parseBranch(cur *game.Node) error {
 			return errors.New("Corrupted sgf: error parsing branch")
 		}
 	}
-	return nil
 }
 
 // parseNode only gets called right after we consumed a ";"
