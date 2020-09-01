@@ -1,4 +1,4 @@
-// // Package point is a basic package for points.
+// Package point is a basic package for points.
 package point
 
 import (
