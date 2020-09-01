@@ -30,7 +30,7 @@ func (p *Point) Y() int64 { return p.y }
 // Three point translation methods, one is an alternate
 
 // 1. '*Point' immutable int point, to SGF(String of two letters) Point
-func translateToSGFPt01(pt *Point) string {
+func ToSGF(pt *Point) string {
 	sgfPtX := string(rune((pt.X()) + 97))
 	sgfPtY := string(rune((pt.Y()) + 97))
 	// two lower case letters
