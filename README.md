@@ -18,8 +18,9 @@ go test ./...
 
 This assumes that you have familiarity with and have installed the following:
 
-1.   [Go](https://golang.org/doc/install)
+1.   [Go(lang)](https://golang.org/doc/install)
 2.   [Git](https://git-scm.com/book/en/v2)
+2.   [Docker](https://www.docker.com/get-started). In particular, Docker Desktop.
 
 ### Inital OS Setup
 
@@ -40,6 +41,7 @@ needing a GPU machine.
 In addition to the built-binaries, KataGo needs 3 configuration files to run:
 
 1.   Model: You can get that from the [KataGo releases](https://github.com/lightvector/KataGo/releases)
+  * *Note: There are a number of different models. If you want some nets that are much faster to run, try any of the "b10c128" or "b15c192" Extended Training Nets here which are 10 block and 15 block networks from earlier in the run that are much weaker but still pro-level-and-beyond. [https://d3dndmfyhecmj0.cloudfront.net/g170/neuralnets/g170-b10c128-s197428736-d67404019.bin.gz](https://d3dndmfyhecmj0.cloudfront.net/g170/neuralnets/g170-b10c128-s197428736-d67404019.bin.gz)*
 2.   GTP Config: You can get that from the [KataGo releases](https://github.com/lightvector/KataGo/releases)
 3.   Tuning Parameters. This is set via running `katago benchmark -tune`.`
 

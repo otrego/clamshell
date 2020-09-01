@@ -28,9 +28,28 @@ If you're new to Git / Github, check out:
 1.  [The Git Book](https://git-scm.com/book/en/v2). In particular, I find these
     sections very helpful:
     1.  [Basic Branching & Merging](https://git-scm.com/book/en/v2/Git-Branching-Basic-Branching-and-Merging)
-    2.  [Distributed Workflows](https://git-scm.com/book/en/v2/Distributed-Git-Distributed-Workflows#ch05-distributed-git). 
+    2.  [Distributed Workflows](https://git-scm.com/book/en/v2/Distributed-Git-Distributed-Workflows#ch05-distributed-git).
         Specifically, we use an [Integration-Manager workflow (Github)](https://git-scm.com/book/en/v2/Distributed-Git-Distributed-Workflows#wfdiag_b).
 2.  [Getting Started with Github](https://help.github.com/en/github/getting-started-with-github)
+
+## Editors
+
+You are, of course, free to use whichever text editor you feel most comfortable
+with. Many people working on Clamshell use Vim or IntelliJ, so we can help you
+get started with these editors.
+
+**Vim**
+*   [`vimtutor`](https://superuser.com/questions/246487/how-to-use-vimtutor) run
+    from the Bash command-line is the easiest way to get started with Vim.
+*   If you want to delve deep into learning about Vim, check out
+    [Vim the Hard Way](https://learnvimscriptthehardway.stevelosh.com/)
+*   Install a plugin manager: [Vim-Plug](https://github.com/junegunn/vim-plug) or
+    [Vundle](https://github.com/VundleVim/Vundle.vim) are good choices.
+*   Install the go-plugin for Vim: [vim-go](https://github.com/fatih/vim-go)
+
+**IntelliJ**
+
+TODO: Add some details about IntelliJ. Pull requests welcome!
 
 ## Setting Up Your Dev Environment
 
@@ -44,34 +63,33 @@ interact with Clamshell via a
 So generally, developers will fork the Clamshell repository and then submit
 pull requests to the primary `otrego/clamshell` repository.
 
-In general, once you install the Go programming language, you should set
-`GOPATH` to something that suits your tastes. I (kashomon) set `GOPATH` to be
-`$HOME/inprogress/go`, but feel free to set it as you wish. For more about
-setting GOPATH, check out the 
-[golang wiki](https://github.com/golang/go/wiki/SettingGOPATH).
+You will want to set up your `GOPATH` and `GOBIN` environment variables:
 
-Additionally, you will want to set up your `GOBIN` path. This is the path where binaries from programs built by go
-should reside and will enable you to run applications like `golint`.  This can be done just like setting `GOPATH` with 
-the addition of adding `GOBIN` to your system's `PATH`. On OSX or Linux using bash, you could use the following to
- append these to your `$HOME/.bash_profile`:
+- `GOPATH` controls where dependencies are downloaded via `go get`
+- `GOBIN` controls where go binaries are installed.
+
+On OSX or Linux using bash, you can set these by adding the following to your
+`$HOME/.bash_profile` or `$HOME/.bashrc`:
+
 ```shell
 export GOPATH=$HOME/go
 export GOBIN=$GOPATH/bin
 export PATH=$GOBIN:$PATH
 ``` 
 
-Assuming you have created a fork of Clamshell (see Development Model), then
-create the relevant directories & clone the repo:
+Assuming you have created a
+[fork](https://help.github.com/en/github/getting-started-with-github/fork-a-repo) 
+of Clamshell (see Development Model), then create the relevant directories &
+clone the repo:
 
 ```shell
-mkdir -p $GOPATH/src/github.com/otrego
-git clone github.com/<USERNAME>/clamshell $GOPATH/src/github.com/otrego/clamshell
+git clone github.com/<USERNAME>/clamshell
 ```
 
 Set the upsteams appropriately:
 
 ```shell
-cd $GOPATH/src/github.com/otrego/clamshell
+cd clamshell
 git remote add upstream git@github.com:otrego/clamshell.git
 
 # Check everything's set up correctly:
@@ -81,7 +99,7 @@ git remote -v
 Then, make sure it builds!
 
 ```shell
-cd $GOPATH/src/github.com/otrego/clamshell
+cd clamshell
 go test ./...
 ```
 
@@ -96,10 +114,11 @@ git config core.hooksPath .githooks
 ```
 
 3. Run the following to ensure go code quality
+
 ```shell
 gofmt
 golint
-govet 
+govet
 ```
 
 ## Change Workflow
@@ -112,11 +131,6 @@ workflow. The general flow should be:
 3.  Get your code reviewed by a team member.
 4.  Once approved, submit the changes.
 
-Despite its perils, I've found that rebase is a little easier to work with and
-understand than merge when doing development on the local copy of your fork.
-
-Word of caution: **Avoid using merge and rebase together**. That way lies peril.
-
 First, here's what my workflow looks like (which is quite similar to this
 [Atlassian guide](https://www.atlassian.com/git/tutorials/git-forks-and-upstreams).
 
@@ -127,7 +141,7 @@ First, here's what my workflow looks like (which is quite similar to this
     ```shell
     git checkout master
     git fetch upstream
-    git rebase -i upstream master
+    git merge upstream/master
 
     # update my fork's master branch.
     git push
@@ -149,18 +163,14 @@ First, here's what my workflow looks like (which is quite similar to this
     ```shell
     git checkout master
     git fetch upstream
-    git rebase -i upstream master
+    git merge upstream/master
     git push
 
     # Update feature branch
     git checkout somefeature
-    git rebase -i master
+    git merge master
 
     git push
-
-    # If necessary, you might need to force-push the changes, depending on the
-    # nature of the rebase changes.
-    git push --force
     ```
 
 4.  When your change is ready, use the Github UI to get code reviewed & merge
