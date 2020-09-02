@@ -1,17 +1,11 @@
 // Package point is a basic package for points.
 package point
 
-
 // Point is a basic point. Although simple, the member variables are kept
 // private to ensure that Point remains immutable.
 type Point struct {
 	x int64
 	y int64
-}
-
-type SGF struct {
-	x string
-	y string
 }
 
 const aValue = int64('a')
