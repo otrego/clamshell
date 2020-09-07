@@ -51,45 +51,18 @@ type Query struct {
 	// it.
 	MaxVisits *int `json:"maxVisits,omitempty"`
 
-	// Not supported options
+	// Not yet supported options
 	// See: https://github.com/lightvector/KataGo/blob/master/docs/Analysis_Engine.md
-	//
-	// whiteHandicapBonus (0|N|N-1): Optional. See kata-get-rules in GTP
-	// Extensions for what these mean. Can be used to override the handling of
-	// handicap bonus, taking precedence over rules.
-	//
-	// rootPolicyTemperature (float): Optional. Set this to a value > 1 to make
-	// KataGo do a wider search.
-	//
-	// rootFpuReductionMax (float): Optional. Set this to 0 to make KataGo more
-	// willing to try a variety of moves.
-	//
-	// includeOwnership (boolean): Optional. If true, report ownership prediction
-	// as a result. Will double memory usage and reduce performance slightly.
-	//
-	// includePolicy (boolean): Optional. If true, report neural network raw
-	// policy as a result. Will not signficiantly affect performance.
-	//
-	// includePVVisits (boolean): Optional. If true, report the number of visits
-	// for each move in any reported pv.
-	//
-	// avoidMoves (list of dicts): Optional. If true, UNTILDEPTH` - Prohibit the
-	// search from exploring the specified moves for the specified player, until a
-	// certain number of ply deep in the search. Each dict must contain these
-	// fields:
-	//
-	// allowMoves (list of dicts): Optional. Same as avoidMoves except prohibits
-	// all moves EXCEPT the moves specified. Currently, the list of dicts must
-	// also be length 1.
-	//
-	// overrideSettings (object): Optional. Specify any number of paramName:value
-	// entries in this object to override those params from command line
-	// CONFIG_FILE for this query. Most search parameters can be overriden:
-	// cpuctExploration, winLossUtilityFactor, etc.
-	//
-	// priority (int): Optional. Analysis threads will prefer handling queries
-	// with the highest priority unless already started on another task, breaking
-	// ties in favor of earlier queries. If not specified, defaults to 0.
+	// whiteHandicapBonus
+	// rootPolicyTemperature
+	// rootFpuReductionMax
+	// includeOwnership
+	// includePolicy
+	// includePVVisits
+	// avoidMoves
+	// allowMoves
+	// overrideSettings
+	// priority
 }
 
 // New creates a Query object with default parameters

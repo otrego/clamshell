@@ -16,6 +16,7 @@ import (
 	"strings"
 
 	"github.com/golang/glog"
+	"github.com/otrego/clamshell/core/katago"
 )
 
 var outputDir = flag.String("output_dir", "", "Directory for returning the processed SGFs. By default, uses current directory")
@@ -29,14 +30,14 @@ func main() {
 
 	// TODO(kashomon): Fail if these are empty
 
-	an := &analyzer{
-		model:          model,
-		analysisConfig: analysisConfig,
+	an := &katago.Analyzer{
+		Model:  model,
+		Config: analysisConfig,
 	}
 
 	files := getSGFs(flag.Args())
 
-	if err := an.process(files); err != nil {
+	if err := process(files, an); err != nil {
 		glog.Exitf("error processing files: %v", err)
 	}
 }
@@ -52,14 +53,9 @@ func getSGFs(args []string) []string {
 	return out
 }
 
-type analyzer struct {
-	model          string
-	analysisConfig string
-}
-
-func (z *analyzer) process(files []string) error {
-	glog.Infof("using model %q", z.model)
-	glog.Infof("using gtp config %q", z.analysisConfig)
+func process(files []string, an *katago.Analyzer) error {
+	glog.Infof("using model %q", an.Model)
+	glog.Infof("using gtp config %q", an.Config)
 	glog.Infof("using files %v\n", files)
 	for _, f := range files {
 		glog.Infof("analyzing %v\n", f)
