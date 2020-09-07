@@ -10,7 +10,7 @@ func TestCreateQuery_Defaults(t *testing.T) {
 	if q == nil {
 		t.Fatal("nil query")
 	}
-	if q.Id == "" {
+	if q.ID == "" {
 		t.Error("empty ID for query")
 	}
 	if q.Rules != TrompTaylorRules {
