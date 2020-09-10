@@ -1,9 +1,19 @@
 // Package treepath provides functionality for manipulating treepaths.
 //
+// Treepaths are string-encodings of paths through trees.
+//
 // Treepaths come from
 // https://github.com/Kashomon/glift-core/blob/master/src/rules/treepath.js
-//
-// A treepath is a list of variations that says how to travel through a tree of
+package treepath
+
+import (
+	"fmt"
+	"strconv"
+	"strings"
+	"unicode"
+)
+
+// A Treepath is a list of variations that says how to travel through a tree of
 // moves. And has two forms a list version and astring version. First, the
 // list-version:
 //
@@ -19,7 +29,6 @@
 // but there are a couple different string short-hands that make using treepaths
 // a little easier
 //
-//    0.1+    Take the 0th variation, then the 1st variation, then go to the end
 //    0.1:2   Take the 0th variation, then repeat taking the 1st varation twice
 //
 // There are two types of treepaths discussed below -- A *treepath fragment*
@@ -75,20 +84,6 @@
 //    2.3       becomes [0,0,3]
 //    0.0.0.0   becomes [0,0,0]
 //    0.0:3.1:3 becomes [0,0,0,1,1,1]
-//
-// As mentioned before, '+' is a special symbol which means "go to the end via
-// the first variation." This is implemented with a by appending 500 0s to the
-// path array.  This is a hack, but in practice games don't go over 500 moves.
-package treepath
-
-import (
-	"fmt"
-	"strconv"
-	"strings"
-	"unicode"
-)
-
-// A treepath represents a variation path through a Game-tree
 type Treepath []int
 
 // ParseInitialPath Parses an initial treepath.
@@ -115,10 +110,11 @@ func ParseInitialPath(initPos string) (Treepath, error) {
 	}
 	n, err := strconv.Atoi(string(ns))
 	if err != nil {
-		return nil, err
+		// This is very unlikely since we just filtered digits above.
+		return nil, fmt.Errorf("failed to parse initial path %q: %v", initPos, err)
 	}
 
-	tp := make(Treepath, n, n)
+	tp := make(Treepath, 0, n)
 	for i := 0; i < n; i++ {
 		tp = append(tp, 0)
 	}
@@ -130,7 +126,7 @@ func ParseInitialPath(initPos string) (Treepath, error) {
 
 	tail, err := ParseFragment(initPos[idx:])
 	if err != nil {
-		return nil, fmt.Errorf("failed to parse initial path %q: %v", initPos, err)
+		return nil, err
 	}
 	tp = append(tp, tail...)
 
@@ -149,8 +145,15 @@ const (
 )
 
 // ParseFragment parses a treepath fragment.
+//
+// The difference between an InitialTreePath and a Treepath-fragment
+// is that the first move is interprented as a move number.
+//
+// Unlike previous,
+//
+// 53 = [53]
 func ParseFragment(path string) (Treepath, error) {
-	out := make(Treepath, 0, len(path)/2)
+	out := Treepath{}
 	curState := variation
 	buf := &strings.Builder{}
 	prevChar := 0
@@ -167,10 +170,12 @@ func ParseFragment(path string) (Treepath, error) {
 		return n, nil
 	}
 
+	// Use a sentinal newline character
+	path += "\n"
 	for idx, c := range path {
 		if unicode.IsDigit(c) {
 			buf.WriteRune(c)
-		} else if c == '.' {
+		} else if c == '.' || c == '\n' {
 			n, err := convertBuffer(idx)
 			if err != nil {
 				return nil, err
@@ -181,6 +186,8 @@ func ParseFragment(path string) (Treepath, error) {
 				for i := 0; i < n; i++ {
 					out = append(out, prevChar)
 				}
+				curState = variation
+				prevChar = 0
 			}
 		} else if c == ':' {
 			n, err := convertBuffer(idx)
@@ -189,11 +196,14 @@ func ParseFragment(path string) (Treepath, error) {
 			}
 			if curState == variation {
 				prevChar = n
+				curState = repeat
 			} else if curState == repeat {
-				fmt.Errorf("error parsing fragment %q at index %d: repeat char ':' cannot be followed by another repeat ':'", path, idx)
+				return nil, fmt.Errorf("error parsing fragment %q at index %d: repeat char ':' cannot be followed by another repeat ':'", path, idx)
 			} else {
-				fmt.Errorf("error parsing fragment %q at index %d: unexpectad character %q", path, idx, c)
+				return nil, fmt.Errorf("error parsing fragment %q at index %d: unexpected character %q", path, idx, c)
 			}
+		} else {
+			return nil, fmt.Errorf("error parsing fragment %q at index %d: unexpected character %q", path, idx, c)
 		}
 	}
 	return out, nil
