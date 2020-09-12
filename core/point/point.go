@@ -57,12 +57,9 @@ func NewFromSGF(sgfPt string) *Point {
 	if (sgfPt != "") && (len(sgfPt) == 2) {
 		xIndx = bytes.Index(PointSGFSlce, []byte(string(sgfPt[0])))
 		yIndx = bytes.Index(PointSGFSlce, []byte(string(sgfPt[1])))
-		// x := int64(sgfPt[0]) - aValue
-		// y := int64(sgfPt[1]) - aValue
 	} else {
 		panic("Error: SGF string entries must not be empty and must" +
 			" be of length = 2 byte/byte.  ")
-		// return New(99, 99)
 	}
 	return New(int64(xIndx), int64(yIndx))
 
