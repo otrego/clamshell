@@ -34,7 +34,7 @@ func (p *Point) X() int64 { return p.x }
 // Y returns the y-value.
 func (p *Point) Y() int64 { return p.y }
 
-// ToSGF() converts a pointer-type (immutable) *Point
+// ToSGF converts a pointer-type (immutable) *Point
 // to an SGF Point (two letter string). The returned value is 0-indexed.
 func (pt *Point) ToSGF() string {
 	if (pt != nil) && (pt.X() <= 51) && (pt.Y() <= 51) {
