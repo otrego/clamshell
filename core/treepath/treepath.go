@@ -16,7 +16,7 @@ import (
 )
 
 // A Treepath is a list of variations that says how to travel through a tree of
-// moves. And has two forms a list version and astring version. First, the
+// moves. And has two forms a list version and a string version. First, the
 // list-version:
 //
 //    [0,1,0]
@@ -24,7 +24,7 @@ import (
 // Means we will first take the 0th variation, then we will take the 1ist
 // variation, and lastly we will take the 0th variation again. For
 // convenience, the treepath can also be specified by a string, which is where
-// the fun begins. At it's simpliest,
+// the fun begins. At its simpliest,
 //
 //    [0,0,0] becomes 0.0.0
 //
@@ -36,7 +36,7 @@ import (
 // There are two types of treepaths discussed below -- A *treepath fragment*
 // (which is what we have been describing) and an *initial treepath*.
 //
-// ## Treepath Fragments
+// ## Treepath
 //
 // Treepaths say how to get from position n to position m.  Thus the numbers are
 // always variations except in the case of AxB syntax, where B is a multiplier
@@ -52,88 +52,7 @@ import (
 //    0:4           becomes [0,0,0,0]
 //    1:4           becomes [1,1,1,1]
 //    1.2:1.0.2:3   becomes [1,2,0,2,2,2]
-//
-// ## Initial tree paths.
-//
-// The initial treepath always treats the first number as a 'move number'
-// instead of a variation. Thus
-//
-//    3.1.0
-//
-// means start at move 3 (always taking the 0th variation path) and then take
-// the path fragment [1,0].
-//
-// Some examples:
-//
-//    0         - Start at the 0th move (the root node)
-//    53        - Start at the 53rd move (taking the 0th variation)
-//    2.3       - Start at the 3rd variation on move 2 (actually move 3)
-//    3         - Start at the 3rd move
-//    2.0       - Start at the 3rd move
-//    0.0.0.0   - Start at the 3rd move
-//    0.0:3     - Start at the 3rd move
-//
-// As with fragments, the init position returned is an array of variation
-// numbers traversed through.  The move number is precisely the length of the
-// array.
-//
-// So, for parsing
-//
-//    0         becomes []
-//    1         becomes [0]
-//    0.1       becomes [1]
-//    53        becomes [0,0,0,...,0] (53 times)
-//    2.3       becomes [0,0,3]
-//    0.0.0.0   becomes [0,0,0]
-//    0.0:3.1:3 becomes [0,0,0,1,1,1]
 type Treepath []int
-
-// ParseInitialPath Parses an initial treepath.
-//
-// The difference between an InitialTreePath and a Treepath-fragment
-// is that the first move is interprented as a move number.
-//
-// Ex:
-//
-// 53 = [0, 0, 0, ... (53 times)]
-func ParseInitialPath(initPos string) (Treepath, error) {
-	ns := make([]rune, 0, 3) // very unlikely that n > 1000
-	idx := 0
-	for _, r := range initPos {
-		if unicode.IsDigit(r) {
-			idx++
-			ns = append(ns, r)
-		} else if r == '.' {
-			idx++
-			break
-		} else {
-			return nil, fmt.Errorf("failed to parse initial path %q, unexpected char at index %d. expected digit or '.'", initPos, idx)
-		}
-	}
-	n, err := strconv.Atoi(string(ns))
-	if err != nil {
-		// This is very unlikely since we just filtered digits above.
-		return nil, fmt.Errorf("failed to parse initial path %q: %v", initPos, err)
-	}
-
-	tp := make(Treepath, 0, n)
-	for i := 0; i < n; i++ {
-		tp = append(tp, 0)
-	}
-
-	if idx >= len(initPos) {
-		// We have captured the full string.
-		return tp, nil
-	}
-
-	tail, err := ParseFragment(initPos[idx:])
-	if err != nil {
-		return nil, err
-	}
-	tp = append(tp, tail...)
-
-	return tp, nil
-}
 
 type parseState int
 
@@ -146,15 +65,8 @@ const (
 	repeatState
 )
 
-// ParseFragment parses a treepath fragment.
-//
-// The difference between an InitialTreePath and a Treepath-fragment
-// is that the first move is interprented as a move number.
-//
-// Unlike previous,
-//
-// 53 = [53]
-func ParseFragment(path string) (Treepath, error) {
+// Parse parses a treepath from a string to an array of ints.
+func Parse(path string) (Treepath, error) {
 	out := Treepath{}
 	curState := variationState
 	buf := &strings.Builder{}

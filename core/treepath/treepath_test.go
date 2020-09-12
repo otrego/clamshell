@@ -8,92 +8,7 @@ import (
 	"github.com/otrego/clamshell/core/parser"
 )
 
-func TestParseInitialPath(t *testing.T) {
-	testCases := []struct {
-		desc         string
-		path         string
-		exp          []int
-		expErrSubstr string
-	}{
-		{
-			desc: "root move",
-			path: "0",
-			exp:  []int{},
-		},
-		{
-			desc: "first move",
-			path: "1",
-			exp:  []int{0},
-		},
-		{
-			desc: "move 10",
-			path: "10",
-			exp:  []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-		},
-		{
-			desc: "move 2.3",
-			path: "2.3",
-			exp:  []int{0, 0, 3},
-		},
-		{
-			desc: "move 3",
-			path: "3",
-			exp:  []int{0, 0, 0},
-		},
-		{
-			desc: "move 2.0 = move 3",
-			path: "2.0",
-			exp:  []int{0, 0, 0},
-		},
-		{
-			desc: "move 0.0.0.0 = move 3",
-			path: "0.0.0.0",
-			exp:  []int{0, 0, 0},
-		},
-		{
-			desc: "move 0.0:3 = move 3",
-			path: "0.0:3",
-			exp:  []int{0, 0, 0},
-		},
-		// Error cases
-		{
-			desc:         "move 0:2 is invalid - no repeat on initial pos",
-			path:         "0:2",
-			expErrSubstr: "unexpected char",
-		},
-		{
-			desc:         "move a:2 is invalid - not a number",
-			path:         "a:2",
-			expErrSubstr: "unexpected char",
-		},
-		{
-			desc:         "move -1:2 is invalid - negatives are not allowed",
-			path:         "-1:2",
-			expErrSubstr: "unexpected char",
-		},
-	}
-
-	for _, tc := range testCases {
-		t.Run(tc.desc, func(t *testing.T) {
-			got, err := ParseInitialPath(tc.path)
-
-			cerr := errcheck.CheckCases(err, tc.expErrSubstr)
-			if cerr != nil {
-				t.Error(cerr)
-				return
-			}
-			if err != nil {
-				return
-			}
-
-			if !cmp.Equal(got, Treepath(tc.exp)) {
-				t.Errorf("ParseInitialPath(%v)=%v, but expected %v", tc.path, got, tc.exp)
-			}
-		})
-	}
-}
-
-func TestParseFragment(t *testing.T) {
+func TestParse(t *testing.T) {
 	testCases := []struct {
 		desc         string
 		path         string
@@ -180,7 +95,7 @@ func TestParseFragment(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.desc, func(t *testing.T) {
-			got, err := ParseFragment(tc.path)
+			got, err := Parse(tc.path)
 
 			cerr := errcheck.CheckCases(err, tc.expErrSubstr)
 			if cerr != nil {
@@ -192,7 +107,7 @@ func TestParseFragment(t *testing.T) {
 			}
 
 			if !cmp.Equal(got, Treepath(tc.exp)) {
-				t.Errorf("ParseInitialPath(%v)=%v, but expected %v", tc.path, got, tc.exp)
+				t.Errorf("Parse(%v)=%v, but expected %v", tc.path, got, tc.exp)
 			}
 		})
 	}
@@ -207,7 +122,7 @@ func TestApplyPath(t *testing.T) {
 	}{
 		{
 			desc:     "first move",
-			initPath: "1",
+			initPath: "0.0",
 			game:     "(;GM[1];B[pd]C[foo])",
 			expProps: map[string][]string{
 				"C": []string{"zed"},
@@ -223,7 +138,7 @@ func TestApplyPath(t *testing.T) {
 				t.Error(err)
 				return
 			}
-			path, err := ParseInitialPath(tc.initPath)
+			path, err := Parse(tc.initPath)
 			if err != nil {
 				t.Error(err)
 				return
