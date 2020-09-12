@@ -2,7 +2,7 @@
 //
 // Treepaths are string-encodings of paths through trees.
 //
-// Treepaths come from
+// Treepaths come originially from
 // https://github.com/Kashomon/glift-core/blob/master/src/rules/treepath.js
 package treepath
 
@@ -66,6 +66,10 @@ const (
 )
 
 // Parse parses a treepath from a string to an array of ints.
+//
+// Example:
+// * Parse("2.3")         => [2,3]
+// * Parse("1.2:1.0.2:3") => [1,2,0,2,2,2]
 func Parse(path string) (Treepath, error) {
 	out := Treepath{}
 	curState := variationState
