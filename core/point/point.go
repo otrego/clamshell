@@ -29,10 +29,10 @@ func New(x, y int64) *Point {
 }
 
 // X returns the x-value.
-func (p *Point) X() int64 { return p.x }
+func (pt *Point) X() int64 { return pt.x }
 
 // Y returns the y-value.
-func (p *Point) Y() int64 { return p.y }
+func (pt *Point) Y() int64 { return pt.y }
 
 // ToSGF converts a pointer-type (immutable) *Point
 // to an SGF Point (two letter string). The returned value is 0-indexed.
