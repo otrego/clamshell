@@ -50,3 +50,8 @@ func NewNode() *Node {
 		Properties: make(map[string][]string),
 	}
 }
+
+// AddChild adds a child node.
+func (n *Node) AddChild(nn *Node) {
+	n.Children = append(n.Children, nn)
+}
