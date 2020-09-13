@@ -27,31 +27,6 @@ import (
 // the fun begins. At its simpliest,
 //
 //    [0,0,0] becomes 0.0.0
-//
-// but there are a couple different string short-hands that make using treepaths
-// a little easier
-//
-//    0.1:2   Take the 0th variation, then repeat taking the 1st varation twice
-//
-// There are two types of treepaths discussed below -- A *treepath fragment*
-// (which is what we have been describing) and an *initial treepath*.
-//
-// ## Treepath
-//
-// Treepaths say how to get from position n to position m.  Thus the numbers are
-// always variations except in the case of AxB syntax, where B is a multiplier
-// for a variation.
-//
-// This is how fragment strings are parsed:
-//
-//    0             becomes [0]
-//    1             becomes [1]
-//    53            becomes [53] (the 53rd variation)
-//    2.3           becomes [2,3]
-//    0.0.0.0       becomes [0,0,0]
-//    0:4           becomes [0,0,0,0]
-//    1:4           becomes [1,1,1,1]
-//    1.2:1.0.2:3   becomes [1,2,0,2,2,2]
 type Treepath []int
 
 type parseState int
@@ -65,11 +40,28 @@ const (
 	repeatState
 )
 
-// Parse parses a treepath from a string to an array of ints.
+// Parse parses a treepath from a string to an array of ints (Treepath).
 //
-// Example:
-// * Parse("2.3")         => [2,3]
-// * Parse("1.2:1.0.2:3") => [1,2,0,2,2,2]
+// There are a couple different string short-hands that make using treepaths
+// a little easier
+//
+//    0.1:2   Take the 0th variation, then repeat taking the 1st varation twice
+//
+// Treepaths say how to get from position n to position m.  Thus the numbers are
+// always variations, separated by '.' except in the case of A:B syntax, which
+// means repeat A for B times.
+//
+//
+// Some examples:
+//
+//    0             becomes [0]
+//    1             becomes [1]
+//    53            becomes [53] (the 53rd variation)
+//    2.3           becomes [2,3]
+//    0.0.0.0       becomes [0,0,0]
+//    0:4           becomes [0,0,0,0]
+//    1:4           becomes [1,1,1,1]
+//    1.2:1.0.2:3   becomes [1,2,0,2,2,2]
 func Parse(path string) (Treepath, error) {
 	out := Treepath{}
 	curState := variationState
@@ -78,7 +70,7 @@ func Parse(path string) (Treepath, error) {
 
 	convertBuffer := func(idx int) (int, error) {
 		if buf.Len() == 0 {
-			return 0, fmt.Errorf("error parsing fragment %q at index %d: separator '.' must be proceeded by digit", path, idx)
+			return 0, fmt.Errorf("error parsing fragment %q at index %d: separators '.', ':', EOL must be proceeded by digit", path, idx)
 		}
 		n, err := strconv.Atoi(buf.String())
 		if err != nil {
@@ -162,7 +154,6 @@ func (tp Treepath) Apply(n *game.Node) *game.Node {
 	curNode := n
 	for _, v := range tp {
 		if v < len(curNode.Children) {
-			fmt.Printf("var %v\n", v)
 			// Assume there are no gaps. If there are, parsing failed us.
 			curNode = curNode.Children[v]
 		} else {
