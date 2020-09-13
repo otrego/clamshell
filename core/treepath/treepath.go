@@ -51,10 +51,13 @@ const (
 // always variations, separated by '.' except in the case of A:B syntax, which
 // means repeat A for B times.
 //
+// A leading . is an optional. It can be useful to indicate the root node.
 //
 // Some examples:
 //
+//    .             becomes []
 //    0             becomes [0]
+//    .0            becomes [0]
 //    1             becomes [1]
 //    53            becomes [53] (the 53rd variation)
 //    2.3           becomes [2,3]
@@ -65,18 +68,23 @@ const (
 func Parse(path string) (Treepath, error) {
 	out := Treepath{}
 	curState := variationState
-	buf := &strings.Builder{}
+	buf := strings.Builder{}
 	prevChar := 0
+
+	// As a special case, just return the empty path as a degenerate case.
+	if path == "." || path == "" {
+		return out, nil
+	}
 
 	convertBuffer := func(idx int) (int, error) {
 		if buf.Len() == 0 {
-			return 0, fmt.Errorf("error parsing fragment %q at index %d: separators '.', ':', EOL must be proceeded by digit", path, idx)
+			return 0, fmt.Errorf("error parsing path %v at index %d: separators '.', ':', EOL must be proceeded by digit", path, idx)
 		}
 		n, err := strconv.Atoi(buf.String())
 		if err != nil {
-			return 0, fmt.Errorf("error parsing number in fragment %q at index %d: %v", path, idx, err)
+			return 0, fmt.Errorf("error parsing number in path %v at index %d: %v", path, idx, err)
 		}
-		buf = &strings.Builder{}
+		buf = strings.Builder{}
 		return n, nil
 	}
 
@@ -105,6 +113,10 @@ func Parse(path string) (Treepath, error) {
 		if unicode.IsDigit(c) {
 			buf.WriteRune(c)
 		} else if c == '.' || c == '\n' {
+			if idx == 0 {
+				// . is supported as an optional leading charactor. Just ignore.
+				continue
+			}
 			n, err := convertBuffer(idx)
 			if err != nil {
 				return nil, err
@@ -122,7 +134,7 @@ func Parse(path string) (Treepath, error) {
 				curState = variationState
 				prevChar = 0
 			} else {
-				return nil, fmt.Errorf("error parsing fragment %q at index %d: unknown state %v", path, idx, curState)
+				return nil, fmt.Errorf("error parsing path %q at index %d: unknown state %v", path, idx, curState)
 			}
 		} else if c == ':' {
 			n, err := convertBuffer(idx)
@@ -137,12 +149,12 @@ func Parse(path string) (Treepath, error) {
 				curState = repeatState
 			} else if curState == repeatState {
 				// Repeate => Repeat: Invalid
-				return nil, fmt.Errorf("error parsing fragment %q at index %d: repeat char ':' cannot be followed by another repeat ':'", path, idx)
+				return nil, fmt.Errorf("error parsing path %q at index %d: repeat char ':' cannot be followed by another repeat ':'", path, idx)
 			} else {
-				return nil, fmt.Errorf("error parsing fragment %q at index %d: unknown state %v", path, idx, curState)
+				return nil, fmt.Errorf("error parsing path %q at index %d: unknown state %v", path, idx, curState)
 			}
 		} else {
-			return nil, fmt.Errorf("error parsing fragment %q at index %d: unexpected character %q", path, idx, c)
+			return nil, fmt.Errorf("error parsing path %q at index %d: unexpected character %q", path, idx, c)
 		}
 	}
 	return out, nil
