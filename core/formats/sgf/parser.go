@@ -163,25 +163,25 @@ func (p *Parser) Parse() (*game.Game, error) {
 
 		switch sd.curstate {
 		case beginningState:
-			err := handleBeginning(sd, pbuf, g)
+			err = handleBeginning(sd, pbuf, g)
 			if err != nil {
 				return nil, err
 			}
 
 		case betweenState:
-			err := handleBetween(sd, pbuf)
+			err = handleBetween(sd, pbuf)
 			if err != nil {
 				return nil, err
 			}
 
 		case propertyState:
-			err := handleProperty(sd, pbuf)
+			err = handleProperty(sd, pbuf)
 			if err != nil {
 				return nil, err
 			}
 
 		case propDataState:
-			err := handlePropData(sd, pbuf)
+			err = handlePropData(sd, pbuf)
 			if err != nil {
 				return nil, err
 			}
@@ -193,6 +193,7 @@ func (p *Parser) Parse() (*game.Game, error) {
 		sd.prevchar = c
 	}
 
+	// We should **always** end with an EOF error
 	if err == nil || !errors.Is(err, io.EOF) {
 		return nil, sd.parseError(fmt.Sprintf("expected to end on EOF; got %v", err))
 	} else if sd.prevchar != rparen {
