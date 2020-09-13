@@ -84,7 +84,6 @@ func Parse(path string) (Treepath, error) {
 	// charactrs.
 	path += "\n"
 
-	//
 	// The rough approach is to have a simple parser modeled as a 2-state DFA.
 	//
 	// VARIATION: means we're parsing a normal variation number. We flush the
@@ -97,7 +96,11 @@ func Parse(path string) (Treepath, error) {
 	//  |      |             |
 	//  V      ^             ^
 	// VARIATION --':'-->  REPEAT
-	//
+	//   |                   V
+	//   EOL <----------------
+	//   |
+	//   V
+	//   End
 	for idx, c := range path {
 		if unicode.IsDigit(c) {
 			buf.WriteRune(c)
