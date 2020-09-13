@@ -137,6 +137,19 @@ func (p *Parser) Parse() (*game.Game, error) {
 	sd := &stateData{}
 	pbuf := &propBuffer{}
 
+	// the parser uses a finite state machine to perform parsing, having the
+	// following states & actions
+	//
+	//               addBranch '(', popBranch ')'
+	//               V ^
+	//               | |
+	//               | |  -------------------']'--
+	//               V ^  V                      |
+	// BEGINNING => BETWEEN => PROPERTY => PROPERTY DATA
+	//               |    V                      ^
+	//               |    --------------'['-------
+	//               V
+	//              END
 	var c rune
 	var err error
 	for c, _, err = p.rdr.ReadRune(); err == nil; c, _, err = p.rdr.ReadRune() {
