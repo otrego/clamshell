@@ -9,7 +9,6 @@ require (
 	github.com/google/uuid v1.1.2
 	github.com/grpc-ecosystem/grpc-gateway v1.14.5
 	github.com/kelseyhightower/envconfig v1.4.0
-	google.golang.org/genproto v0.0.0-20190927181202-20e1ac93f88c
-	google.golang.org/grpc v1.29.1
-	google.golang.org/protobuf v1.21.0
+	golang.org/x/lint v0.0.0-20200302205851-738671d3881b // indirect
+	golang.org/x/tools v0.0.0-20200805223731-0b898c9289f0 // indirect
 )
