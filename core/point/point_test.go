@@ -14,21 +14,16 @@ func TestCreate(t *testing.T) {
 	}
 }
 
-func TestPointSGFTranslation(t *testing.T) {
-	type Point struct {
-		x int64
-		y int64
-	}
-
+func TestPointToSGFTranslate(t *testing.T) {
 	// First test translation from integer-point to SGF-string-point
 	testToSGFCases := []struct {
 		desc string
-		in   Point
+		in   *Point
 		want string
 	}{
 		{
 			desc: "Point => SGF",
-			in: Point{
+			in: &Point{
 				x: 8,
 				y: 16,
 			},
@@ -36,7 +31,7 @@ func TestPointSGFTranslation(t *testing.T) {
 		},
 		{
 			desc: "Point => SGF",
-			in: Point{
+			in: &Point{
 				x: 12,
 				y: 5,
 			},
@@ -44,7 +39,7 @@ func TestPointSGFTranslation(t *testing.T) {
 		},
 		{
 			desc: "Point => SGF",
-			in: Point{
+			in: &Point{
 				x: 33,
 				y: 8,
 			},
@@ -52,7 +47,7 @@ func TestPointSGFTranslation(t *testing.T) {
 		},
 		{
 			desc: "Point => SGF",
-			in: Point{
+			in: &Point{
 				x: 40,
 				y: 51,
 			},
@@ -61,16 +56,17 @@ func TestPointSGFTranslation(t *testing.T) {
 	}
 
 	for _, tc := range testToSGFCases {
-		t.Run(tc.desc, func(t01 *testing.T) {
+		t.Run(tc.desc, func(t *testing.T) {
 			toSGFOut := New(tc.in.x, tc.in.y).ToSGF()
-			if t01 == nil || toSGFOut != tc.want {
-				t01.Errorf("%q.ToSGF() = %q, but wanted %q", tc.in,
+			if toSGFOut != tc.want {
+				t.Errorf("%q.ToSGF() = %q, but wanted %q", tc.in,
 					toSGFOut, tc.want)
 			}
 		})
 	}
+}
 
-	// Second test translation from SGF-string-point to integer-point
+func TestSGFToPointTranslate(t *testing.T) {
 	testToPointCases := []struct {
 		desc string
 		in   string
@@ -111,19 +107,20 @@ func TestPointSGFTranslation(t *testing.T) {
 	}
 
 	for _, tc := range testToPointCases {
-		t.Run(tc.desc, func(t01 *testing.T) {
+		t.Run(tc.desc, func(t *testing.T) {
 			toPointOut := NewFromSGF(tc.in)
 			// include the point.go *Point type X Y getters below
 			pointX := toPointOut.X()
 			pointY := toPointOut.Y()
-			if t01 == nil || pointX != tc.want.x {
-				t01.Errorf("%q.toPointOut.x = %q, but wanted %q", tc.in,
+			if pointX != tc.want.x {
+				t.Errorf("%q.toPointOut.x = %q, but wanted %q", tc.in,
 					pointX, tc.want.x)
 			}
-			if t01 == nil || pointY != tc.want.y {
-				t01.Errorf("%q.toPointOut.y = %q, but wanted %q", tc.in,
+			if pointY != tc.want.y {
+				t.Errorf("%q.toPointOut.y = %q, but wanted %q", tc.in,
 					pointY, tc.want.y)
 			}
 		})
 	}
+
 }
