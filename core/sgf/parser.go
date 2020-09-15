@@ -11,7 +11,7 @@ import (
 	"github.com/otrego/clamshell/core/point"
 )
 
-// Parse is a convenience helper
+// Parse is a convenience helper to parse sgf strings.
 func Parse(s string) (*game.Game, error) {
 	return FromString(s).Parse()
 }
