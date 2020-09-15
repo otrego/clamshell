@@ -1,10 +1,13 @@
 package sgf_test
 
 import (
+	"reflect"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/otrego/clamshell/core/errcheck"
+	"github.com/otrego/clamshell/core/game"
+	"github.com/otrego/clamshell/core/point"
 	"github.com/otrego/clamshell/core/sgf"
 	"github.com/otrego/clamshell/core/treepath"
 )
@@ -247,6 +250,69 @@ AB[na][ra][mb][rb][lc][qc][ld][od][qd][le][pe][qe][mf][nf][of][pg]
 						t.Errorf("At path %q, property %q was %v, but expected %v", path, prop, foundData, expData)
 					}
 				}
+			}
+		})
+	}
+}
+
+type propGetter func(*game.Node) interface{}
+
+func TestPropertyPostProcessing(t *testing.T) {
+	testCases := []struct {
+		desc   string
+		sgf    string
+		path   string
+		getter propGetter
+		want   interface{}
+	}{
+		{
+			desc: "black move",
+			sgf:  "(;GM[1];B[ab])",
+			path: "0",
+			getter: func(n *game.Node) interface{} {
+				return n.Move
+			},
+			want: game.BlackMove(point.New(0, 1)),
+		},
+		{
+			desc: "white move",
+			sgf:  "(;GM[1];W[ab])",
+			path: "0",
+			getter: func(n *game.Node) interface{} {
+				return n.Move
+			},
+			want: game.WhiteMove(point.New(0, 1)),
+		},
+		{
+			desc: "black & white placements",
+			sgf:  "(;GM[1];AB[ab][ac]AW[bb][bc])",
+			path: "0",
+			getter: func(n *game.Node) interface{} {
+				return n.Placements
+			},
+			want: []*game.Move{
+				game.BlackMove(point.New(0, 1)),
+				game.BlackMove(point.New(0, 2)),
+				game.WhiteMove(point.New(1, 1)),
+				game.WhiteMove(point.New(1, 2)),
+			},
+		},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.desc, func(t *testing.T) {
+			g, err := sgf.Parse(tc.sgf)
+			if err != nil {
+				t.Error(err)
+				return
+			}
+			tp, err := treepath.Parse(tc.path)
+			if err != nil {
+				t.Error(err)
+				return
+			}
+			got := tc.getter(tp.Apply(g.Root))
+			if !reflect.DeepEqual(got, tc.want) {
+				t.Errorf("from node-getter and path %q, got %v, but wanted %v", tc.path, got, tc.want)
 			}
 		})
 	}

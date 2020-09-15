@@ -11,6 +11,11 @@ import (
 	"github.com/otrego/clamshell/core/point"
 )
 
+// Parse is a convenience helper
+func Parse(s string) (*game.Game, error) {
+	return FromString(s).Parse()
+}
+
 // Parser parses SGFs into game trees
 type Parser struct {
 	rdr io.RuneReader
