@@ -5,7 +5,7 @@ import (
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/otrego/clamshell/core/errcheck"
-	"github.com/otrego/clamshell/core/formats/sgf"
+	"github.com/otrego/clamshell/core/sgf"
 )
 
 func TestParse(t *testing.T) {

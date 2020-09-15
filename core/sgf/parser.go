@@ -8,6 +8,7 @@ import (
 	"unicode"
 
 	"github.com/otrego/clamshell/core/game"
+	"github.com/otrego/clamshell/core/point"
 )
 
 // Parser parses SGFs into game trees
@@ -79,15 +80,17 @@ type propBuffer struct {
 	propdata []string
 }
 
-func (b *propBuffer) flush(n *game.Node) {
+func (b *propBuffer) flush(n *game.Node) error {
 	if b.prop != "" && len(b.propdata) != 0 {
 		// Properties cannot be empty, propdata must be non-zero
-		//
-		// Validation should happen here.
 		n.Properties[b.prop] = b.propdata
+		if err := postProcessProperties(n, b.prop, b.propdata); err != nil {
+			return err
+		}
 	}
 	b.prop = ""
 	b.propdata = []string{}
+	return nil
 }
 
 func (b *propBuffer) addToData(s string) {
@@ -246,7 +249,9 @@ func handleBetween(sd *stateData, pbuf *propBuffer) error {
 	} else if unicode.IsUpper(sd.curchar) {
 		// AW[aw][bw]
 		// ^
-		pbuf.flush(sd.curnode)
+		if err := pbuf.flush(sd.curnode); err != nil {
+			sd.parseError(err.Error())
+		}
 		sd.addToBuf(sd.curchar)
 		sd.curstate = propertyState
 		return nil
@@ -259,12 +264,18 @@ func handleBetween(sd *stateData, pbuf *propBuffer) error {
 		// AW[aw][bw] (;B[ab]
 		//            ^
 		pbuf.flush(sd.curnode)
+		if err := pbuf.flush(sd.curnode); err != nil {
+			sd.parseError(err.Error())
+		}
 		sd.addBranch(sd.curnode)
 		return nil
 	} else if sd.curchar == scolon {
 		// AW[aw][bw] (;B[ab];W[ac])
 		//             ^     ^
 		pbuf.flush(sd.curnode)
+		if err := pbuf.flush(sd.curnode); err != nil {
+			sd.parseError(err.Error())
+		}
 		cn := sd.curnode
 		sd.curnode = game.NewNode()
 		cn.AddChild(sd.curnode)
@@ -273,6 +284,9 @@ func handleBetween(sd *stateData, pbuf *propBuffer) error {
 		// AW[aw][bw] (;B[ab])
 		//                   ^
 		pbuf.flush(sd.curnode)
+		if err := pbuf.flush(sd.curnode); err != nil {
+			sd.parseError(err.Error())
+		}
 		cn, err := sd.popBranch()
 		if err != nil {
 			return err
@@ -299,7 +313,6 @@ func handleProperty(sd *stateData, pbuf *propBuffer) error {
 		// AW[aw][bw]
 		//   ^
 		prop := sd.flushBuf()
-		// TODO(kashomon): Add validation to ignore invalid properties
 		pbuf.prop = prop
 		sd.curstate = propDataState
 		return nil
@@ -350,9 +363,55 @@ func handlePropData(sd *stateData, pbuf *propBuffer) error {
 	return nil
 }
 
-// postProcessProperties adds post-processing to prop
-func postProcessProperties(node *game.Node, prop string) error {
+// postProcessProperties adds post-processing to properties, to allow for more
+// structure.
+func postProcessProperties(n *game.Node, prop string, propData []string) error {
+	// TODO(kashomon): This whole method should probably be moved to game/move.go
 	switch prop {
+	case "AW":
+		// TODO(kashomon): Make a helper function for this
+		var pts []*point.Point
+		for _, sgfPt := range propData {
+			pt, err := point.NewFromSGF(sgfPt)
+			if err != nil {
+				return err
+			}
+			pts = append(pts, pt)
+		}
+		n.Placements = append(n.Placements, game.WhiteMoveList(pts)...)
 
+	case "AB":
+		// TODO(kashomon): Make a helper function for this
+		var pts []*point.Point
+		for _, sgfPt := range propData {
+			pt, err := point.NewFromSGF(sgfPt)
+			if err != nil {
+				return err
+			}
+			pts = append(pts, pt)
+		}
+		n.Placements = append(n.Placements, game.BlackMoveList(pts)...)
+
+	case "B":
+		if n.Move != nil {
+			return fmt.Errorf("found two moves on one node")
+		}
+		pt, err := point.NewFromSGF(propData[0])
+		if err != nil {
+			return err
+		}
+		n.Move = game.BlackMove(pt)
+
+	case "W":
+		if n.Move != nil {
+			return fmt.Errorf("found two moves on one node")
+		}
+		pt, err := point.NewFromSGF(propData[0])
+		if err != nil {
+			return err
+		}
+		n.Move = game.WhiteMove(pt)
 	}
+
+	return nil
 }
