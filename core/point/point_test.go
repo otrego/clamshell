@@ -1,6 +1,9 @@
 package point
 
-import "testing"
+import (
+	"fmt"
+	"testing"
+)
 
 func TestCreate(t *testing.T) {
 	p := New(1, 2)
@@ -11,6 +14,15 @@ func TestCreate(t *testing.T) {
 
 	if gotY := p.Y(); gotY != 2 {
 		t.Errorf("p.Y()=%v, expected %v", gotY, 2)
+	}
+}
+
+func TestPointToString(t *testing.T) {
+	p := New(2, 3)
+	result := fmt.Sprintf("%v", p)
+	const expected = "Point(2,3)"
+	if result != expected {
+		t.Errorf("Point() to string: expected %v, got %v", expected, result)
 	}
 }
 
