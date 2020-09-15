@@ -57,7 +57,7 @@ func TestPointToSGFTranslate(t *testing.T) {
 
 	for _, tc := range testToSGFCases {
 		t.Run(tc.desc, func(t *testing.T) {
-			toSGFOut := New(tc.in.x, tc.in.y).ToSGF()
+			toSGFOut, _ := New(tc.in.x, tc.in.y).ToSGF()
 			if toSGFOut != tc.want {
 				t.Errorf("%q.ToSGF() = %q, but wanted %q", tc.in,
 					toSGFOut, tc.want)
@@ -108,7 +108,7 @@ func TestSGFToPointTranslate(t *testing.T) {
 
 	for _, tc := range testToPointCases {
 		t.Run(tc.desc, func(t *testing.T) {
-			toPointOut := NewFromSGF(tc.in)
+			toPointOut, _ := NewFromSGF(tc.in)
 			// include the point.go *Point type X Y getters below
 			pointX := toPointOut.X()
 			pointY := toPointOut.Y()
