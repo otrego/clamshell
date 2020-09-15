@@ -349,3 +349,10 @@ func handlePropData(sd *stateData, pbuf *propBuffer) error {
 	sd.addToBuf(sd.curchar)
 	return nil
 }
+
+// postProcessProperties adds post-processing to prop
+func postProcessProperties(node *game.Node, prop string) error {
+	switch prop {
+
+	}
+}
