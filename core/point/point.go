@@ -74,6 +74,11 @@ func (pt *Point) ToSGF() (string, error) {
 	return sgfOut, err01
 }
 
+// String() method to represent and print a Point, useful for debugging and test purposes
+func (pt Point) String() string {
+	return fmt.Sprintf("{%d,%d}", pt.x, pt.y)
+}
+
 // NewFromSGF converts an SGF point (two letter string)
 // to a pointer-type (immutable) *Point.
 func NewFromSGF(sgfPt string) (*Point, error) {
