@@ -18,9 +18,8 @@ func TestCreate(t *testing.T) {
 }
 
 func TestPointToString(t *testing.T) {
-	p := New(2, 3)
-	result := fmt.Sprintf("%v", p)
-	const expected = "Point(2,3)"
+	result := fmt.Sprintf("%v", New(2, 3))
+	const expected = "{2,3}"
 	if result != expected {
 		t.Errorf("Point() to string: expected %v, got %v", expected, result)
 	}
