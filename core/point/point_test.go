@@ -3,6 +3,8 @@ package point
 import (
 	"fmt"
 	"testing"
+
+	"github.com/otrego/clamshell/core/errcheck"
 )
 
 func TestCreate(t *testing.T) {
@@ -28,9 +30,10 @@ func TestPointToString(t *testing.T) {
 func TestPointToSGFTranslate(t *testing.T) {
 	// First test translation from integer-point to SGF-string-point
 	testToSGFCases := []struct {
-		desc string
-		in   *Point
-		want string
+		desc         string
+		in           *Point
+		want         string
+		expErrSubstr string
 	}{
 		{
 			desc: "Point => SGF",
@@ -64,11 +67,28 @@ func TestPointToSGFTranslate(t *testing.T) {
 			},
 			want: "OZ",
 		},
+		{
+			desc: "Point => SGF, out of range",
+			in: &Point{
+				x: 100,
+				y: 200,
+			},
+			expErrSubstr: "out of range x or y",
+		},
 	}
 
 	for _, tc := range testToSGFCases {
 		t.Run(tc.desc, func(t *testing.T) {
-			toSGFOut, _ := New(tc.in.x, tc.in.y).ToSGF()
+			toSGFOut, err := New(tc.in.x, tc.in.y).ToSGF()
+			cerr := errcheck.CheckCases(err, tc.expErrSubstr)
+			if cerr != nil {
+				t.Error(cerr)
+				return
+			}
+			if err != nil {
+				return
+			}
+
 			if toSGFOut != tc.want {
 				t.Errorf("%q.ToSGF() = %q, but wanted %q", tc.in,
 					toSGFOut, tc.want)
@@ -79,9 +99,10 @@ func TestPointToSGFTranslate(t *testing.T) {
 
 func TestSGFToPointTranslate(t *testing.T) {
 	testToPointCases := []struct {
-		desc string
-		in   string
-		want *Point
+		desc         string
+		in           string
+		want         *Point
+		expErrSubstr string
 	}{
 		{
 			desc: "SGF => Point",
@@ -115,11 +136,25 @@ func TestSGFToPointTranslate(t *testing.T) {
 				y: 51,
 			},
 		},
+		{
+			desc:         "SGF => Point: Invalid chars",
+			in:           "&&",
+			expErrSubstr: "invalid characters",
+		},
 	}
 
 	for _, tc := range testToPointCases {
 		t.Run(tc.desc, func(t *testing.T) {
-			toPointOut, _ := NewFromSGF(tc.in)
+			toPointOut, err := NewFromSGF(tc.in)
+			cerr := errcheck.CheckCases(err, tc.expErrSubstr)
+			if cerr != nil {
+				t.Error(cerr)
+				return
+			}
+			if err != nil {
+				return
+			}
+
 			// include the point.go *Point type X Y getters below
 			pointX := toPointOut.X()
 			pointY := toPointOut.Y()
