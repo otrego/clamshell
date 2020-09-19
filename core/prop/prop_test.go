@@ -6,21 +6,19 @@ import (
 )
 
 func TestValidate(t *testing.T) {
-
-	var valid prop.Field = "TB"
+	valid := prop.Field("TB")
 
 	test := prop.Validate(valid)
 	if test != true {
-		t.Errorf("Valid SGF field returned %v; want true", test)
+		t.Errorf("Validate(%v) SGF field returned %v; want true", valid, test)
 	}
 }
 
 func TestInvalidate(t *testing.T) {
-
-	var invalid prop.Field = "TQB"
+	invalid := prop.Field("TQB")
 
 	test := prop.Validate(invalid)
 	if test != false {
-		t.Errorf("Invalid SGF field returned %v; want false", test)
+		t.Errorf("Validate(%v) SGF field returned %v; want false", invalid, test)
 	}
 }
