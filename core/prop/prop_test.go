@@ -1,4 +1,4 @@
-package prop
+package prop_test
 
 import (
 	"github.com/otrego/clamshell/core/prop"
