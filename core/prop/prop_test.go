@@ -10,7 +10,7 @@ func TestValidate(t *testing.T) {
 
 	test := prop.Validate(valid)
 	if test != true {
-		t.Errorf("Validate(%v) SGF field returned %v; want true", valid, test)
+		t.Errorf("Validate(%v) returned %v; want true", valid, test)
 	}
 }
 
@@ -19,6 +19,6 @@ func TestInvalidate(t *testing.T) {
 
 	test := prop.Validate(invalid)
 	if test != false {
-		t.Errorf("Validate(%v) SGF field returned %v; want false", invalid, test)
+		t.Errorf("Validate(%v) returned %v; want false", invalid, test)
 	}
 }
