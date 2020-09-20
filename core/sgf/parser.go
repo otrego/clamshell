@@ -280,6 +280,7 @@ func handleBetween(stateData *stateData, pbuf *propBuffer) error {
 		cn := stateData.curnode
 		stateData.curnode = game.NewNode()
 		cn.AddChild(stateData.curnode)
+		stateData.curnode.Parent = cn
 		return nil
 	} else if stateData.curchar == rparen {
 		// AW[aw][bw] (;B[ab])
@@ -367,7 +368,6 @@ func handlePropData(stateData *stateData, pbuf *propBuffer) error {
 // postProcessProperties adds post-processing to properties, to allow for more
 // structure.
 func postProcessProperties(n *game.Node, prop string, propData []string) error {
-	// TODO(kashomon): This whole method should probably be moved to game/move.go
 	switch prop {
 	case "AW", "AB":
 		col, err := color.FromSGFProp(prop)
