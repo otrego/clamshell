@@ -3,6 +3,7 @@ package katago
 import (
 	"encoding/json"
 	"fmt"
+	"strconv"
 
 	"github.com/google/uuid"
 	"github.com/otrego/clamshell/core/game"
@@ -16,7 +17,10 @@ type Query struct {
 	ID string `json:"id"`
 
 	// InitialStones are the initial stones on the board.
-	InitialStones []Move `json:"initialStones"`
+	InitialStones []Move `json:"initialStones,omitempty"`
+
+	// InitialPlayer is the initial player
+	InitialPlayer string `json:"initialPlayer,omitempty"`
 
 	// Moves are the moves played in the game.
 	Moves []Move `json:"moves"`
@@ -26,7 +30,8 @@ type Query struct {
 	Rules Rules `json:"rules"`
 
 	// Komi is the komi to be used. Generally this is implied by the rules, so
-	// doesn't need to be set.
+	// doesn't need to be set. Note that the komi should be integers or half
+	// integers: ex: 8, 7.5, 6.5 etc.
 	Komi *float64 `json:"komi,omitempty"`
 
 	// BoardXSize is the width of the board
@@ -91,12 +96,6 @@ func (q *Query) ToJSON() ([]byte, error) {
 	return json.Marshal(q)
 }
 
-func converter(g *game.Game) *gameConverter {
-	return &gameConverter{
-		g: g,
-	}
-}
-
 type gameConverter struct {
 	g *game.Game
 }
@@ -106,16 +105,114 @@ func (gc *gameConverter) point(pt *point.Point) string {
 }
 
 func (gc *gameConverter) move(mv *game.Move) Move {
-	return Move{mv.Color().String(), gc.point(mv.Point)}
+	return Move{string(mv.Color()), gc.point(mv.Point())}
 }
 
-func convertMoves(g *game.Move) []Move {
-	var out Move
+func (gc *gameConverter) initialStones() []Move {
+	var out []Move
+	for _, mv := range gc.g.Root.Placements {
+		out = append(out, gc.move(mv))
+	}
+	return out
 }
 
-// MainLineSurvey does
-func MainLineSurvey(g *game.Game) (*Query, error) {
-	q := NewQuery()
+func (gc *gameConverter) initialPlayer() string {
+	if val, ok := gc.g.Root.Properties["PL"]; ok && len(val) > 0 {
+		return val[0]
+	}
+	return ""
+}
 
+func (gc *gameConverter) mainBranchMoves() []Move {
+	var out []Move
+	for n := gc.g.Root; ; n = n.Children[0] {
+		if n.Move != nil && !n.Move.IsPass() {
+			out = append(out, gc.move(n.Move))
+		}
+		if len(n.Children) == 0 {
+			// No more children; terminate traversal.
+			break
+		}
+	}
+	return out
+}
+
+func (gc *gameConverter) rules() Rules {
+	if val, ok := gc.g.Root.Properties["RU"]; ok && len(val) > 0 {
+		return Rules(val[0])
+	}
+	return TrompTaylorRules
+}
+
+func (gc *gameConverter) komi() (*float64, error) {
+	if val, ok := gc.g.Root.Properties["KM"]; ok && len(val) > 0 {
+		km, err := strconv.ParseFloat(val[0], 64)
+		if err != nil {
+			return nil, err
+		}
+		return &km, nil
+	}
 	return nil, nil
+}
+
+func (gc *gameConverter) boardSize() (*int, error) {
+	if val, ok := gc.g.Root.Properties["SZ"]; ok && len(val) > 0 {
+		sz, err := strconv.Atoi(val[0])
+		if err != nil {
+			return nil, err
+		}
+		if sz > 25 {
+			return nil, fmt.Errorf("only sizes up to 25 are supported")
+		}
+		return &sz, nil
+	}
+	return nil, nil
+}
+
+func (gc *gameConverter) analyzeMainBranch() []int {
+	var out []int
+	idx := 0
+	for n := gc.g.Root; ; n = n.Children[0] {
+		if n.Move != nil && !n.Move.IsPass() {
+			out = append(out, idx)
+		} else if n.Move != nil && n.Move.IsPass() {
+			// stop analyzing at first pass
+			break
+		}
+		if len(n.Children) == 0 {
+			// No more children; terminate traversal.
+			break
+		}
+		if idx > 10 {
+			break
+		}
+		idx++
+	}
+	return out
+}
+
+// MainBranchSurvey does a full game analysis of the main-branch.
+func MainBranchSurvey(g *game.Game) (*Query, error) {
+	q := NewQuery()
+	gc := &gameConverter{g: g}
+
+	q.InitialStones = gc.initialStones()
+	q.InitialPlayer = gc.initialPlayer()
+	q.Moves = gc.mainBranchMoves()
+	q.Rules = gc.rules()
+	km, err := gc.komi()
+	if err != nil {
+		return nil, err
+	}
+	q.Komi = km
+
+	sz, err := gc.boardSize()
+	if err != nil {
+		return nil, err
+	}
+	q.BoardYSize = sz
+	q.BoardXSize = sz
+	q.AnalyzeTurns = gc.analyzeMainBranch()
+
+	return q, nil
 }

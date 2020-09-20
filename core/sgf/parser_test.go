@@ -202,7 +202,7 @@ AB[na][ra][mb][rb][lc][qc][ld][od][qd][le][pe][qe][mf][nf][of][pg]
 		{
 			desc:         "error parsing: unclosed",
 			sgf:          "(;C",
-			expErrSubstr: "expected to end on ')'",
+			expErrSubstr: "expected to end on root branch",
 		},
 		{
 			desc:         "error parsing: bad property",

@@ -12,11 +12,14 @@ package main
 
 import (
 	"flag"
+	"fmt"
+	"io/ioutil"
 	"os"
 	"strings"
 
 	"github.com/golang/glog"
 	"github.com/otrego/clamshell/core/katago"
+	"github.com/otrego/clamshell/core/sgf"
 )
 
 var outputDir = flag.String("output_dir", "", "Directory for returning the processed SGFs. By default, uses current directory")
@@ -53,11 +56,30 @@ func getSGFs(args []string) []string {
 	return out
 }
 
-func process(files []string, an *katago.Analyzer) error {
-	glog.Infof("using model %q", an.Model)
-	glog.Infof("using gtp config %q", an.Config)
+func process(files []string, analyzer *katago.Analyzer) error {
+	glog.Infof("using model %q", analyzer.Model)
+	glog.Infof("using gtp config %q", analyzer.Config)
 	glog.Infof("using files %v\n", files)
 	for _, f := range files {
+		contents, err := ioutil.ReadFile(f)
+		if err != nil {
+			return err
+		}
+
+		g, err := sgf.FromString(string(contents)).Parse()
+		if err != nil {
+			return err
+		}
+		q, err := katago.MainBranchSurvey(g)
+		if err != nil {
+			return err
+		}
+		jsonVal, err := q.ToJSON()
+		if err != nil {
+			return err
+		}
+		fmt.Printf("%v\n", string(jsonVal))
+
 		glog.Infof("analyzing %v\n", f)
 		// TODO(kashomon): Actually analyze
 	}
