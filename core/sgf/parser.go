@@ -330,11 +330,10 @@ func handleProperty(stateData *stateData, pbuf *propBuffer) error {
 //     propData => propData
 //     propData => between
 func handlePropData(stateData *stateData, pbuf *propBuffer) error {
-	if stateData.curchar == rbrace &&
+	if stateData.curchar == rbrace && stateData.holdChar == backslash {
 		// C[foo 1[k\] bar]
 		//           ^
 		// There was a backslash used for escaping a r-brace.
-		stateData.holdChar == backslash {
 		stateData.holdChar = rune(0)
 		stateData.addToBuf(stateData.curchar)
 		return nil
