@@ -1,6 +1,8 @@
 package game
 
 import (
+	"fmt"
+
 	"github.com/otrego/clamshell/core/color"
 	"github.com/otrego/clamshell/core/point"
 )
@@ -8,40 +10,63 @@ import (
 // A Move is location + a color. A pass is represented by a Move with defined
 // color but no point specified.
 type Move struct {
-	Color color.Color
-	Point *point.Point
+	color color.Color
+	point *point.Point
 }
 
-// BlackMove creates a black move from a point.
-func BlackMove(pt *point.Point) *Move {
-	return &Move{
-		Color: color.Black,
-		Point: pt,
-	}
+// NewMove creates a new Move.
+func NewMove(col color.Color, pt *point.Point) *Move {
+	return &Move{color: col, point: pt}
 }
 
-// BlackMoveList creates a black slice from a point.
-func BlackMoveList(pts []*point.Point) []*Move {
-	moves := make([]*Move, len(pts))
-	for i := range pts {
-		moves[i] = BlackMove(pts[i])
-	}
-	return moves
+// Color returns the color.
+func (m *Move) Color() color.Color {
+	return m.color
 }
 
-// WhiteMove creates a white move from a point.
-func WhiteMove(pt *point.Point) *Move {
-	return &Move{
-		Color: color.White,
-		Point: pt,
-	}
+// Point returns the point.
+func (m *Move) Point() *point.Point {
+	return m.point
 }
 
-// WhiteMoveList creates a black slice from a point.
-func WhiteMoveList(pts []*point.Point) []*Move {
-	moves := make([]*Move, len(pts))
-	for i := range pts {
-		moves[i] = WhiteMove(pts[i])
+// String returns the string value for a Move
+func (m *Move) String() string {
+	return fmt.Sprintf("{%v, %v}", m.color, m.point)
+}
+
+// IsPass indicates whether this is a 'pass' move (i.e., there is a player but
+// no point).
+func (m *Move) IsPass() bool {
+	return m.point == nil
+}
+
+// MoveFromSGFPoint converts from an SGF point of the form "ab" to a point
+// object, such as {0,1}.
+func MoveFromSGFPoint(col color.Color, sgfPt string) (*Move, error) {
+	if sgfPt == "" {
+		// This is valid. This is a 'Pass' Move.
+		return &Move{color: col}, nil
 	}
-	return moves
+	pt, err := point.NewFromSGF(sgfPt)
+	if err != nil {
+		return nil, err
+	}
+	return &Move{color: col, point: pt}, nil
+}
+
+// MoveListFromSGFPoints a move list of the form "ab", "bc" to a moves of the form
+// {0,1}, {0,2}. Note that pass-moves are not allowed in move-lists.
+func MoveListFromSGFPoints(col color.Color, sgfPts []string) ([]*Move, error) {
+	var moves []*Move
+	for _, sgfPt := range sgfPts {
+		pt, err := point.NewFromSGF(sgfPt)
+		if err != nil {
+			return nil, err
+		}
+		moves = append(moves, &Move{
+			color: col,
+			point: pt,
+		})
+	}
+	return moves, nil
 }

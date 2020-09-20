@@ -15,7 +15,7 @@ type Node struct {
 	// Children of this position.
 	Children []*Node
 
-	//
+	// Parent of this node.
 	Parent *Node
 }
 

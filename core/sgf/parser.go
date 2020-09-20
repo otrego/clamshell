@@ -7,8 +7,8 @@ import (
 	"strings"
 	"unicode"
 
+	"github.com/otrego/clamshell/core/color"
 	"github.com/otrego/clamshell/core/game"
-	"github.com/otrego/clamshell/core/point"
 )
 
 // Parse is a convenience helper to parse sgf strings.
@@ -142,7 +142,7 @@ func (p parseState) String() string {
 // Parse parses a game into a tree of moves, return a game or a parsing error.
 func (p *Parser) Parse() (*game.Game, error) {
 	g := game.New()
-	sd := &stateData{}
+	stateData := &stateData{}
 	pbuf := &propBuffer{}
 
 	// the parser uses a finite state machine to perform parsing, having the
@@ -161,53 +161,49 @@ func (p *Parser) Parse() (*game.Game, error) {
 	var c rune
 	var err error
 	for c, _, err = p.rdr.ReadRune(); err == nil; c, _, err = p.rdr.ReadRune() {
-		sd.idx++
-		sd.col++
-		sd.curchar = c
-		if sd.curchar == newline {
-			sd.row++
-			sd.col = 0
+		stateData.idx++
+		stateData.col++
+		stateData.curchar = c
+		if stateData.curchar == newline {
+			stateData.row++
+			stateData.col = 0
 		}
 
-		switch sd.curstate {
+		switch stateData.curstate {
 		case beginningState:
-			err = handleBeginning(sd, pbuf, g)
-			if err != nil {
+			if err = handleBeginning(stateData, pbuf, g); err != nil {
 				return nil, err
 			}
 
 		case betweenState:
-			err = handleBetween(sd, pbuf)
-			if err != nil {
+			if err = handleBetween(stateData, pbuf); err != nil {
 				return nil, err
 			}
 
 		case propertyState:
-			err = handleProperty(sd, pbuf)
-			if err != nil {
+			if err = handleProperty(stateData, pbuf); err != nil {
 				return nil, err
 			}
 
 		case propDataState:
-			err = handlePropData(sd, pbuf)
-			if err != nil {
+			if err = handlePropData(stateData, pbuf); err != nil {
 				return nil, err
 			}
 
 		default:
 			// This is unlkely to happen unless we messed up our parser correctness.
-			return nil, sd.parseError("unexpected parsing state")
+			return nil, stateData.parseError("unexpected parsing state")
 		}
-		sd.prevchar = c
+		stateData.prevchar = c
 	}
 
 	// We should **always** end with an EOF error
 	if err == nil || !errors.Is(err, io.EOF) {
-		return nil, sd.parseError(fmt.Sprintf("expected to end on EOF; got %v", err))
-	} else if sd.prevchar != rparen {
-		return nil, sd.parseError(fmt.Sprintf("expected to end on ')' got %c", sd.prevchar))
-	} else if len(sd.branches) != 0 {
-		return nil, sd.parseError("expected to end on root branch, but ended in nested condition")
+		return nil, stateData.parseError(fmt.Sprintf("expected to end on EOF; got %v", err))
+	} else if stateData.prevchar != rparen {
+		return nil, stateData.parseError(fmt.Sprintf("expected to end on ')' got %c", stateData.prevchar))
+	} else if len(stateData.branches) != 0 {
+		return nil, stateData.parseError("expected to end on root branch, but ended in nested condition")
 	}
 
 	return g, nil
@@ -219,22 +215,22 @@ func (p *Parser) Parse() (*game.Game, error) {
 // Transitions:
 //
 //     beginning => between
-func handleBeginning(sd *stateData, pbuf *propBuffer, g *game.Game) error {
-	if unicode.IsSpace(sd.curchar) {
+func handleBeginning(stateData *stateData, pbuf *propBuffer, g *game.Game) error {
+	if unicode.IsSpace(stateData.curchar) {
 		return nil // We can safely ignore whitespace here.
-	} else if sd.curchar == lparen {
+	} else if stateData.curchar == lparen {
 		// (;AW[aw][bw]
 		// ^
-		sd.branches = append(sd.branches, g.Root)
+		stateData.branches = append(stateData.branches, g.Root)
 		return nil
-	} else if sd.curchar == scolon {
+	} else if stateData.curchar == scolon {
 		// (;AW[aw][bw]
 		//  ^
-		sd.curstate = betweenState
-		sd.curnode = g.Root
+		stateData.curstate = betweenState
+		stateData.curnode = g.Root
 		return nil
 	}
-	return sd.parseError("unexpected char")
+	return stateData.parseError("unexpected char")
 }
 
 // handleBetween handles the between state, transitioning to one of several
@@ -247,59 +243,59 @@ func handleBeginning(sd *stateData, pbuf *propBuffer, g *game.Game) error {
 //     between => between, add branch  ex: B[ab](
 //     between => between, pop branch  ex: B[ab](;W[ac])
 //     between => between, add node    ex: B[ab];
-func handleBetween(sd *stateData, pbuf *propBuffer) error {
-	if unicode.IsSpace(sd.curchar) {
+func handleBetween(stateData *stateData, pbuf *propBuffer) error {
+	if unicode.IsSpace(stateData.curchar) {
 		// We can safely ignore whitespace here.
 		return nil
-	} else if unicode.IsUpper(sd.curchar) {
+	} else if unicode.IsUpper(stateData.curchar) {
 		// AW[aw][bw]
 		// ^
-		if err := pbuf.flush(sd.curnode); err != nil {
-			sd.parseError(err.Error())
+		if err := pbuf.flush(stateData.curnode); err != nil {
+			return stateData.parseError(err.Error())
 		}
-		sd.addToBuf(sd.curchar)
-		sd.curstate = propertyState
+		stateData.addToBuf(stateData.curchar)
+		stateData.curstate = propertyState
 		return nil
-	} else if sd.curchar == lbrace {
+	} else if stateData.curchar == lbrace {
 		// AW[aw][bw]
 		//   ^   ^
-		sd.curstate = propDataState
+		stateData.curstate = propDataState
 		return nil
-	} else if sd.curchar == lparen {
+	} else if stateData.curchar == lparen {
 		// AW[aw][bw] (;B[ab]
 		//            ^
-		pbuf.flush(sd.curnode)
-		if err := pbuf.flush(sd.curnode); err != nil {
-			sd.parseError(err.Error())
+		pbuf.flush(stateData.curnode)
+		if err := pbuf.flush(stateData.curnode); err != nil {
+			return stateData.parseError(err.Error())
 		}
-		sd.addBranch(sd.curnode)
+		stateData.addBranch(stateData.curnode)
 		return nil
-	} else if sd.curchar == scolon {
+	} else if stateData.curchar == scolon {
 		// AW[aw][bw] (;B[ab];W[ac])
 		//             ^     ^
-		pbuf.flush(sd.curnode)
-		if err := pbuf.flush(sd.curnode); err != nil {
-			sd.parseError(err.Error())
+		pbuf.flush(stateData.curnode)
+		if err := pbuf.flush(stateData.curnode); err != nil {
+			return stateData.parseError(err.Error())
 		}
-		cn := sd.curnode
-		sd.curnode = game.NewNode()
-		cn.AddChild(sd.curnode)
+		cn := stateData.curnode
+		stateData.curnode = game.NewNode()
+		cn.AddChild(stateData.curnode)
 		return nil
-	} else if sd.curchar == rparen {
+	} else if stateData.curchar == rparen {
 		// AW[aw][bw] (;B[ab])
 		//                   ^
-		pbuf.flush(sd.curnode)
-		if err := pbuf.flush(sd.curnode); err != nil {
-			sd.parseError(err.Error())
+		pbuf.flush(stateData.curnode)
+		if err := pbuf.flush(stateData.curnode); err != nil {
+			return stateData.parseError(err.Error())
 		}
-		cn, err := sd.popBranch()
+		cn, err := stateData.popBranch()
 		if err != nil {
 			return err
 		}
-		sd.curnode = cn
+		stateData.curnode = cn
 		return nil
 	}
-	return sd.parseError("unexpected character between")
+	return stateData.parseError("unexpected character between")
 }
 
 // handleProperty is a simple state for handling parsing property
@@ -308,21 +304,21 @@ func handleBetween(sd *stateData, pbuf *propBuffer) error {
 // Transitions:
 //
 //     property => propData
-func handleProperty(sd *stateData, pbuf *propBuffer) error {
-	if unicode.IsUpper(sd.curchar) {
+func handleProperty(stateData *stateData, pbuf *propBuffer) error {
+	if unicode.IsUpper(stateData.curchar) {
 		// AW[aw][bw]
 		//  ^
-		sd.addToBuf(sd.curchar)
+		stateData.addToBuf(stateData.curchar)
 		return nil
-	} else if sd.curchar == lbrace {
+	} else if stateData.curchar == lbrace {
 		// AW[aw][bw]
 		//   ^
-		prop := sd.flushBuf()
+		prop := stateData.flushBuf()
 		pbuf.prop = prop
-		sd.curstate = propDataState
+		stateData.curstate = propDataState
 		return nil
 	}
-	return sd.parseError("unexpected character during property parsing")
+	return stateData.parseError("unexpected character during property parsing")
 }
 
 // handlePropData is a state for handling parsing property
@@ -332,39 +328,39 @@ func handleProperty(sd *stateData, pbuf *propBuffer) error {
 //
 //     propData => propData
 //     propData => between
-func handlePropData(sd *stateData, pbuf *propBuffer) error {
-	if sd.curchar == rbrace &&
+func handlePropData(stateData *stateData, pbuf *propBuffer) error {
+	if stateData.curchar == rbrace &&
 		// C[foo 1[k\] bar]
 		//           ^
 		// There was a backslash used for escaping a r-brace.
-		sd.holdChar == backslash {
-		sd.holdChar = rune(0)
-		sd.addToBuf(sd.curchar)
+		stateData.holdChar == backslash {
+		stateData.holdChar = rune(0)
+		stateData.addToBuf(stateData.curchar)
 		return nil
-	} else if sd.holdChar == backslash {
+	} else if stateData.holdChar == backslash {
 		// C[foo 1[k\z bar]
 		//           ^
 		// Turns out the '\\' char wasn't meant to be used for escaping
-		sd.addToBuf(sd.prevchar)
-		sd.addToBuf(sd.curchar)
-		sd.holdChar = rune(0)
+		stateData.addToBuf(stateData.prevchar)
+		stateData.addToBuf(stateData.curchar)
+		stateData.holdChar = rune(0)
 		return nil
-	} else if sd.curchar == backslash {
+	} else if stateData.curchar == backslash {
 		// C[foo 1[k\] bar]
 		//          ^
 		// Ignore for now, wait for next character
-		sd.holdChar = sd.curchar
+		stateData.holdChar = stateData.curchar
 		return nil
-	} else if sd.curchar == rbrace {
+	} else if stateData.curchar == rbrace {
 		// C[foo 1[k\] bar]
 		//                ^
-		pbuf.addToData(sd.flushBuf())
-		sd.curstate = betweenState
+		pbuf.addToData(stateData.flushBuf())
+		stateData.curstate = betweenState
 		return nil
 	}
 	// C[foo 1[k\] bar]
 	//    ^
-	sd.addToBuf(sd.curchar)
+	stateData.addToBuf(stateData.curchar)
 	return nil
 }
 
@@ -373,49 +369,30 @@ func handlePropData(sd *stateData, pbuf *propBuffer) error {
 func postProcessProperties(n *game.Node, prop string, propData []string) error {
 	// TODO(kashomon): This whole method should probably be moved to game/move.go
 	switch prop {
-	case "AW":
-		// TODO(kashomon): Make a helper function for this
-		var pts []*point.Point
-		for _, sgfPt := range propData {
-			pt, err := point.NewFromSGF(sgfPt)
-			if err != nil {
-				return err
-			}
-			pts = append(pts, pt)
-		}
-		n.Placements = append(n.Placements, game.WhiteMoveList(pts)...)
-
-	case "AB":
-		// TODO(kashomon): Make a helper function for this
-		var pts []*point.Point
-		for _, sgfPt := range propData {
-			pt, err := point.NewFromSGF(sgfPt)
-			if err != nil {
-				return err
-			}
-			pts = append(pts, pt)
-		}
-		n.Placements = append(n.Placements, game.BlackMoveList(pts)...)
-
-	case "B":
-		if n.Move != nil {
-			return fmt.Errorf("found two moves on one node")
-		}
-		pt, err := point.NewFromSGF(propData[0])
+	case "AW", "AB":
+		col, err := color.FromSGFProp(prop)
 		if err != nil {
 			return err
 		}
-		n.Move = game.BlackMove(pt)
-
-	case "W":
-		if n.Move != nil {
-			return fmt.Errorf("found two moves on one node")
-		}
-		pt, err := point.NewFromSGF(propData[0])
+		moves, err := game.MoveListFromSGFPoints(col, propData)
 		if err != nil {
 			return err
 		}
-		n.Move = game.WhiteMove(pt)
+		n.Placements = append(n.Placements, moves...)
+
+	case "B", "W":
+		if n.Move != nil {
+			return fmt.Errorf("found two moves on one node")
+		}
+		col, err := color.FromSGFProp(prop)
+		if err != nil {
+			return err
+		}
+		move, err := game.MoveFromSGFPoint(col, propData[0])
+		if err != nil {
+			return err
+		}
+		n.Move = move
 	}
 
 	return nil

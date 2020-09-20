@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
+	"github.com/otrego/clamshell/core/color"
 	"github.com/otrego/clamshell/core/errcheck"
 	"github.com/otrego/clamshell/core/game"
 	"github.com/otrego/clamshell/core/point"
@@ -95,7 +96,7 @@ func TestParse(t *testing.T) {
 		},
 		{
 			desc: "basic variation",
-			sgf:  `(;GM[1](;B[aa]W[ab])(;B[ab]W[ac]))`,
+			sgf:  `(;GM[1](;B[aa];W[ab])(;B[ab];W[ac]))`,
 			pathToProps: map[string]propmap{
 				"0.0": propmap{
 					"W": []string{"ab"},
@@ -104,6 +105,11 @@ func TestParse(t *testing.T) {
 					"W": []string{"ac"},
 				},
 			},
+		},
+		{
+			desc:         "basic variation error: two moves on one node",
+			sgf:          `(;GM[1](;B[aa]W[ab])(;B[ab];W[ac]))`,
+			expErrSubstr: "found two moves",
 		},
 
 		{
@@ -272,7 +278,7 @@ func TestPropertyPostProcessing(t *testing.T) {
 			getter: func(n *game.Node) interface{} {
 				return n.Move
 			},
-			want: game.BlackMove(point.New(0, 1)),
+			want: game.NewMove(color.Black, point.New(0, 1)),
 		},
 		{
 			desc: "white move",
@@ -281,7 +287,7 @@ func TestPropertyPostProcessing(t *testing.T) {
 			getter: func(n *game.Node) interface{} {
 				return n.Move
 			},
-			want: game.WhiteMove(point.New(0, 1)),
+			want: game.NewMove(color.White, point.New(0, 1)),
 		},
 		{
 			desc: "black & white placements",
@@ -291,10 +297,10 @@ func TestPropertyPostProcessing(t *testing.T) {
 				return n.Placements
 			},
 			want: []*game.Move{
-				game.BlackMove(point.New(0, 1)),
-				game.BlackMove(point.New(0, 2)),
-				game.WhiteMove(point.New(1, 1)),
-				game.WhiteMove(point.New(1, 2)),
+				game.NewMove(color.Black, point.New(0, 1)),
+				game.NewMove(color.Black, point.New(0, 2)),
+				game.NewMove(color.White, point.New(1, 1)),
+				game.NewMove(color.White, point.New(1, 2)),
 			},
 		},
 	}
