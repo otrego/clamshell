@@ -5,7 +5,7 @@ import (
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/otrego/clamshell/core/errcheck"
-	"github.com/otrego/clamshell/core/parser"
+	"github.com/otrego/clamshell/core/sgf"
 )
 
 func TestParse(t *testing.T) {
@@ -15,6 +15,16 @@ func TestParse(t *testing.T) {
 		exp          []int
 		expErrSubstr string
 	}{
+		{
+			desc: "empty treepath",
+			path: "",
+			exp:  []int{},
+		},
+		{
+			desc: "empty treepath, using leading .",
+			path: ".",
+			exp:  []int{},
+		},
 		{
 			desc: "0th varation",
 			path: "0",
@@ -36,8 +46,13 @@ func TestParse(t *testing.T) {
 			exp:  []int{2, 3},
 		},
 		{
-			desc: "varitaion 3",
+			desc: "variation 3",
 			path: "3",
+			exp:  []int{3},
+		},
+		{
+			desc: "variation 3, with leading .",
+			path: ".3",
 			exp:  []int{3},
 		},
 		{
@@ -48,6 +63,11 @@ func TestParse(t *testing.T) {
 		{
 			desc: "move 0.0.0.0 = 4 moves",
 			path: "0.0.0.0",
+			exp:  []int{0, 0, 0, 0},
+		},
+		{
+			desc: "move 0.0.0.0 = 4 moves, leading .",
+			path: ".0.0.0.0",
 			exp:  []int{0, 0, 0, 0},
 		},
 		{
@@ -122,7 +142,7 @@ func TestApplyPath(t *testing.T) {
 	}{
 		{
 			desc:     "first move",
-			initPath: "0.0",
+			initPath: "0",
 			game:     "(;GM[1];B[pd]C[foo])",
 			expProps: map[string][]string{
 				"C": []string{"zed"},
@@ -133,7 +153,7 @@ func TestApplyPath(t *testing.T) {
 	t.Skip("Parsing is currently incorrect:Re-enable test once https://github.com/otrego/clamshell/issues/83 is fixed")
 	for _, tc := range testCases {
 		t.Run(tc.desc, func(t *testing.T) {
-			g, err := parser.FromString(tc.game).Parse()
+			g, err := sgf.FromString(tc.game).Parse()
 			if err != nil {
 				t.Error(err)
 				return
