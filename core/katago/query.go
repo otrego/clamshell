@@ -2,8 +2,11 @@ package katago
 
 import (
 	"encoding/json"
+	"fmt"
 
 	"github.com/google/uuid"
+	"github.com/otrego/clamshell/core/game"
+	"github.com/otrego/clamshell/core/point"
 )
 
 // Query is a katago analysis query. Here we use pointer values for primitives
@@ -65,7 +68,7 @@ func NewQuery() *Query {
 
 // Move is a string-tuple having the form [<MOVE>, <POS>].
 // For example : ["B", "C4"]
-type Move []string
+type Move [2]string
 
 // Rules are rule-alias strings.
 type Rules string
@@ -86,4 +89,33 @@ const (
 // ToJSON converts a query to JSON.
 func (q *Query) ToJSON() ([]byte, error) {
 	return json.Marshal(q)
+}
+
+func converter(g *game.Game) *gameConverter {
+	return &gameConverter{
+		g: g,
+	}
+}
+
+type gameConverter struct {
+	g *game.Game
+}
+
+func (gc *gameConverter) point(pt *point.Point) string {
+	return fmt.Sprintf("(%d,%d)", pt.X(), pt.Y())
+}
+
+func (gc *gameConverter) move(mv *game.Move) Move {
+	return Move{mv.Color().String(), gc.point(mv.Point)}
+}
+
+func convertMoves(g *game.Move) []Move {
+	var out Move
+}
+
+// MainLineSurvey does
+func MainLineSurvey(g *game.Game) (*Query, error) {
+	q := NewQuery()
+
+	return nil, nil
 }
