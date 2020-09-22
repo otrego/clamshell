@@ -101,7 +101,9 @@ type gameConverter struct {
 }
 
 func (gc *gameConverter) point(pt *point.Point) string {
-	return fmt.Sprintf("(%d,%d)", pt.X(), pt.Y())
+	const a = 'A'
+	val := rune(a + pt.X())
+	return fmt.Sprintf("%c%d", val, pt.Y()+1)
 }
 
 func (gc *gameConverter) move(mv *game.Move) Move {
@@ -123,8 +125,9 @@ func (gc *gameConverter) initialPlayer() string {
 	return ""
 }
 
-func (gc *gameConverter) mainBranchMoves() []Move {
+func (gc *gameConverter) mainBranchMoves(maxMoves int) []Move {
 	var out []Move
+	idx := 0
 	for n := gc.g.Root; ; n = n.Children[0] {
 		if n.Move != nil && !n.Move.IsPass() {
 			out = append(out, gc.move(n.Move))
@@ -133,6 +136,10 @@ func (gc *gameConverter) mainBranchMoves() []Move {
 			// No more children; terminate traversal.
 			break
 		}
+		if idx >= maxMoves {
+			break
+		}
+		idx++
 	}
 	return out
 }
@@ -169,7 +176,7 @@ func (gc *gameConverter) boardSize() (*int, error) {
 	return nil, nil
 }
 
-func (gc *gameConverter) analyzeMainBranch() []int {
+func (gc *gameConverter) analyzeMainBranch(maxMoves int) []int {
 	var out []int
 	idx := 0
 	for n := gc.g.Root; ; n = n.Children[0] {
@@ -183,7 +190,7 @@ func (gc *gameConverter) analyzeMainBranch() []int {
 			// No more children; terminate traversal.
 			break
 		}
-		if idx > 10 {
+		if idx >= maxMoves {
 			break
 		}
 		idx++
@@ -196,9 +203,11 @@ func MainBranchSurvey(g *game.Game) (*Query, error) {
 	q := NewQuery()
 	gc := &gameConverter{g: g}
 
+	maxMoves := 10
+
 	q.InitialStones = gc.initialStones()
 	q.InitialPlayer = gc.initialPlayer()
-	q.Moves = gc.mainBranchMoves()
+	q.Moves = gc.mainBranchMoves(maxMoves)
 	q.Rules = gc.rules()
 	km, err := gc.komi()
 	if err != nil {
@@ -212,7 +221,8 @@ func MainBranchSurvey(g *game.Game) (*Query, error) {
 	}
 	q.BoardYSize = sz
 	q.BoardXSize = sz
-	q.AnalyzeTurns = gc.analyzeMainBranch()
+	// q.AnalyzeTurns = gc.analyzeMainBranch(maxMoves)
+	// q.AnalyzeTurns = gc.analyzeMainBranch(maxMoves)
 
 	return q, nil
 }
