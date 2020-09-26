@@ -21,7 +21,8 @@ func TestPointToString(t *testing.T) {
 	result := fmt.Sprintf("%v", New(2, 3))
 	const expected = "{2,3}"
 	if result != expected {
-		t.Errorf("Point() to string: expected %v, got %v", expected, result)
+		t.Errorf("Point() to string: expected %v, got %v", expected,
+			result)
 	}
 }
 
@@ -120,7 +121,7 @@ func TestSGFToPointTranslate(t *testing.T) {
 	for _, tc := range testToPointCases {
 		t.Run(tc.desc, func(t *testing.T) {
 			toPointOut, _ := NewFromSGF(tc.in)
-			// include the point.go *Point type X Y getters below
+			// Utilizing the point.go *Point type X Y getters below
 			pointX := toPointOut.X()
 			pointY := toPointOut.Y()
 			if pointX != tc.want.x {
