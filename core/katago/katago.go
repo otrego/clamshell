@@ -21,6 +21,7 @@ type Analyzer struct {
 	AnalysisThreads int
 }
 
+// Cmd creates the Katago analysis command.
 func (an *Analyzer) Cmd() *exec.Cmd {
 	threads := an.AnalysisThreads
 	if threads == 0 {
