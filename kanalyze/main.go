@@ -12,11 +12,14 @@ package main
 
 import (
 	"flag"
+	"fmt"
+	"io/ioutil"
 	"os"
 	"strings"
 
 	"github.com/golang/glog"
 	"github.com/otrego/clamshell/core/katago"
+	"github.com/otrego/clamshell/core/sgf"
 )
 
 var outputDir = flag.String("output_dir", "", "Directory for returning the processed SGFs. By default, uses current directory")
@@ -58,7 +61,24 @@ func process(files []string, analyzer *katago.Analyzer) error {
 	glog.Infof("using gtp config %q", analyzer.Config)
 	glog.Infof("using files %v\n", files)
 
-	// TODO(kashomon): Convert SGF to Katago query
-
+	for _, fi := range files {
+		content, err := ioutil.ReadFile(fi)
+		if err != nil {
+			return err
+		}
+		game, err := sgf.FromString(string(content)).Parse()
+		if err != nil {
+			return err
+		}
+		q, err := katago.MainBranchSurvey(game)
+		if err != nil {
+			return err
+		}
+		jsonStr, err := q.ToJSON()
+		if err != nil {
+			return err
+		}
+		fmt.Printf("%v\n", string(jsonStr))
+	}
 	return nil
 }

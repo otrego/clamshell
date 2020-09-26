@@ -198,11 +198,14 @@ func (gc *gameConverter) analyzeMainBranch(maxMoves int) []int {
 	return out
 }
 
+// TODO(kashomon): Probably pass in options here.
+
 // MainBranchSurvey does a full game analysis of the main-branch.
 func MainBranchSurvey(g *game.Game) (*Query, error) {
 	q := NewQuery()
 	gc := &gameConverter{g: g}
 
+	// TODO(kashomon): This is for just testing.
 	maxMoves := 10
 
 	q.InitialStones = gc.initialStones()
