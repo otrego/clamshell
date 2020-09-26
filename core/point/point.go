@@ -25,18 +25,15 @@ var pointToSgfMap = map[int64]rune{
 	49: 'X', 50: 'Y', 51: 'Z',
 }
 
-// sgfToPointMap is a translation reference between string SGF-Point
-// (rune) values and int64 Point values
-var sgfToPointMap = map[rune]int64{
-	'a': 0, 'b': 1, 'c': 2, 'd': 3, 'e': 4, 'f': 5, 'g': 6, 'h': 7,
-	'i': 8, 'j': 9, 'k': 10, 'l': 11, 'm': 12, 'n': 13, 'o': 14,
-	'p': 15, 'q': 16, 'r': 17, 's': 18, 't': 19, 'u': 20, 'v': 21,
-	'w': 22, 'x': 23, 'y': 24, 'z': 25, 'A': 26, 'B': 27, 'C': 28,
-	'D': 29, 'E': 30, 'F': 31, 'G': 32, 'H': 33, 'I': 34, 'J': 35,
-	'K': 36, 'L': 37, 'M': 38, 'N': 39, 'O': 40, 'P': 41, 'Q': 42,
-	'R': 43, 'S': 44, 'T': 45, 'U': 46, 'V': 47, 'W': 48, 'X': 49,
-	'Y': 50, 'Z': 51,
-}
+// sgfToPointRef is an anonymous function that runs and inverts the
+// pointToSgfMap to create the reverse translation reference
+var sgfToPointRef = func(mapIn map[int64]rune) map[rune]int64 {
+	mapElem := make(map[rune]int64)
+	for key, val := range mapIn {
+		mapElem[val] = key
+	}
+	return mapElem
+}(pointToSgfMap)
 
 // New creates a new immutable Point.
 func New(x, y int64) *Point {
@@ -52,13 +49,13 @@ func (pt *Point) X() int64 { return pt.x }
 // Y returns the y-value.
 func (pt *Point) Y() int64 { return pt.y }
 
-// ToSGF converts a pointer-type (immutable) *Point
-// to an SGF Point (two letter string).
+// ToSGF converts a pointer-type (immutable) *Point to an SGF Point (
+// two letter string).
 // The returned value is 0-indexed.
 func (pt *Point) ToSGF() (string, error) {
 	var sgfOut string
 	var err01 = fmt.Errorf("")
-	if (pt.X() <= 51) && (pt.Y() <= 51) {
+	if (0 <= pt.X()) && (pt.X() <= 51) && (0 <= pt.Y()) && (pt.Y() <= 51) {
 		sgfX := string(pointToSgfMap[pt.X()])
 		sgfY := string(pointToSgfMap[pt.Y()])
 		sgfOut = sgfX + sgfY
@@ -68,8 +65,6 @@ func (pt *Point) ToSGF() (string, error) {
 		err01 = fmt.Errorf("*Point int64 x and y value entries must" +
 			" be greater than or equal to 0, " +
 			"and less than or equal to 51. ")
-		// err01 = errors.New("*Point x and y value entries must be" +
-		// 	" greater than or equal to 0, and less than or equal to 51")
 	}
 	return sgfOut, err01
 }
@@ -79,15 +74,16 @@ func (pt Point) String() string {
 	return fmt.Sprintf("{%d,%d}", pt.x, pt.y)
 }
 
-// NewFromSGF converts an SGF point (two letter string)
-// to a pointer-type (immutable) *Point.
+// NewFromSGF converts an SGF point (
+// two letter string) to a pointer-type (immutable) *Point (
+// (struct with two rune/char values).
 func NewFromSGF(sgfPt string) (*Point, error) {
 	var intX int64
 	var intY int64
 	var err02 = fmt.Errorf("")
-	if (sgfPt != "") && (sgfPt != "--") && (len(sgfPt) == 2) {
-		intX = sgfToPointMap[rune(sgfPt[0])]
-		intY = sgfToPointMap[rune(sgfPt[1])]
+	if (sgfPt != "") && (len(sgfPt) == 2) {
+		intX = sgfToPointRef[rune(sgfPt[0])]
+		intY = sgfToPointRef[rune(sgfPt[1])]
 		err02 = nil
 	} else {
 		intX = 99
