@@ -200,8 +200,6 @@ func (p *Parser) Parse() (*game.Game, error) {
 	// We should **always** end with an EOF error
 	if err == nil || !errors.Is(err, io.EOF) {
 		return nil, stateData.parseError(fmt.Sprintf("expected to end on EOF; got %v", err))
-	} else if stateData.prevchar != rparen {
-		return nil, stateData.parseError(fmt.Sprintf("expected to end on ')' got %c", stateData.prevchar))
 	} else if len(stateData.branches) != 0 {
 		return nil, stateData.parseError("expected to end on root branch, but ended in nested condition")
 	}

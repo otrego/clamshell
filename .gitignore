@@ -27,3 +27,6 @@ tmp
 tf/.terraform
 tf/*.plan
 tf/*.state
+
+# katago analysis logs
+analysis.log
