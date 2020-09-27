@@ -22,16 +22,25 @@ import (
 	"github.com/otrego/clamshell/core/sgf"
 )
 
-var outputDir = flag.String("output_dir", "", "Directory for returning the processed SGFs. By default, uses current directory")
+var (
+	outputDir  = flag.String("output_dir", "", "Directory for returning the processed SGFs. By default, uses current directory")
+	modelFlag  = flag.String("model", "", "The model to use for katago. If not set, looks for env var $KATAGO_MODEL. Example: g170-b10c128-s197428736-d67404019.bin.gz")
+	configFlag = flag.String("config", "", "The analysis config file to use. If not set, looks for env var $KATAGO_ANALYSIS_CONFIG. Example: analysis_example.cfg")
+)
 
 func main() {
 	flag.Set("logtostderr", "true")
 	flag.Parse()
 
 	model := os.Getenv("KATAGO_MODEL")
-	analysisConfig := os.Getenv("KATAGO_ANALYSIS_CONFIG")
+	if *modelFlag != "" {
+		model = *modelFlag
+	}
 
-	// TODO(kashomon): Fail if these are empty
+	analysisConfig := os.Getenv("KATAGO_ANALYSIS_CONFIG")
+	if *configFlag != "" {
+		analysisConfig = *configFlag
+	}
 
 	an := &katago.Analyzer{
 		Model:  model,
