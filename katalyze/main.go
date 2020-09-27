@@ -1,4 +1,4 @@
-// Binary kanalyze anaylzes games, looking for problems.
+// Binary katalyze anaylzes games, looking for problems.
 //
 // To process a single sgf:
 //
