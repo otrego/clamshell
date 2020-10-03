@@ -57,10 +57,10 @@ func (pt *Point) ToSGF() (string, error) {
 			"*Point int64 x and y value entries must" +
 				" be greater than or equal to 0, " +
 				"and less than or equal to 51. ")
-	} else {
-		return string(pointToSgfRef[pt.X()]) + string(
-			pointToSgfRef[pt.Y()]), nil
 	}
+	return string(pointToSgfRef[pt.X()]) + string(
+		pointToSgfRef[pt.Y()]), nil
+
 }
 
 // The below function and related elements were contributed by
@@ -80,8 +80,8 @@ func NewFromSGF(sgfPt string) (*Point, error) {
 		return nil, fmt.Errorf(
 			"SGF string x and y value entries mustnon-empty and of" +
 				" length 2 (runes/chars). ")
-	} else {
-		return New(sgfToPointRef[rune(sgfPt[0])],
-			sgfToPointRef[rune(sgfPt[1])]), nil
 	}
+	return New(sgfToPointRef[rune(sgfPt[0])],
+		sgfToPointRef[rune(sgfPt[1])]), nil
+
 }
