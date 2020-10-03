@@ -61,7 +61,7 @@ const (
 //    1             becomes [1]
 //    53            becomes [53] (the 53rd variation)
 //    2.3           becomes [2,3]
-//    0.0.0.0       becomes [0,0,0]
+//    0.0.0.0       becomes [0,0,0,0]
 //    0:4           becomes [0,0,0,0]
 //    1:4           becomes [1,1,1,1]
 //    1.2:1.0.2:3   becomes [1,2,0,2,2,2]
