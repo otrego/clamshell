@@ -171,3 +171,21 @@ func TestApplyPath(t *testing.T) {
 		})
 	}
 }
+
+func TestString(t *testing.T){
+	var tp Treepath = []int{}
+	got := tp.String()
+	if got != "[]" {
+		t.Errorf("got %s, wanted []", got)
+	}
+	tp = []int{1}
+	got = tp.String()
+	if got != "[1]" {
+		t.Errorf("got %s, wanted [1]", got)
+	}
+	tp = []int{1,2,0,2,2,2}
+	got = tp.String()
+	if got != "[1,2,0,2,2,2]" {
+		t.Errorf("got %s, wanted [1,2,0,2,2,2]", got)
+	}
+}

@@ -177,3 +177,16 @@ func (tp Treepath) Apply(n *game.Node) *game.Node {
 	}
 	return curNode
 }
+
+// Returns the treepath as a string. 
+// examples: 
+// 	[]				becomes "[]"
+// 	[1]				becomes	"[1]"
+// 	[1,2,0,2,2,2] 	becomes "[1,2,0,2,2,2]"
+func (tp Treepath) String() string {
+	var strArr []string
+	for _, i := range tp{
+		strArr = append(strArr, strconv.Itoa(i))
+	}
+	return "[" + strings.Join(strArr, ",") + "]"
+}
