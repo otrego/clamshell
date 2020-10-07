@@ -4,17 +4,20 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"sort"
 	"strings"
+
+	"github.com/otrego/clamshell/core/game"
 )
 
 // AnalysisResult represents the result of an analysis from katago.
 //
 // For more details, see: https://github.com/lightvector/KataGo/blob/master/docs/Analysis_Engine.md
 type AnalysisResult struct {
-	ID         string    `json:"id"`
-	TurnNumber int       `json:"turnNumber"`
-	MoveInfo   *MoveInfo `json;"moveInfos"`
-	RootInfo   *RootInfo `json:"rootInfo"`
+	ID         string      `json:"id"`
+	TurnNumber int         `json:"turnNumber"`
+	MoveInfos  []*MoveInfo `json;"moveInfos"`
+	RootInfo   *RootInfo   `json:"rootInfo"`
 
 	// Not yet supported:
 	// ownership
@@ -23,7 +26,7 @@ type AnalysisResult struct {
 
 // String returns the string form of the analysis result
 func (ar *AnalysisResult) String() string {
-	return fmt.Sprintf("{%s, %d, %v, %v}", ar.ID, ar.TurnNumber, ar.MoveInfo, ar.RootInfo)
+	return fmt.Sprintf("{%s, %d, %v, %v}", ar.ID, ar.TurnNumber, ar.MoveInfos, ar.RootInfo)
 }
 
 // AnalysisList  is a collection of analysis results. This is normally what Katago
@@ -31,6 +34,13 @@ func (ar *AnalysisResult) String() string {
 type AnalysisList []*AnalysisResult
 
 // ParseAnalysisList parses raw Katago analysis into an in-memory result list.
+// We assume a collection of unordered AnalysisResult objects. Once parsed, the
+// list is sorted by TurnNumber for convenience.
+//
+// Example:
+//
+//     {"id": "abcd", "turnNumber": 1, "moveInfos": [...]}
+//     {"id": "abcd", "turnNumber"" 2, "moveInfos": [...]}
 func ParseAnalysisList(content []byte) (AnalysisList, error) {
 	dec := json.NewDecoder(strings.NewReader(string(content)))
 	var out AnalysisList
@@ -45,7 +55,21 @@ func ParseAnalysisList(content []byte) (AnalysisList, error) {
 		}
 		out = append(out, res)
 	}
+	out.sort()
 	return out, nil
+}
+
+// sort the AnalysisList in-place based on TurnNumber.
+func (al AnalysisList) sort() {
+	sort.SliceStable(al, func(i, j int) bool {
+		return al[i].TurnNumber < al[j].TurnNumber
+	})
+}
+
+// AddToGame attaches an analysis list to an existing game, based on turn
+// number.
+func (al AnalysisList) AddToGame(g *game.Game) {
+
 }
 
 // MoveInfo contains information about suggested moves.
@@ -54,7 +78,7 @@ type MoveInfo struct {
 	Move string `json:"move"`
 
 	// Visits is the number of visits invested into the move.
-	Visits string `json:"visits"`
+	Visits int `json:"visits"`
 
 	// Winrate is the winrate of the move, as a float in [0,1].
 	Winrate float64 `json:"winrate"`
