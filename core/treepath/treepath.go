@@ -178,15 +178,56 @@ func (tp Treepath) Apply(n *game.Node) *game.Node {
 	return curNode
 }
 
-// Returns the treepath as a string. 
-// examples: 
-// 	[]				becomes "[]"
-// 	[1]				becomes	"[1]"
-// 	[1,2,0,2,2,2] 	becomes "[1,2,0,2,2,2]"
+// String returns the treepath as a string.
+// examples:
+//      []                  becomes "[]"
+//      [1]                 becomes "[1]"
+//      [1,2,0,2,2,2]       becomes "[1,2,0,2,2,2]"
 func (tp Treepath) String() string {
 	var strArr []string
-	for _, i := range tp{
+	for _, i := range tp {
 		strArr = append(strArr, strconv.Itoa(i))
 	}
-	return "[" + strings.Join(strArr, ",") + "]"
+	return fmt.Sprintf("%v", strArr)
+}
+
+// CompactString returns the treepath as a CompactString (short-hand).
+// examples:
+//      []                  becomes "."
+//      [1]                 becomes ".1"
+//      [0,0,0,0]           becomes ".0:4"
+//	    [1,1,1,1]           becomes ".1:4"
+//	    [1,2,0,0,2,2,2]     becomes ".1.2.0:2.2:3"
+func (tp Treepath) CompactString() string {
+	var (
+		count, prev int = 1, -1
+		sb          strings.Builder
+	)
+
+	for _, v := range tp {
+
+		if v == prev {
+			//count repeated variation numbers.
+			count++
+		} else if count != 1 {
+			//write the repeated variation number.
+			sb.WriteString(fmt.Sprintf(".%d:%d", prev, count))
+			count = 1
+		} else if prev != -1 {
+			//write non repeated variation number.
+			sb.WriteString(fmt.Sprintf(".%d", prev))
+		}
+		prev = v
+	}
+	if prev == -1 {
+		//empty treepath
+		sb.WriteString(".")
+	} else if count != 1 {
+		//end of treepath was a repeated variation number.
+		sb.WriteString(fmt.Sprintf(".%d:%d", prev, count))
+	} else {
+		//end or treepath was a new variation number.
+		sb.WriteString(fmt.Sprintf(".%d", prev))
+	}
+	return sb.String()
 }
