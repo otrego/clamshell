@@ -171,3 +171,78 @@ func TestApplyPath(t *testing.T) {
 		})
 	}
 }
+
+func TestString(t *testing.T) {
+
+	testCases := []struct {
+		desc string
+		tp   Treepath
+		exp  string
+	}{
+		{
+			desc: "empty treepath",
+			tp:   []int{},
+			exp:  "[]",
+		},
+		{
+			desc: "short treepath",
+			tp:   []int{1},
+			exp:  "[1]",
+		},
+		{
+			desc: "long treepath",
+			tp:   []int{1, 2, 0, 2, 2, 2},
+			exp:  "[1 2 0 2 2 2]",
+		},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.desc, func(t *testing.T) {
+			got := tc.tp.String()
+			if got != tc.exp {
+				t.Errorf("got %s, expected %s", got, tc.exp)
+			}
+		})
+	}
+}
+
+func TestCompactString(t *testing.T) {
+	testCases := []struct {
+		desc string
+		tp   Treepath
+		exp  string
+	}{
+		{
+			desc: "empty treepath",
+			tp:   []int{},
+			exp:  ".",
+		},
+		{
+			desc: "short treepath",
+			tp:   []int{1},
+			exp:  ".1",
+		},
+		{
+			desc: "long repeat",
+			tp:   []int{1, 1, 1, 1},
+			exp:  ".1:4",
+		},
+		{
+			desc: "long no repeat",
+			tp:   []int{1, 2, 3, 4, 5, 6},
+			exp:  ".1.2.3.4.5.6",
+		},
+		{
+			desc: "long mixed",
+			tp:   []int{1, 2, 2, 0, 0, 5, 0, 2, 2, 2, 2, 1},
+			exp:  ".1.2:2.0:2.5.0.2:4.1",
+		},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.desc, func(t *testing.T) {
+			got := tc.tp.CompactString()
+			if got != tc.exp {
+				t.Errorf("got %s, expected %s", got, tc.exp)
+			}
+		})
+	}
+}
