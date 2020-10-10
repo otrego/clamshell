@@ -81,7 +81,7 @@ func TestPointToSGFTranslate(t *testing.T) {
 		},
 	}
 
-	// Test cases
+	// Test
 	for _, tc := range testToSGFCases {
 		t.Run(tc.desc, func(t *testing.T) {
 			sgfOut, err := New(tc.in.x, tc.in.y).ToSGF()
