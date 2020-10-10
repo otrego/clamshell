@@ -43,16 +43,16 @@ func New(x, y int64) *Point {
 	}
 }
 
-// X method receives a pointer argument of type *Point,
+// X method receives a pointer argument of type Point,
 // and returns the x-value.
 func (pt *Point) X() int64 { return pt.x }
 
-// Y method receives a pointer argument of type *Point,
+// Y method receives a pointer argument of type Point,
 // and returns the y-value.
 func (pt *Point) Y() int64 { return pt.y }
 
-// ToSGF method receives a pointer argument of type *Point,
-// and converts the pointer-type (immutable) *Point
+// ToSGF method receives a pointer argument of type Point,
+// and converts the pointer-type (immutable) Point
 // to an SGF Point (two letter string).
 func (pt *Point) ToSGF() (string, error) {
 	if (pt.X() < 0) || (51 < pt.X()) || (pt.Y() < 0) || 51 < (pt.Y()) {
