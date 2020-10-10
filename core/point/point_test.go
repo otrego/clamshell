@@ -1,8 +1,8 @@
 package point
 
 import (
-	"fmt"
 	"github.com/otrego/clamshell/core/errcheck"
+	"fmt"
 	"testing"
 )
 
@@ -81,7 +81,6 @@ func TestPointToSGFTranslate(t *testing.T) {
 		},
 	}
 
-	// Test cases
 	for _, tc := range testToSGFCases {
 		t.Run(tc.desc, func(t *testing.T) {
 			sgfOut, err := New(tc.in.x, tc.in.y).ToSGF()
@@ -144,7 +143,7 @@ func TestSGFToPointTranslate(t *testing.T) {
 			in:           "Q",
 			expErrSubstr: "SGF X or Y string value missing",
 		},
-		// Empty string
+		// Long string
 		{
 			desc:         "Error: SGF => Point long string",
 			in:           "xyZ",
