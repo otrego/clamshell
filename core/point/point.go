@@ -1,9 +1,7 @@
 // Package point is a basic package for points.
 package point
 
-import (
-	"fmt"
-)
+import "fmt"
 
 // Point is a basic point. Although simple, the member variables are kept
 // private to ensure that Point remains immutable.
