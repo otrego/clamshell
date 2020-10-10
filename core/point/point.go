@@ -2,7 +2,6 @@
 package point
 
 import (
-	_ "errors"
 	"fmt"
 )
 
