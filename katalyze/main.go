@@ -87,11 +87,12 @@ func process(files []string, an *katago.Analyzer) error {
 		fmt.Printf("%v\n", string(jsonStr))
 
 		result, err := an.AnalyzeGame(string(jsonStr))
+
 		if err != nil {
 			return err
 		}
 
-		fmt.Printf("%v\n", *result)
+		fmt.Printf("%v\n", result)
 	}
 	return nil
 }

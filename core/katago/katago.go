@@ -129,42 +129,42 @@ func (an *Analyzer) startAnalyzerIO() error {
 
 func (an *Analyzer) stdErrReader(stderr io.ReadCloser) {
 	defer stderr.Close()
-	glog.Infof("Starting Katago StdErr Reader")
+	glog.Infof("katago stderr: started")
 	scanner := bufio.NewScanner(stderr)
 	var currentText string
 	for scanner.Scan() {
 		currentText = scanner.Text()
 
 		if strings.Contains(currentText, katagoReadyStr) {
-			glog.Infof("Katago ready-string found")
+			glog.Infof("katago stderr: Katago ready-string found; ready to process input.")
 			an.bootWait.Done()
 		}
-		glog.Infof("stderr buffer: %v\n", scanner.Text())
+		glog.Infof("katago stderr: %v\n", currentText)
 	}
 }
 
 func (an *Analyzer) stdOutReader(stdout io.ReadCloser) {
 	defer stdout.Close()
-	glog.Infof("Starting Katago stdout Reader")
+	glog.Infof("katago stdout: started")
 	scanner := bufio.NewScanner(stdout)
 	var currentText string
 	for scanner.Scan() {
 		currentText = scanner.Text()
-		glog.Infof("Sending output to requester %v\n", currentText)
+		glog.Infof("katago stdout: Sending result back from reader: %v\n", currentText)
 		an.katagoOutput <- currentText
 	}
 }
 
 func (an *Analyzer) stdInWriter(stdin io.WriteCloser) {
 	defer stdin.Close()
-	glog.Infof("Starting Katago StdIn Reader")
+	glog.Infof("katago stdin: started")
 	for {
 		select {
 		case <-an.stdinQuit:
 			// Make the go-routine shut-down-able.
 			return
 		case writeValue := <-an.stdinWrite:
-			glog.Info("Got value to write to Katago!")
+			glog.Info("katago stdin: Got value to write to Katago!")
 			stdin.Write([]byte(writeValue))
 		default:
 			time.Sleep(1 * time.Second)
