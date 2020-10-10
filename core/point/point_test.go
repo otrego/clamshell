@@ -144,7 +144,7 @@ func TestSGFToPointTranslate(t *testing.T) {
 			in:           "Q",
 			expErrSubstr: "SGF X or Y string value missing",
 		},
-		// Empty string
+		// Long string
 		{
 			desc:         "Error: SGF => Point long string",
 			in:           "xyZ",
