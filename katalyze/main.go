@@ -42,9 +42,9 @@ func main() {
 		analysisConfig = *configFlag
 	}
 
-	an := &katago.Analyzer{
-		Model:  model,
-		Config: analysisConfig,
+	an, err := katago.GetAnalyzer(model, analysisConfig, 0)
+	if err != nil {
+		glog.Exitf("error booting Katago: %v", err)
 	}
 
 	files := getSGFs(flag.Args())
@@ -65,11 +65,8 @@ func getSGFs(args []string) []string {
 	return out
 }
 
-func process(files []string, analyzer *katago.Analyzer) error {
-	glog.Infof("using model %q", analyzer.Model)
-	glog.Infof("using gtp config %q", analyzer.Config)
+func process(files []string, an *katago.Analyzer) error {
 	glog.Infof("using files %v\n", files)
-
 	for _, fi := range files {
 		content, err := ioutil.ReadFile(fi)
 		if err != nil {
@@ -88,6 +85,13 @@ func process(files []string, analyzer *katago.Analyzer) error {
 			return err
 		}
 		fmt.Printf("%v\n", string(jsonStr))
+
+		result, err := an.AnalyzeGame(string(jsonStr))
+		if err != nil {
+			return err
+		}
+
+		fmt.Printf("%v\n", *result)
 	}
 	return nil
 }
