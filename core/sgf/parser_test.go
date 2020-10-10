@@ -250,10 +250,12 @@ AB[na][ra][mb][rb][lc][qc][ld][od][qd][le][pe][qe][mf][nf][of][pg]
 				for prop, expData := range pmap {
 					foundData, ok := n.Properties[prop]
 					if !ok {
-						t.Errorf("At path %q, properties did not contain expected property key %q. Properties were %v", path, prop, n.Properties)
+						t.Errorf("At path %q, properties did not contain expected property key %q. Properties were %v",
+							path, prop, n.Properties)
 					}
 					if !cmp.Equal(foundData, expData) {
-						t.Errorf("At path %q, property %q was %v, but expected %v", path, prop, foundData, expData)
+						t.Errorf("At path %q, property %q was %v, but expected %v",
+							path, prop, foundData, expData)
 					}
 				}
 			}
@@ -318,7 +320,8 @@ func TestPropertyPostProcessing(t *testing.T) {
 			}
 			got := tc.getter(tp.Apply(g.Root))
 			if !reflect.DeepEqual(got, tc.want) {
-				t.Errorf("from node-getter and path %q, got %v, but wanted %v", tc.path, got, tc.want)
+				t.Errorf("from node-getter and path %q, got %v, but wanted %v",
+					tc.path, got, tc.want)
 			}
 		})
 	}

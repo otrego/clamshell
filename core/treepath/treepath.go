@@ -78,11 +78,13 @@ func Parse(path string) (Treepath, error) {
 
 	convertBuffer := func(idx int) (int, error) {
 		if buf.Len() == 0 {
-			return 0, fmt.Errorf("error parsing path %v at index %d: separators '.', ':', EOL must be proceeded by digit", path, idx)
+			return 0, fmt.Errorf("error parsing path %v at index %d: separators '.', ':', EOL must be proceeded by digit",
+				path, idx)
 		}
 		n, err := strconv.Atoi(buf.String())
 		if err != nil {
-			return 0, fmt.Errorf("error parsing number in path %v at index %d: %v", path, idx, err)
+			return 0, fmt.Errorf("error parsing number in path %v at index %d: %v",
+				path, idx, err)
 		}
 		buf = strings.Builder{}
 		return n, nil
@@ -134,7 +136,8 @@ func Parse(path string) (Treepath, error) {
 				curState = variationState
 				prevChar = 0
 			} else {
-				return nil, fmt.Errorf("error parsing path %q at index %d: unknown state %v", path, idx, curState)
+				return nil, fmt.Errorf("error parsing path %q at index %d: unknown state %v",
+					path, idx, curState)
 			}
 		} else if c == ':' {
 			n, err := convertBuffer(idx)
@@ -149,12 +152,15 @@ func Parse(path string) (Treepath, error) {
 				curState = repeatState
 			} else if curState == repeatState {
 				// Repeate => Repeat: Invalid
-				return nil, fmt.Errorf("error parsing path %q at index %d: repeat char ':' cannot be followed by another repeat ':'", path, idx)
+				return nil, fmt.Errorf("error parsing path %q at index %d: repeat char ':' cannot be followed by another repeat ':'",
+					path, idx)
 			} else {
-				return nil, fmt.Errorf("error parsing path %q at index %d: unknown state %v", path, idx, curState)
+				return nil, fmt.Errorf("error parsing path %q at index %d: unknown state %v",
+					path, idx, curState)
 			}
 		} else {
-			return nil, fmt.Errorf("error parsing path %q at index %d: unexpected character %q", path, idx, c)
+			return nil, fmt.Errorf("error parsing path %q at index %d: unexpected character %q",
+				path, idx, c)
 		}
 	}
 	return out, nil
@@ -207,26 +213,26 @@ func (tp Treepath) CompactString() string {
 	for _, v := range tp {
 
 		if v == prev {
-			//count repeated variation numbers.
+			// count repeated variation numbers.
 			count++
 		} else if count != 1 {
-			//write the repeated variation number.
+			// write the repeated variation number.
 			sb.WriteString(fmt.Sprintf(".%d:%d", prev, count))
 			count = 1
 		} else if prev != -1 {
-			//write non repeated variation number.
+			// write non repeated variation number.
 			sb.WriteString(fmt.Sprintf(".%d", prev))
 		}
 		prev = v
 	}
 	if prev == -1 {
-		//empty treepath
+		// empty treepath
 		sb.WriteString(".")
 	} else if count != 1 {
-		//end of treepath was a repeated variation number.
+		// end of treepath was a repeated variation number.
 		sb.WriteString(fmt.Sprintf(".%d:%d", prev, count))
 	} else {
-		//end or treepath was a new variation number.
+		// end or treepath was a new variation number.
 		sb.WriteString(fmt.Sprintf(".%d", prev))
 	}
 	return sb.String()
