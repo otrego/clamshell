@@ -49,6 +49,8 @@ type Query struct {
 	// it.
 	MaxVisits *int `json:"maxVisits,omitempty"`
 
+	OverrideSettings map[string]interface{} `json:"overrideSettings,omitempty"`
+
 	// Not yet supported options
 	// See: https://github.com/lightvector/KataGo/blob/master/docs/Analysis_Engine.md
 	// whiteHandicapBonus
@@ -59,15 +61,15 @@ type Query struct {
 	// includePVVisits
 	// avoidMoves
 	// allowMoves
-	// overrideSettings
 	// priority
 }
 
 // NewQuery creates an analysis Query object with default parameters
 func NewQuery() *Query {
 	return &Query{
-		ID:    uuid.New().String(),
-		Rules: TrompTaylorRules,
+		ID:               uuid.New().String(),
+		Rules:            TrompTaylorRules,
+		OverrideSettings: make(map[string]interface{}),
 	}
 }
 
@@ -102,7 +104,12 @@ type gameConverter struct {
 
 func (gc *gameConverter) point(pt *point.Point) string {
 	const a = 'A'
+	const i = 'I'
 	val := rune(a + pt.X())
+	if val >= i {
+		// I is strictly not allowed.
+		val++
+	}
 	return fmt.Sprintf("%c%d", val, pt.Y()+1)
 }
 
@@ -198,7 +205,9 @@ func (gc *gameConverter) analyzeMainBranch(maxMoves int) []int {
 	return out
 }
 
-// TODO(kashomon): Probably pass in options here.
+func newInt(i int) *int {
+	return &i
+}
 
 // MainBranchSurvey does a full game analysis of the main-branch.
 func MainBranchSurvey(g *game.Game) (*Query, error) {
@@ -206,12 +215,14 @@ func MainBranchSurvey(g *game.Game) (*Query, error) {
 	gc := &gameConverter{g: g}
 
 	// TODO(kashomon): This is for just testing.
-	maxMoves := 10
+	maxMoves := 500
 
 	q.InitialStones = gc.initialStones()
 	q.InitialPlayer = gc.initialPlayer()
 	q.Moves = gc.mainBranchMoves(maxMoves)
 	q.Rules = gc.rules()
+	q.MaxVisits = newInt(10)
+
 	km, err := gc.komi()
 	if err != nil {
 		return nil, err
@@ -224,8 +235,12 @@ func MainBranchSurvey(g *game.Game) (*Query, error) {
 	}
 	q.BoardYSize = sz
 	q.BoardXSize = sz
-	// q.AnalyzeTurns = gc.analyzeMainBranch(maxMoves)
-	// q.AnalyzeTurns = gc.analyzeMainBranch(maxMoves)
+
+	// Only show one move deep
+	q.OverrideSettings["analysisPVLen"] = "1"
+
+	q.AnalyzeTurns = gc.analyzeMainBranch(maxMoves)
+	// q.AnalyzeTurns = gc.analyzeMainBranch(5)
 
 	return q, nil
 }

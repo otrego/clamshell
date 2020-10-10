@@ -1,7 +1,6 @@
 package katago
 
 import (
-	"fmt"
 	"testing"
 )
 
@@ -17,9 +16,8 @@ func TestCreateQuery_Defaults(t *testing.T) {
 		t.Errorf("got rules %v, but expected %v", q.Rules, TrompTaylorRules)
 	}
 
-	by, err := q.ToJSON()
+	_, err := q.ToJSON()
 	if err != nil {
 		t.Errorf("unexpected error during marshaling: %v", err)
 	}
-	fmt.Printf("%v\n", string(by))
 }
