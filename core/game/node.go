@@ -6,6 +6,10 @@ type Node struct {
 	// node. The root node should always be 0.
 	moveNum int
 
+	// varNum is the current variation number. The primary variation (or mainline
+	// variation) should always be 0.
+	varNum int
+
 	// Placements are stones that are used for setup, but actual moves. For
 	// example, handicap stones will be in in placements.
 	Placements []*Move
@@ -35,10 +39,38 @@ func NewNode() *Node {
 
 // AddChild adds a child node.
 func (n *Node) AddChild(nn *Node) {
+	nn.moveNum = n.moveNum + 1
+	nn.varNum = len(n.Children)
 	n.Children = append(n.Children, nn)
 }
 
-//
-func (n *Node) SetAnalysisData() {
+// Next gets the next node, given the variation number, returning nil if no node
+// is available.
+func (n *Node) Next(variation int) *Node {
+	// We assume there are no gaps in the Children slice.
+	if variation < len(n.Children) {
+		return n.Children[variation]
+	}
+	return nil
+}
 
+// MoveNum returns the current move number.
+func (n *Node) MoveNum() int {
+	return n.moveNum
+}
+
+// VarNum returns the variation number.
+func (n *Node) VarNum() int {
+	return n.varNum
+}
+
+// SetAnalysisData sets the analysis data.
+func (n *Node) SetAnalysisData(an interface{}) {
+	n.analysisData = an
+}
+
+// AnalysisData gets the attached analysis data, returning nil if the
+// analysisData is empty.
+func (n *Node) AnalysisData() interface{} {
+	return n.analysisData
 }

@@ -2,6 +2,7 @@ package katago
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"sort"
@@ -55,12 +56,12 @@ func ParseAnalysisList(content []byte) (AnalysisList, error) {
 		}
 		out = append(out, res)
 	}
-	out.sort()
+	out.Sort()
 	return out, nil
 }
 
-// sort the AnalysisList in-place based on TurnNumber.
-func (al AnalysisList) sort() {
+// Sort the AnalysisList in-place based on TurnNumber.
+func (al AnalysisList) Sort() {
 	sort.SliceStable(al, func(i, j int) bool {
 		return al[i].TurnNumber < al[j].TurnNumber
 	})
@@ -68,8 +69,54 @@ func (al AnalysisList) sort() {
 
 // AddToGame attaches an analysis list to an existing game, based on turn
 // number.
-func (al AnalysisList) AddToGame(g *game.Game) {
+func (al AnalysisList) AddToGame(g *game.Game) error {
+	// make a shallow copy so we can sort without modifying recevier.
+	alc := al[:]
+	alc.Sort()
 
+	if len(alc) == 0 {
+		// Degenerate case, but not an error per-se.
+		return nil
+	}
+
+	// Here we assume the AnalysisList is sorted.
+	curNode := g.Root
+	if curNode == nil {
+		// Degenerate case.
+		return errors.New("nil root node")
+	}
+
+	anIdx := 0
+	curAn := alc[anIdx]
+	for {
+		if curAn.TurnNumber == curNode.MoveNum() {
+			// Match! Attach the analysis data.
+			// Increment both the node and the analysis list.
+			curNode.SetAnalysisData(curAn)
+			if next := curNode.Next(0); next != nil {
+				curNode = next
+			} else {
+				break
+			}
+			anIdx++
+			if anIdx < len(alc) {
+				curAn = alc[anIdx]
+			}
+		} else if curAn.TurnNumber > curNode.MoveNum() {
+			// The analysis can get ahead if there are gaps (i.e., the move numbers
+			// are not covering.
+			if next := curNode.Next(0); next != nil {
+				curNode = next
+			} else {
+				break
+			}
+		} else if curAn.TurnNumber < curNode.MoveNum() {
+			// This shouldn't happen if we always start at the root of the game.
+			// Return an error if it does.
+			return fmt.Errorf("analysis TurnNumber %d got behind of tho game move number %d", curAn.TurnNumber, curNode.MoveNum())
+		}
+	}
+	return nil
 }
 
 // MoveInfo contains information about suggested moves.
