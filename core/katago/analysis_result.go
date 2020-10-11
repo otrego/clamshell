@@ -110,7 +110,7 @@ func (al AnalysisList) AddToGame(g *game.Game) error {
 			} else {
 				break
 			}
-		} else if curAn.TurnNumber < curNode.MoveNum() {
+		} else if curNode.MoveNum() > curAn.TurnNumber {
 			// This shouldn't happen if we always start at the root of the game.
 			// Return an error if it does.
 			return fmt.Errorf("analysis TurnNumber %d got behind of tho game move number %d", curAn.TurnNumber, curNode.MoveNum())

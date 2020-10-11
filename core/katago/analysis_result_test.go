@@ -92,9 +92,8 @@ func TestAddToGame(t *testing.T) {
 		expWinRate map[string]*float64
 	}{
 		{
-			desc:     "degenerate case",
-			rawSgf:   `(;GM[1];B[ac];W[cd];B[de])`,
-			analysis: AnalysisList{},
+			desc:   "degenerate case",
+			rawSgf: `(;GM[1];B[ac];W[cd];B[de])`,
 			expWinRate: map[string]*float64{
 				".":    nil,
 				".0":   nil,
