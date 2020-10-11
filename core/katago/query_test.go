@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
+	"github.com/otrego/clamshell/core/errcheck"
 	"github.com/otrego/clamshell/core/sgf"
 )
 
@@ -115,6 +116,13 @@ func TestCreateAnalysis(t *testing.T) {
 				return q
 			}(),
 		},
+
+		// Error cases
+		{
+			desc:         "error: bad komi value",
+			sgf:          "(;GM[1]KM[3.25];B[aa];W[bb];B[cc];W[dd])",
+			expErrSubstr: "invalid komi",
+		},
 	}
 
 	for _, tc := range testCases {
@@ -124,6 +132,13 @@ func TestCreateAnalysis(t *testing.T) {
 				t.Fatal(err)
 			}
 			got, err := AnalysisQueryFromGame(g, tc.opts)
+			cerr := errcheck.CheckCases(err, tc.expErrSubstr)
+			if cerr != nil {
+				t.Fatal(cerr)
+			}
+			if err != nil {
+				return
+			}
 
 			// Set some values to improve the equals/diff
 			got.ID = "fakeid"

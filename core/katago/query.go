@@ -181,7 +181,7 @@ func (gc *gameConverter) komi() (*float64, error) {
 		}
 		_, fp := math.Modf(km)
 		if !(fp == 0.5 || fp == 0.0) {
-			return nil, fmt.Errorf("the only decimal-value allowed for komi is 0.0 or 0.5. komi was %f", km)
+			return nil, fmt.Errorf("invalid komi: the only decimal-value allowed for komi is 0.0 or 0.5. komi was %f", km)
 		}
 		return &km, nil
 	}
