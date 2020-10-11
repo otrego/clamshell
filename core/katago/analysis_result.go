@@ -17,7 +17,7 @@ import (
 type AnalysisResult struct {
 	ID         string      `json:"id"`
 	TurnNumber int         `json:"turnNumber"`
-	MoveInfos  []*MoveInfo `json;"moveInfos"`
+	MoveInfos  []*MoveInfo `json:"moveInfos"`
 	RootInfo   *RootInfo   `json:"rootInfo"`
 
 	// Not yet supported:
