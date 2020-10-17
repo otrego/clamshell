@@ -74,3 +74,30 @@ func (n *Node) SetAnalysisData(an interface{}) {
 func (n *Node) AnalysisData() interface{} {
 	return n.analysisData
 }
+
+// Traverse Traverses the tree using BFS.
+func (n *Node) Traverse(fn func(node *Node)) {
+	queue := make([]*Node, 0)
+	queue = append(queue, n)
+	for len(queue) != 0 {
+		value := queue[0]
+		fn(value)
+		queue = queue[1:]                        // dequeue
+		queue = append(queue, value.Children...) // enqueue
+	}
+}
+
+// TraverseMainBranch Traverses the 0th variation nodes (Main Branch).
+// This Traversal uses BFS.
+func (n *Node) TraverseMainBranch(fn func(node *Node)) {
+	queue := make([]*Node, 0)
+	queue = append(queue, n)
+	for len(queue) != 0 {
+		value := queue[0]
+		queue = queue[1:] // dequeue
+		if value.varNum == 0 {
+			fn(value)
+			queue = append(queue, value.Children...) // enqueue
+		}
+	}
+}
