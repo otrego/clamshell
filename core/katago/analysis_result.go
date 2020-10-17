@@ -11,10 +11,10 @@ import (
 //
 // For more details, see: https://github.com/lightvector/KataGo/blob/master/docs/Analysis_Engine.md
 type AnalysisResult struct {
-	ID         string    `json:"id"`
-	TurnNumber int       `json:"turnNumber"`
-	MoveInfo   *MoveInfo `json;"moveInfos"`
-	RootInfo   *RootInfo `json:"rootInfo"`
+	ID         string      `json:"id"`
+	TurnNumber int         `json:"turnNumber"`
+	MoveInfo   []*MoveInfo `json:"moveInfos"`
+	RootInfo   *RootInfo   `json:"rootInfo"`
 
 	// Not yet supported:
 	// ownership
@@ -48,13 +48,24 @@ func ParseAnalysisList(content []byte) (AnalysisList, error) {
 	return out, nil
 }
 
+// ParseAnalysis parses a single AnalysisResult from String
+func ParseAnalysis(content string) (*AnalysisResult, error) {
+	dec := json.NewDecoder(strings.NewReader(content))
+	res := &AnalysisResult{}
+	err := dec.Decode(res)
+	if err != nil {
+		return nil, err
+	}
+	return res, nil
+}
+
 // MoveInfo contains information about suggested moves.
 type MoveInfo struct {
 	// Move is a GTP point, and the move being analyzed
 	Move string `json:"move"`
 
 	// Visits is the number of visits invested into the move.
-	Visits string `json:"visits"`
+	Visits int `json:"visits"`
 
 	// Winrate is the winrate of the move, as a float in [0,1].
 	Winrate float64 `json:"winrate"`

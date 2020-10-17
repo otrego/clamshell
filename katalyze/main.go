@@ -42,7 +42,9 @@ func main() {
 		analysisConfig = *configFlag
 	}
 
-	an, err := katago.GetAnalyzer(model, analysisConfig, 0)
+	an := katago.GetAnalyzer(model, analysisConfig, 0)
+	err := an.Start()
+
 	if err != nil {
 		glog.Exitf("error booting Katago: %v", err)
 	}
@@ -52,6 +54,8 @@ func main() {
 	if err := process(files, an); err != nil {
 		glog.Exitf("error processing files: %v", err)
 	}
+
+	an.Stop()
 }
 
 func getSGFs(args []string) []string {
@@ -86,7 +90,7 @@ func process(files []string, an *katago.Analyzer) error {
 		}
 		fmt.Printf("%v\n", string(jsonStr))
 
-		result, err := an.AnalyzeGame(string(jsonStr))
+		result, err := an.AnalyzeGame(q)
 
 		if err != nil {
 			return err

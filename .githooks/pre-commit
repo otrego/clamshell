@@ -46,14 +46,15 @@ do
     printf "\tgolint $FILE ${TERM_GREEN}pass${TERM_END_COLOR}\n"
   fi
 
+  # Go VET is commented out because it can't be run on one file at a time.
   # Run govet on the staged file and check the exit status
-  go vet $FILE
-  if [[ $? != 0 ]]; then
-    printf "\t$go vet $FILE ${TERM_BLACK}${TERM_BACKGROUND_RED}FAILED${TERM_END_COLOR}\n"
-    PASS=false
-  else
-    printf "\tgo vet $FILE ${TERM_GREEN}pass${TERM_END_COLOR}\n"
-  fi
+  #go vet $FILE
+  #if [[ $? != 0 ]]; then
+  #  printf "\t$go vet $FILE ${TERM_BLACK}${TERM_BACKGROUND_RED}FAILED${TERM_END_COLOR}\n"
+  #  PASS=false
+  #else
+  #  printf "\tgo vet $FILE ${TERM_GREEN}pass${TERM_END_COLOR}\n"
+  #fi
 done
 
 if ! $PASS; then
