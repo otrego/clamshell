@@ -60,6 +60,17 @@ func ParseAnalysisList(content []byte) (AnalysisList, error) {
 	return out, nil
 }
 
+// ParseAnalysis parses a single AnalysisResult from String
+func ParseAnalysis(content string) (*AnalysisResult, error) {
+	dec := json.NewDecoder(strings.NewReader(content))
+	res := &AnalysisResult{}
+	err := dec.Decode(res)
+	if err != nil {
+		return nil, err
+	}
+	return res, nil
+}
+
 // Sort the AnalysisList in-place based on TurnNumber.
 func (al AnalysisList) Sort() {
 	sort.SliceStable(al, func(i, j int) bool {
