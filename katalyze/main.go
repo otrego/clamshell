@@ -80,7 +80,7 @@ func process(files []string, an *katago.Analyzer) error {
 		if err != nil {
 			return err
 		}
-		q, err := katago.MainBranchSurvey(game)
+		q, err := katago.AnalysisQueryFromGame(game, &katago.QueryOptions{})
 		if err != nil {
 			return err
 		}

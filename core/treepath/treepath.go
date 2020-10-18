@@ -196,8 +196,8 @@ func (tp Treepath) String() string {
 //      []                  becomes "."
 //      [1]                 becomes ".1"
 //      [0,0,0,0]           becomes ".0:4"
-//	    [1,1,1,1]           becomes ".1:4"
-//	    [1,2,0,0,2,2,2]     becomes ".1.2.0:2.2:3"
+//      [1,1,1,1]           becomes ".1:4"
+//      [1,2,0,0,2,2,2]     becomes ".1.2.0:2.2:3"
 func (tp Treepath) CompactString() string {
 	var (
 		count, prev int = 1, -1
