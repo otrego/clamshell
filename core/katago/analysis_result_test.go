@@ -35,8 +35,8 @@ func TestParseResult_Short(t *testing.T) {
 		t.Errorf("Got turn number %d, but expected %d", item.TurnNumber, expTurnNumber)
 	}
 
-	if item.MoveInfo == nil {
-		t.Error("MoveInfo was nil, but was expected to have values")
+	if item.MoveInfos == nil {
+		t.Error("MoveInfos was nil, but was expected to have values")
 	}
 
 	if item.RootInfo == nil {
