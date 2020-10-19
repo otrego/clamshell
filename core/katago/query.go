@@ -147,10 +147,13 @@ func (gc *gameConverter) initialPlayer() string {
 }
 
 // mainBranchMoves gets moves along the primary branch (0th-variation).
-func (gc *gameConverter) mainBranchMoves() []Move {
+func (gc *gameConverter) mainBranchMoves(maxMove int) []Move {
 	out := []Move{}
 	idx := 0
 	for n := gc.g.Root; ; n = n.Children[0] {
+		if maxMove > 0 && n.MoveNum() > maxMove {
+			break
+		}
 		if n.Move != nil {
 			out = append(out, gc.move(n.Move))
 		}
@@ -281,7 +284,7 @@ func AnalysisQueryFromGame(g *game.Game, inOpts *QueryOptions) (*Query, error) {
 
 	q.InitialStones = gc.initialStones()
 	q.InitialPlayer = gc.initialPlayer()
-	q.Moves = gc.mainBranchMoves()
+	q.Moves = gc.mainBranchMoves(*opts.StartFrom + *opts.MaxMoves)
 	q.Rules = gc.rules()
 	q.MaxVisits = opts.MaxVisits
 
