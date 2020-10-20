@@ -109,8 +109,6 @@ func TestCreateAnalysis(t *testing.T) {
 				q.Moves = []Move{
 					Move{"B", "A1"},
 					Move{"W", "B2"},
-					Move{"B", "C3"},
-					Move{"W", "D4"},
 				}
 				q.AnalyzeTurns = []int{1, 2}
 				return q

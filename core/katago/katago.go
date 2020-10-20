@@ -21,19 +21,17 @@ const maxCollectorTimeout = 30 * time.Second
 // Analyzer is a katago-analyzer.
 type Analyzer struct {
 	// Model is the path to the model file.
-	Model string
+	model string
 
 	// Config is the path to the config file.
-	Config string
+	config string
 
 	// Number of analysis threads. Defaults to 16 if not specified.
-	AnalysisThreads int
+	analysisThreads int
 
 	cmd *exec.Cmd
 
 	// Standard IO Processing for child preocess
-	stdoutQuit   chan int
-	stderrQuit   chan int
 	stdinQuit    chan int
 	stdinWrite   chan string
 	katagoOutput chan string
@@ -48,49 +46,60 @@ type Analyzer struct {
 	bootWait sync.WaitGroup
 }
 
-var analyzerSingleton *Analyzer
-var once sync.Once
+// New creates a new analyzer. Before being used, the Start() must be called.
+func New(model string, configPath string, analysisThreads int) *Analyzer {
+	an := &Analyzer{
+		model:                  model,
+		config:                 configPath,
+		analysisThreads:        analysisThreads,
+		stdinQuit:              make(chan int),
+		stdinWrite:             make(chan string),
+		katagoOutput:           make(chan string),
+		collectorQuit:          make(chan int),
+		outputResultCollection: make(map[string]*AnalysisList),
+		outputResultCondition:  sync.NewCond(&sync.Mutex{}),
+	}
+	an.cmd = an.createCmd()
+	return an
+}
 
-// GetAnalyzer returns the Katago Analyzer Singleton
-func GetAnalyzer(model string, configPath string, numThreads int) *Analyzer {
-	once.Do(func() {
-		threads := numThreads
-		if numThreads == 0 {
-			threads = 8
-		}
-		outputResultMutex := sync.Mutex{}
-		analyzerSingleton = &Analyzer{
-			Model:                  model,
-			Config:                 configPath,
-			AnalysisThreads:        threads,
-			stdoutQuit:             make(chan int),
-			stderrQuit:             make(chan int),
-			stdinQuit:              make(chan int),
-			stdinWrite:             make(chan string),
-			katagoOutput:           make(chan string),
-			collectorQuit:          make(chan int),
-			outputResultCollection: make(map[string]*AnalysisList),
-			outputResultCondition:  sync.NewCond(&outputResultMutex),
-		}
+// Start the Katago Analyzer and ensures that it's ready to receive input.
+func (an *Analyzer) Start() error {
+	glog.Info("Starting Katago analyzer")
+	glog.Infof("Using model %q", an.model)
+	glog.Infof("Using gtp config %q", an.config)
+	an.bootWait.Add(1)
 
-		analyzerSingleton.createCmd()
-		glog.Infof("using model %q", analyzerSingleton.Model)
-		glog.Infof("using gtp config %q", analyzerSingleton.Config)
-	})
-	return analyzerSingleton
+	go an.resultCollector()
+	err := an.startAnalyzerIO()
+	if err != nil {
+		return err
+	}
+
+	glog.V(2).Infof("Executing katago command: %v", an.cmd)
+
+	err = an.cmd.Start()
+	if err != nil {
+		return err
+	}
+
+	an.bootWait.Wait()
+	glog.Info("Katago Startup Complete")
+	return nil
 }
 
 // AnalyzeGame is a synchronous request for Katago to process a game
 func (an *Analyzer) AnalyzeGame(q *Query) (*AnalysisList, error) {
 	an.bootWait.Wait()
+
 	// We need to know the number of analyzed moves..
 	json, err := q.ToJSON()
 	if err != nil {
 		return nil, err
 	}
+
 	jsonStr := string(json)
 	if jsonStr[len(jsonStr)-1:] != "\n" {
-		glog.Warningf("Appending newline to input: %s", jsonStr)
 		jsonStr = jsonStr + "\n"
 	}
 
@@ -104,7 +113,7 @@ func (an *Analyzer) AnalyzeGame(q *Query) (*AnalysisList, error) {
 
 // writeCollectedResult writes results to the synchronized map and broadcasts.
 func (an *Analyzer) writeCollectedResult(analysisID string, al *AnalysisList) {
-	glog.Infof("writeCollectedResult Outputting AnalysisList for %s", analysisID)
+	glog.V(3).Infof("writeCollectedResult Outputting AnalysisList for %s", analysisID)
 	an.outputResultCondition.L.Lock()
 	an.outputResultCollection[analysisID] = al
 	an.outputResultCondition.L.Unlock()
@@ -113,15 +122,17 @@ func (an *Analyzer) writeCollectedResult(analysisID string, al *AnalysisList) {
 
 // readCollectedResult waits for a completed and compiled AnalysisList and pops it.
 func (an *Analyzer) readCollectedResult(analysisID string) *AnalysisList {
-	glog.Infof("Read collector started")
+	glog.V(2).Infof("Read collector started")
+
 	an.outputResultCondition.L.Lock()
 	_, ok := an.outputResultCollection[analysisID]
 	for !ok {
 		an.outputResultCondition.Wait()
 		_, ok = an.outputResultCollection[analysisID]
-		glog.Infof("readCollectedResult Woke! %v", an.outputResultCollection[analysisID])
+		glog.V(3).Infof("readCollectedResult Woke! %v", an.outputResultCollection[analysisID])
 	}
-	glog.Infof("readCollectedResult Was notified and found AnalysisList for %s", analysisID)
+
+	glog.V(3).Infof("readCollectedResult Was notified and found AnalysisList for %s", analysisID)
 	result := an.outputResultCollection[analysisID]
 	delete(an.outputResultCollection, analysisID)
 	an.outputResultCondition.L.Unlock()
@@ -130,85 +141,67 @@ func (an *Analyzer) readCollectedResult(analysisID string) *AnalysisList {
 
 // collector is a go-func for
 func (an *Analyzer) resultCollector() {
-	// firstResultProcessed := false
-	// var output string
-	resultStorage := make(map[string]AnalysisList)
+	res := make(map[string]AnalysisList)
 	for {
 		select {
 		case <-an.collectorQuit:
 			// Great! Timeout happened; stop collecting because we can.
-			glog.Info("resultCollector: Received shutdown signal - returning")
+			glog.V(2).Info("resultCollector: Received shutdown signal - returning")
 			return
 		case output := <-an.katagoOutput:
-			// firstResultProcessed = true
-			if strings.Contains(output, "error") {
-				glog.Warningf("resultCollector: Katago had an error: %v", output)
-			} else {
-				glog.Infof("Collected %s", output)
-				res, err := ParseAnalysis(output)
-				if err != nil {
-					glog.Warningf("resultCollector: Error decoding analysis: %s", output)
-				}
-
-				// Add the current result to the AnalysisList
-				al := resultStorage[res.ID]
-				resultStorage[res.ID] = append(al, res)
-
-				// If we've collected all the results for this analysis run, notify the caller.
-				sizeLookup, ok := an.analysisSizeMap.Load(res.ID)
-				if ok {
-					expectedNumResults := sizeLookup.(int)
-					actualNumResults := len(resultStorage[res.ID])
-					glog.Infof("resultCollector: Found %d/%d expected analysis results for %s",
-						actualNumResults, expectedNumResults, res.ID)
-					if actualNumResults >= expectedNumResults {
-						glog.Infof("resultCollector: Found sufficent results to return for %s", res.ID)
-						resultSlice := resultStorage[res.ID]
-						an.writeCollectedResult(res.ID, &resultSlice)
-
-						delete(resultStorage, res.ID)
-
-					}
-				} else {
-					glog.Warningf("resultCollector: Expected to find number of results for analysis run, but did not. Run ID: %s", res.ID)
-				}
-			}
+			an.processKatagoOutput(output, res)
 		}
 	}
 }
 
-// Start the Katago Analyzer and make it ready to receive input
-func (an *Analyzer) Start() error {
-	glog.Info("Starting katago analyzer")
-	analyzerSingleton.bootWait.Add(1)
-
-	go an.resultCollector()
-	err := an.startAnalyzerIO()
-	if err != nil {
-		return err
+// processKatagoOutput takes the raw string-output from katago and decides what
+// to do with it.
+func (an *Analyzer) processKatagoOutput(output string, resultStorage map[string]AnalysisList) {
+	if strings.Contains(output, "error") {
+		glog.Warningf("resultCollector: Katago had an error: %v", output)
+		return
 	}
-	err = an.cmd.Start()
-	if err != nil {
-		return err
-	}
-	analyzerSingleton.bootWait.Wait()
 
-	glog.Info("Katago Startup Complete")
-	return nil
+	glog.V(3).Infof("Collected %s", output)
+	res, err := ParseAnalysis(output)
+	if err != nil {
+		glog.Warningf("resultCollector: Error decoding analysis: %s", output)
+	}
+
+	// Add the current result to the AnalysisList
+	al := resultStorage[res.ID]
+	resultStorage[res.ID] = append(al, res)
+
+	// If we've collected all the results for this analysis run, notify the caller.
+	sizeLookup, ok := an.analysisSizeMap.Load(res.ID)
+
+	if !ok {
+		glog.Warningf("resultCollector: Expected to find number of results for analysis run, but did not. Run ID: %s", res.ID)
+		return
+	}
+
+	expectedNumResults := sizeLookup.(int)
+	actualNumResults := len(resultStorage[res.ID])
+	glog.V(3).Infof("resultCollector: found %d/%d expected analysis results for %s", actualNumResults, expectedNumResults, res.ID)
+	if actualNumResults >= expectedNumResults {
+		glog.V(3).Infof("resultCollector: found sufficent results to return for %s", res.ID)
+		resultSlice := resultStorage[res.ID]
+		an.writeCollectedResult(res.ID, &resultSlice)
+		delete(resultStorage, res.ID)
+	}
 }
 
 // Stop the Katago Analyzer and the goroutines
 func (an *Analyzer) Stop() error {
-	glog.Infof("Shutting down Katago!")
+	glog.Infof("Shutting down Katago analyzer")
 	an.stdinQuit <- 1
 	an.collectorQuit <- 1
 	return nil
 }
 
 // Cmd creates the Katago analysis command.
-func (an *Analyzer) createCmd() {
-	threads := an.AnalysisThreads
-	an.cmd = exec.Command("katago", "analysis", "-model", an.Model, "-config", an.Config, "-analysis-threads", strconv.Itoa(threads))
+func (an *Analyzer) createCmd() *exec.Cmd {
+	return exec.Command("katago", "analysis", "-model", an.model, "-config", an.config, "-analysis-threads", strconv.Itoa(an.analysisThreads))
 }
 
 func (an *Analyzer) startAnalyzerIO() error {
@@ -235,46 +228,46 @@ func (an *Analyzer) startAnalyzerIO() error {
 
 func (an *Analyzer) stdErrReader(stderr io.ReadCloser) {
 	defer stderr.Close()
-	glog.Infof("katago stderr: started")
+	glog.V(3).Infof("katago stderr: started")
 	scanner := bufio.NewScanner(stderr)
 	var currentText string
 	for scanner.Scan() {
 		currentText = scanner.Text()
 
 		if strings.Contains(currentText, katagoReadyStr) {
-			glog.Infof("katago stderr: Katago ready-string found; ready to process input.")
+			glog.V(2).Infof("katago stderr: Katago ready-string found; ready to process input.")
 			an.bootWait.Done()
 		}
-		glog.Infof("katago stderr: %v\n", currentText)
+		glog.V(2).Infof("katago stderr: %v\n", currentText)
 	}
-	glog.Infof("katago stderr: returned")
+	glog.V(2).Infof("katago stderr: returned")
 }
 
 func (an *Analyzer) stdOutReader(stdout io.ReadCloser) {
 	defer stdout.Close()
-	glog.Infof("katago stdout: started")
+	glog.V(2).Infof("katago stdout: started")
 	scanner := bufio.NewScanner(stdout)
 	var currentText string
 	for scanner.Scan() {
 		currentText = scanner.Text()
-		glog.Infof("katago stdout: Sending result back from reader: %v\n", currentText)
+		glog.V(3).Infof("katago stdout: Sending result back from reader: %v\n", currentText)
 		an.katagoOutput <- currentText
 	}
-	glog.Infof("katago stdout: returned")
+	glog.V(2).Infof("katago stdout: returned")
 }
 
 func (an *Analyzer) stdInWriter(stdin io.WriteCloser) {
 	defer stdin.Close()
-	glog.Infof("katago stdin: started")
+	glog.V(2).Infof("katago stdin: started")
 	for {
 		select {
 		case <-an.stdinQuit:
 			// Make the go-routine shut-down
 			// This will also close stdin, which will shut down Katago.
-			glog.Infof("katago stdin: returning")
+			glog.V(2).Infof("katago stdin: returning")
 			return
 		case writeValue := <-an.stdinWrite:
-			glog.Info("katago stdin: Got value to write to Katago!")
+			glog.V(2).Info("katago stdin: Got value to write to Katago!")
 			stdin.Write([]byte(writeValue))
 		}
 	}
