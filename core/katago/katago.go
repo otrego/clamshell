@@ -21,13 +21,13 @@ const maxCollectorTimeout = 30 * time.Second
 // Analyzer is a katago-analyzer.
 type Analyzer struct {
 	// Model is the path to the model file.
-	Model string
+	model string
 
 	// Config is the path to the config file.
-	Config string
+	config string
 
 	// Number of analysis threads. Defaults to 16 if not specified.
-	AnalysisThreads int
+	analysisThreads int
 
 	cmd *exec.Cmd
 
@@ -48,10 +48,10 @@ type Analyzer struct {
 
 // New creates a new analyzer. Before being used, the Start() must be called.
 func New(model string, configPath string, analysisThreads int) *Analyzer {
-	return &Analyzer{
-		Model:                  model,
-		Config:                 configPath,
-		AnalysisThreads:        analysisThreads,
+	an := &Analyzer{
+		model:                  model,
+		config:                 configPath,
+		analysisThreads:        analysisThreads,
 		stdinQuit:              make(chan int),
 		stdinWrite:             make(chan string),
 		katagoOutput:           make(chan string),
@@ -59,25 +59,26 @@ func New(model string, configPath string, analysisThreads int) *Analyzer {
 		outputResultCollection: make(map[string]*AnalysisList),
 		outputResultCondition:  sync.NewCond(&sync.Mutex{}),
 	}
+	an.cmd = an.createCmd()
+	return an
 }
 
 // Start the Katago Analyzer and ensures that it's ready to receive input.
 func (an *Analyzer) Start() error {
 	glog.Info("Starting Katago analyzer")
-	glog.Infof("Using model %q", an.Model)
-	glog.Infof("Using gtp config %q", an.Config)
+	glog.Infof("Using model %q", an.model)
+	glog.Infof("Using gtp config %q", an.config)
 	an.bootWait.Add(1)
 
-	kataCmd := an.createCmd()
 	go an.resultCollector()
-	err := an.startAnalyzerIO(kataCmd)
+	err := an.startAnalyzerIO()
 	if err != nil {
 		return err
 	}
 
-	glog.V(2).Infof("Executing katago command: %v", kataCmd)
+	glog.V(2).Infof("Executing katago command: %v", an.cmd)
 
-	err = kataCmd.Start()
+	err = an.cmd.Start()
 	if err != nil {
 		return err
 	}
@@ -200,24 +201,24 @@ func (an *Analyzer) Stop() error {
 
 // Cmd creates the Katago analysis command.
 func (an *Analyzer) createCmd() *exec.Cmd {
-	return exec.Command("katago", "analysis", "-model", an.Model, "-config", an.Config, "-analysis-threads", strconv.Itoa(an.AnalysisThreads))
+	return exec.Command("katago", "analysis", "-model", an.model, "-config", an.config, "-analysis-threads", strconv.Itoa(an.analysisThreads))
 }
 
-func (an *Analyzer) startAnalyzerIO(c *exec.Cmd) error {
+func (an *Analyzer) startAnalyzerIO() error {
 	// Note: Pipes must be created before the command is run.
-	stderr, err := c.StderrPipe()
+	stderr, err := an.cmd.StderrPipe()
 	if err != nil {
 		return err
 	}
 	go an.stdErrReader(stderr)
 
-	stdout, err := c.StdoutPipe()
+	stdout, err := an.cmd.StdoutPipe()
 	if err != nil {
 		return err
 	}
 	go an.stdOutReader(stdout)
 
-	stdin, err := c.StdinPipe()
+	stdin, err := an.cmd.StdinPipe()
 	if err != nil {
 		return err
 	}
