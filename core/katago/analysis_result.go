@@ -17,7 +17,7 @@ import (
 type AnalysisResult struct {
 	ID         string      `json:"id"`
 	TurnNumber int         `json:"turnNumber"`
-	MoveInfos  []*MoveInfo `json;"moveInfos"`
+	MoveInfos  []*MoveInfo `json:"moveInfos"`
 	RootInfo   *RootInfo   `json:"rootInfo"`
 
 	// Not yet supported:
@@ -58,6 +58,17 @@ func ParseAnalysisList(content []byte) (AnalysisList, error) {
 	}
 	out.Sort()
 	return out, nil
+}
+
+// ParseAnalysis parses a single AnalysisResult from String
+func ParseAnalysis(content string) (*AnalysisResult, error) {
+	dec := json.NewDecoder(strings.NewReader(content))
+	res := &AnalysisResult{}
+	err := dec.Decode(res)
+	if err != nil {
+		return nil, err
+	}
+	return res, nil
 }
 
 // Sort the AnalysisList in-place based on TurnNumber.

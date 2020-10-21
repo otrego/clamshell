@@ -1,7 +1,9 @@
 package katago
 
 import (
+	"encoding/json"
 	"io/ioutil"
+	"strings"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
@@ -32,6 +34,14 @@ func TestParseResult_Short(t *testing.T) {
 	if item.TurnNumber != expTurnNumber {
 		t.Errorf("Got turn number %d, but expected %d", item.TurnNumber, expTurnNumber)
 	}
+
+	if item.MoveInfos == nil {
+		t.Error("MoveInfos was nil, but was expected to have values")
+	}
+
+	if item.RootInfo == nil {
+		t.Error("RootInfo was nil, but was expected to have values")
+	}
 }
 
 func TestParseResult_Long(t *testing.T) {
@@ -56,6 +66,52 @@ func TestParseResult_Long(t *testing.T) {
 	expTurnNumber := 1
 	if item.TurnNumber != expTurnNumber {
 		t.Errorf("Got turn number %d, but expected %d", item.TurnNumber, expTurnNumber)
+	}
+
+	if item.RootInfo == nil {
+		t.Error("RootInfo was nil, but was expected to have values")
+	}
+}
+
+func TestDemarshalMoveInfo_Single(t *testing.T) {
+	content, err := ioutil.ReadFile("./testdata/moveinfo_single.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	dec := json.NewDecoder(strings.NewReader(string(content)))
+	res := &MoveInfo{}
+	err = dec.Decode(res)
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+func Test_Demarshal_MoveInfo_Single(t *testing.T) {
+	content, err := ioutil.ReadFile("./testdata/moveinfo_single.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	dec := json.NewDecoder(strings.NewReader(string(content)))
+	res := &MoveInfo{}
+	err = dec.Decode(res)
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
+func Test_Demarshal_MoveInfo_Slice(t *testing.T) {
+	content, err := ioutil.ReadFile("./testdata/moveinfo_multi.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	dec := json.NewDecoder(strings.NewReader(string(content)))
+	res := []MoveInfo{}
+	err = dec.Decode(&res)
+	if err != nil {
+		t.Fatal(err)
+	}
+	expectedMoves := 16
+	if len(res) != expectedMoves {
+		t.Errorf("Got %d moves, but expected %d", len(res), expectedMoves)
 	}
 }
 
