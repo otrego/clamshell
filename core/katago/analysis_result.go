@@ -112,6 +112,8 @@ func (al AnalysisList) AddToGame(g *game.Game) error {
 			anIdx++
 			if anIdx < len(alc) {
 				curAn = alc[anIdx]
+			} else {
+				break
 			}
 		} else if curAn.TurnNumber > curNode.MoveNum() {
 			// The analysis can get ahead if there are gaps (i.e., the move numbers
@@ -124,7 +126,7 @@ func (al AnalysisList) AddToGame(g *game.Game) error {
 		} else if curNode.MoveNum() > curAn.TurnNumber {
 			// This shouldn't happen if we always start at the root of the game.
 			// Return an error if it does.
-			return fmt.Errorf("analysis TurnNumber %d got behind of tho game move number %d", curAn.TurnNumber, curNode.MoveNum())
+			return fmt.Errorf("analysis TurnNumber %d got behind of the game move number %d", curAn.TurnNumber, curNode.MoveNum())
 		}
 	}
 	return nil

@@ -34,7 +34,9 @@ import (
 
 	"github.com/golang/glog"
 	"github.com/otrego/clamshell/core/katago"
+	"github.com/otrego/clamshell/core/katago/kataprob"
 	"github.com/otrego/clamshell/core/sgf"
+	"github.com/otrego/clamshell/core/treepath"
 )
 
 var (
@@ -90,15 +92,17 @@ func getSGFs(args []string) []string {
 func process(files []string, an *katago.Analyzer) error {
 	glog.Infof("using files %v\n", files)
 	for _, fi := range files {
+		glog.Infof("Processing file %q", fi)
+
 		content, err := ioutil.ReadFile(fi)
 		if err != nil {
 			return err
 		}
-		game, err := sgf.FromString(string(content)).Parse()
+		g, err := sgf.FromString(string(content)).Parse()
 		if err != nil {
 			return err
 		}
-		q, err := katago.AnalysisQueryFromGame(game, &katago.QueryOptions{
+		q, err := katago.AnalysisQueryFromGame(g, &katago.QueryOptions{
 			MaxMoves:  maxMoves,
 			StartFrom: startFromMove,
 		})
@@ -110,6 +114,19 @@ func process(files []string, an *katago.Analyzer) error {
 			return err
 		}
 		glog.V(2).Infof("Finished processing: %v\n", result)
+
+		err = result.AddToGame(g)
+		if err != nil {
+			return err
+		}
+
+		var positions []treepath.Treepath
+		if paths, err := kataprob.FindBunders(g); err != nil {
+			positions = append(positions, paths...)
+		} else {
+			return err
+		}
+		glog.V(2).Infof("Found Positions: %v\n", positions)
 	}
 	return nil
 }
