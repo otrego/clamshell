@@ -43,17 +43,14 @@ func New(x, y int64) *Point {
 	}
 }
 
-// X method receives a pointer argument of type Point,
-// and returns the x-value.
+// X returns the x-value
 func (pt *Point) X() int64 { return pt.x }
 
-// Y method receives a pointer argument of type Point,
-// and returns the y-value.
+// Y returns the y value
 func (pt *Point) Y() int64 { return pt.y }
 
 // ToSGF method receives a pointer argument of type Point,
-// and converts the pointer-type (immutable) Point
-// to an SGF Point (two letter string).
+// and converts it to an SGF Point (two letter string).
 func (pt *Point) ToSGF() (string, error) {
 	if (pt.X() < 0) || (51 < pt.X()) || (pt.Y() < 0) || 51 < (pt.Y()) {
 		return "", fmt.Errorf(
@@ -66,16 +63,13 @@ func (pt *Point) ToSGF() (string, error) {
 
 }
 
-// String method receives a pointer argument of type Point,
-// and performs to represent and print a Point;
-// useful for debugging and test purposes - ilmanzo contributing
+// String method performs to represent and print a Point
 func (pt Point) String() string {
 	return fmt.Sprintf("{%d,%d}", pt.x, pt.y)
 }
 
 // NewFromSGF function receives a pointer argument of type string,
-// converts an SGF point (two letter string) to a pointer point of
-// *Point (an immutable type struct with two rune/char values).
+// and converts to an Point reference.
 func NewFromSGF(sgfPt string) (*Point, error) {
 	if (sgfPt == "") || (len(sgfPt) != 2) {
 		return nil, fmt.Errorf(
