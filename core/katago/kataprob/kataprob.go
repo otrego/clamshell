@@ -9,6 +9,6 @@ import (
 )
 
 // FindBlunders finds positions (paths) that result from big swings in points.
-func FindBunders(g *game.Game) ([]treepath.Treepath, error) {
+func FindBlunders(g *game.Game) ([]treepath.Treepath, error) {
 	return nil, nil
 }

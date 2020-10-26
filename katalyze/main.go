@@ -121,7 +121,7 @@ func process(files []string, an *katago.Analyzer) error {
 		}
 
 		var positions []treepath.Treepath
-		if paths, err := kataprob.FindBunders(g); err != nil {
+		if paths, err := kataprob.FindBlunders(g); err != nil {
 			positions = append(positions, paths...)
 		} else {
 			return err
