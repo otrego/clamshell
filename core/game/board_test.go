@@ -193,7 +193,7 @@ func TestRemoveCapturedStones(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(tc.desc, func(t *testing.T) {
-			tc.b.FindEnemyGroups(tc.m)
+			tc.b.FindCapturedGroups(tc.m)
 			tc.b.RemoveCapturedStones()
 			got := tc.b.String()
 			if fmt.Sprintf("%s", got) != fmt.Sprintf("%s", tc.exp) {
@@ -321,7 +321,7 @@ func TestAddStone(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(tc.desc, func(t *testing.T) {
-			err := tc.b.AddStone(tc.m)
+			_, err := tc.b.AddStone(tc.m)
 			got := tc.b.String()
 
 			cerr := errcheck.CheckCases(err, tc.expErrSubstr)
