@@ -53,9 +53,12 @@ func (b *Board) AddStone(m *Move) error {
 		b.board[y][x] = color.Empty
 		return fmt.Errorf("move %v is suicidal", pt)
 	}
-	if len(b.capturedStones) == 1 && *ko == *(b.capturedStones[0]) {
-		b.board[y][x] = color.Empty
-		return fmt.Errorf("%v is an illegal ko move", pt)
+	if len(b.capturedStones) == 1 {
+		b.ko = m.Point()
+		if *ko == *(b.capturedStones[0]) {
+			b.board[y][x] = color.Empty
+			return fmt.Errorf("%v is an illegal ko move", pt)
+		}
 	}
 	b.RemoveCapturedStones()
 	return nil
