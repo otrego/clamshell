@@ -1,4 +1,4 @@
-package game
+package board
 
 import (
 	"container/list"
@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/otrego/clamshell/core/color"
+	"github.com/otrego/clamshell/core/game"
 	"github.com/otrego/clamshell/core/point"
 )
 
