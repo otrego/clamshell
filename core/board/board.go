@@ -11,9 +11,7 @@ import (
 )
 
 // Board Contains the board, capturesStones, and ko
-// capturedStones only contains the stones captured
-// from the most recent AddStone call. ko contains
-// a point that is illegal to recapture due to Ko.
+// ko contains a point that is illegal to recapture due to Ko.
 type Board struct {
 	board [][]color.Color
 	ko    *point.Point
@@ -34,35 +32,30 @@ func NewBoard(size int) *Board {
 
 // AddStone adds a stone to the board.
 // returns the captured stones, or err
-// if any go (baduk) rules were broken
+// if any Go (baduk) rules were broken
 func (b *Board) AddStone(m *game.Move) ([]*point.Point, error) {
-	pt := m.Point()
-	var (
-		x, y int          = int(pt.X()), int(pt.Y())
-		ko   *point.Point = b.ko
-	)
+	var ko *point.Point = b.ko
 	b.ko = nil
 
-	if x >= len(b.board[0]) || y >= len(b.board) ||
-		x < 0 || y < 0 {
+	if !b.inBounds(m.Point()) {
 		return nil, fmt.Errorf("move %v out of bounds for %dx%d board",
-			pt, len(b.board[0]), len(b.board))
+			m.Point(), len(b.board[0]), len(b.board))
 	}
-	if b.board[y][x] != color.Empty {
-		return nil, fmt.Errorf("move %v already occupied", pt)
+	if b.colorAt(m.Point()) != color.Empty {
+		return nil, fmt.Errorf("move %v already occupied", m.Point())
 	}
 
-	b.board[y][x] = m.Color()
+	b.setColor(m)
 	capturedStones := b.findCapturedGroups(m)
 	if len(capturedStones) == 0 && len(b.capturedStones(m.Point())) != 0 {
-		b.board[y][x] = color.Empty
-		return nil, fmt.Errorf("move %v is suicidal", pt)
+		b.setColor(game.NewMove(color.Empty, m.Point()))
+		return nil, fmt.Errorf("move %v is suicidal", m.Point())
 	}
 	if len(capturedStones) == 1 {
 		b.ko = m.Point()
 		if *ko == *(capturedStones[0]) {
-			b.board[y][x] = color.Empty
-			return nil, fmt.Errorf("%v is an illegal ko move", pt)
+			b.setColor(game.NewMove(color.Empty, m.Point()))
+			return nil, fmt.Errorf("%v is an illegal ko move", m.Point())
 		}
 	}
 
@@ -70,16 +63,11 @@ func (b *Board) AddStone(m *game.Move) ([]*point.Point, error) {
 	return capturedStones, nil
 }
 
-// findCapturedGroups finds the groups captured by *Move m.
+// findCapturedGroups returns the groups captured by *Move m.
 func (b *Board) findCapturedGroups(m *game.Move) []*point.Point {
 	pt := m.Point()
 
-	points := make([]*point.Point, 4)
-	points[0] = point.New(pt.X()+1, pt.Y())
-	points[1] = point.New(pt.X()-1, pt.Y())
-	points[2] = point.New(pt.X(), pt.Y()+1)
-	points[3] = point.New(pt.X(), pt.Y()-1)
-
+	points := b.getNeighbors(pt)
 	capturedStones := make([]*point.Point, 0)
 	for _, point := range points {
 		capturedStones = append(capturedStones, b.capturedStones(point)...)
@@ -91,17 +79,17 @@ func (b *Board) findCapturedGroups(m *game.Move) []*point.Point {
 // the board.
 func (b *Board) removeCapturedStones(capturedStones []*point.Point) {
 	for _, point := range capturedStones {
-		b.board[point.Y()][point.X()] = color.Empty
+		b.setColor(game.NewMove(color.Empty, point))
 	}
 }
 
 // CapturedStones returns the captured stones in group containing Point pt.
-// returns nil if no stones were captured
+// returns nil if no stones were captured.
 func (b *Board) capturedStones(pt *point.Point) []*point.Point {
 	expanded := make(map[point.Point]bool)
 
 	// current group color
-	c := b.board[pt.Y()][pt.X()]
+	c := b.colorAt(pt)
 
 	queue := list.New()
 	queue.PushBack(pt)
@@ -113,19 +101,17 @@ func (b *Board) capturedStones(pt *point.Point) []*point.Point {
 			panic("e.Value was not of type point.Point")
 		}
 
-		x, y := int(pt1.X()), int(pt1.Y())
-		if x >= len(b.board[0]) || y >= len(b.board) ||
-			x < 0 || y < 0 {
+		if !b.inBounds(pt1) {
 			continue
-		} else if b.board[y][x] == color.Empty {
+		} else if b.colorAt(pt1) == color.Empty {
 			// Liberty has been found, no need to continue search
 			return nil
-		} else if b.board[y][x] == c && !expanded[*pt1] {
+		} else if b.colorAt(pt1) == c && !expanded[*pt1] {
 			expanded[*pt1] = true
-			queue.PushBack(point.New(pt1.X()+1, pt1.Y())) // enqueue right
-			queue.PushBack(point.New(pt1.X()-1, pt1.Y())) // enqueue left
-			queue.PushBack(point.New(pt1.X(), pt1.Y()+1)) // enqueue down
-			queue.PushBack(point.New(pt1.X(), pt1.Y()-1)) // enqueue up
+			points := b.getNeighbors(pt1)
+			for _, point := range points {
+				queue.PushBack(point)
+			}
 		}
 	}
 
@@ -137,6 +123,38 @@ func (b *Board) capturedStones(pt *point.Point) []*point.Point {
 		i++
 	}
 	return stoneGroup
+}
+
+// inBounds returns true if x and y are in bounds
+// on the board, false otherwise.
+func (b *Board) inBounds(pt *point.Point) bool {
+	var x, y int = int(pt.X()), int(pt.Y())
+	return x < len(b.board[0]) && y < len(b.board) &&
+		x > 0 && y > 0
+}
+
+// colorAt returns the color at point pt.
+func (b *Board) colorAt(pt *point.Point) color.Color {
+	var x, y int = int(pt.X()), int(pt.Y())
+	return b.board[y][x]
+}
+
+// setColor sets the color m.Color at point m.Point.
+func (b *Board) setColor(m *game.Move) {
+	var x, y int = int(m.Point().X()), int(m.Point().Y())
+	b.board[y][x] = m.Color()
+}
+
+// getNeighbors returns a list of points neighboring point pt.
+// Neighboring points could be out of bounds.
+func (b *Board) getNeighbors(pt *point.Point) []*point.Point {
+	points := make([]*point.Point, 4)
+	points[0] = point.New(pt.X()+1, pt.Y())
+	points[1] = point.New(pt.X()-1, pt.Y())
+	points[2] = point.New(pt.X(), pt.Y()+1)
+	points[3] = point.New(pt.X(), pt.Y()-1)
+
+	return points
 }
 
 // String returns a string representation of this board.
