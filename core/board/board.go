@@ -15,16 +15,14 @@ import (
 // from the most recent AddStone call. ko contains
 // a point that is illegal to recapture due to Ko.
 type Board struct {
-	board          [][]color.Color
-	capturedStones []*point.Point
-	ko             *point.Point
+	board [][]color.Color
+	ko    *point.Point
 }
 
 // NewBoard creates a new size x size board.
 func NewBoard(size int) *Board {
 	board := Board{
 		make([][]color.Color, size),
-		nil,
 		nil,
 	}
 
@@ -37,14 +35,13 @@ func NewBoard(size int) *Board {
 // AddStone adds a stone to the board.
 // returns the captured stones, or err
 // if any go (baduk) rules were broken
-func (b *Board) AddStone(m *Move) ([]*point.Point, error) {
+func (b *Board) AddStone(m *game.Move) ([]*point.Point, error) {
 	pt := m.Point()
 	var (
 		x, y int          = int(pt.X()), int(pt.Y())
 		ko   *point.Point = b.ko
 	)
 	b.ko = nil
-	b.capturedStones = nil
 
 	if x >= len(b.board[0]) || y >= len(b.board) ||
 		x < 0 || y < 0 {
@@ -56,25 +53,25 @@ func (b *Board) AddStone(m *Move) ([]*point.Point, error) {
 	}
 
 	b.board[y][x] = m.Color()
-	b.FindCapturedGroups(m)
-	if len(b.capturedStones) == 0 && len(b.CapturedStones(m.Point())) != 0 {
+	capturedStones := b.findCapturedGroups(m)
+	if len(capturedStones) == 0 && len(b.capturedStones(m.Point())) != 0 {
 		b.board[y][x] = color.Empty
 		return nil, fmt.Errorf("move %v is suicidal", pt)
 	}
-	if len(b.capturedStones) == 1 {
+	if len(capturedStones) == 1 {
 		b.ko = m.Point()
-		if *ko == *(b.capturedStones[0]) {
+		if *ko == *(capturedStones[0]) {
 			b.board[y][x] = color.Empty
 			return nil, fmt.Errorf("%v is an illegal ko move", pt)
 		}
 	}
 
-	b.RemoveCapturedStones()
-	return b.capturedStones, nil
+	b.removeCapturedStones(capturedStones)
+	return capturedStones, nil
 }
 
-// FindCapturedGroups finds the groups captured by *Move m.
-func (b *Board) FindCapturedGroups(m *Move) {
+// findCapturedGroups finds the groups captured by *Move m.
+func (b *Board) findCapturedGroups(m *game.Move) []*point.Point {
 	pt := m.Point()
 
 	points := make([]*point.Point, 4)
@@ -85,22 +82,22 @@ func (b *Board) FindCapturedGroups(m *Move) {
 
 	capturedStones := make([]*point.Point, 0)
 	for _, point := range points {
-		capturedStones = append(capturedStones, b.CapturedStones(point)...)
+		capturedStones = append(capturedStones, b.capturedStones(point)...)
 	}
-	b.capturedStones = capturedStones
+	return capturedStones
 }
 
-// RemoveCapturedStones removes the captured stones from
+// removeCapturedStones removes the captured stones from
 // the board.
-func (b *Board) RemoveCapturedStones() {
-	for _, point := range b.capturedStones {
+func (b *Board) removeCapturedStones(capturedStones []*point.Point) {
+	for _, point := range capturedStones {
 		b.board[point.Y()][point.X()] = color.Empty
 	}
 }
 
 // CapturedStones returns the captured stones in group containing Point pt.
 // returns nil if no stones were captured
-func (b *Board) CapturedStones(pt *point.Point) []*point.Point {
+func (b *Board) capturedStones(pt *point.Point) []*point.Point {
 	expanded := make(map[point.Point]bool)
 
 	// current group color
@@ -143,6 +140,17 @@ func (b *Board) CapturedStones(pt *point.Point) []*point.Point {
 }
 
 // String returns a string representation of this board.
+// For example:
+//
+//    b.Board {{B, W, B,  },
+//             {W,  , B, B},
+//             { ,  , W,  },
+//             {B,  , W,  }}
+//
+//    Becomes  [B W B .]
+//             [W . B B]
+//             [. . W .]
+//             [B . W .]
 func (b *Board) String() string {
 	var sb strings.Builder
 	for i := 0; i < len(b.board); i++ {

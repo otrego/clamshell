@@ -6,6 +6,7 @@ import (
 
 	"github.com/otrego/clamshell/core/color"
 	"github.com/otrego/clamshell/core/errcheck"
+	"github.com/otrego/clamshell/core/game"
 	"github.com/otrego/clamshell/core/point"
 )
 
@@ -74,7 +75,6 @@ func TestString(t *testing.T) {
 				{"", "", "", "", "", "", "", "", ""},
 				{"", "", "", "", "", "", "", "", ""}},
 				nil,
-				nil,
 			},
 			exp: "[. . . . . . B W .]\n" +
 				"[B . . . . B W W .]\n" +
@@ -123,7 +123,6 @@ func TestCapturedStones(t *testing.T) {
 				{"", "", "", "", "", "", "", "", ""},
 				{"", "", "", "", "", "", "", "", ""}},
 				nil,
-				nil,
 			},
 			pt:  point.New(5, 5),
 			exp: nil,
@@ -140,7 +139,6 @@ func TestCapturedStones(t *testing.T) {
 				{"", "B", "B", "B", "B", "B", "B", "", ""},
 				{"", "", "", "", "", "", "", "", ""}},
 				nil,
-				nil,
 			},
 			pt:  point.New(4, 4),
 			exp: nil,
@@ -148,7 +146,7 @@ func TestCapturedStones(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(tc.desc, func(t *testing.T) {
-			got := tc.b.CapturedStones(tc.pt)
+			got := tc.b.capturedStones(tc.pt)
 			if fmt.Sprintf("%v", got) != fmt.Sprintf("%v", tc.exp) {
 				t.Errorf("got %v, but expected %v", got, tc.exp)
 			}
@@ -160,7 +158,7 @@ func TestRemoveCapturedStones(t *testing.T) {
 	testCases := []struct {
 		desc string
 		b    *Board
-		m    *Move
+		m    *game.Move
 		exp  string
 	}{
 		{
@@ -175,9 +173,8 @@ func TestRemoveCapturedStones(t *testing.T) {
 				{"", "", "", "B", "W", "B", "", "", ""},
 				{"", "", "", "", "B", "", "", "", ""}},
 				nil,
-				nil,
 			},
-			m: NewMove(color.Black, point.New(4, 4)),
+			m: game.NewMove(color.Black, point.New(4, 4)),
 			exp: "[. . . . B . . . .]\n" +
 				"[. . . B . B . . .]\n" +
 				"[. . . B . B . . .]\n" +
@@ -191,8 +188,8 @@ func TestRemoveCapturedStones(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(tc.desc, func(t *testing.T) {
-			tc.b.FindCapturedGroups(tc.m)
-			tc.b.RemoveCapturedStones()
+			capturedStones := tc.b.findCapturedGroups(tc.m)
+			tc.b.removeCapturedStones(capturedStones)
 			got := tc.b.String()
 			if fmt.Sprintf("%s", got) != fmt.Sprintf("%s", tc.exp) {
 				t.Errorf("got %v, but expected %v", got, tc.exp)
@@ -205,14 +202,14 @@ func TestAddStone(t *testing.T) {
 	testCases := []struct {
 		desc         string
 		b            *Board
-		m            *Move
+		m            *game.Move
 		exp          string
 		expErrSubstr string
 	}{
 		{
 			desc: "successful added stone",
 			b:    NewBoard(9),
-			m:    NewMove(color.Black, point.New(4, 4)),
+			m:    game.NewMove(color.Black, point.New(4, 4)),
 			exp: "[. . . . . . . . .]\n" +
 				"[. . . . . . . . .]\n" +
 				"[. . . . . . . . .]\n" +
@@ -235,9 +232,8 @@ func TestAddStone(t *testing.T) {
 				{"", "", "", "B", "W", "B", "", "", ""},
 				{"", "", "", "", "B", "", "", "", ""}},
 				nil,
-				nil,
 			},
-			m: NewMove(color.Black, point.New(4, 4)),
+			m: game.NewMove(color.Black, point.New(4, 4)),
 			exp: "[. . . . B . . . .]\n" +
 				"[. . . B . B . . .]\n" +
 				"[. . . B . B . . .]\n" +
@@ -260,9 +256,8 @@ func TestAddStone(t *testing.T) {
 				{"", "", "", "", "", "", "", "", ""},
 				{"", "", "", "", "", "", "", "", ""}},
 				nil,
-				nil,
 			},
-			m:            NewMove(color.White, point.New(33, 4)),
+			m:            game.NewMove(color.White, point.New(33, 4)),
 			expErrSubstr: "out of bound",
 		},
 		{
@@ -277,9 +272,8 @@ func TestAddStone(t *testing.T) {
 				{"", "", "", "", "", "", "", "", ""},
 				{"", "", "", "", "", "", "", "", ""}},
 				nil,
-				nil,
 			},
-			m:            NewMove(color.White, point.New(4, 3)),
+			m:            game.NewMove(color.White, point.New(4, 3)),
 			expErrSubstr: "occupied",
 		},
 		{
@@ -294,9 +288,8 @@ func TestAddStone(t *testing.T) {
 				{"", "", "", "", "", "", "", "", ""},
 				{"", "", "", "", "", "", "", "", ""}},
 				nil,
-				nil,
 			},
-			m:            NewMove(color.White, point.New(4, 4)),
+			m:            game.NewMove(color.White, point.New(4, 4)),
 			expErrSubstr: "suicidal",
 		},
 		{
@@ -310,10 +303,9 @@ func TestAddStone(t *testing.T) {
 				{"", "", "", "", "W", "", "", "", ""},
 				{"", "", "", "", "", "", "", "", ""},
 				{"", "", "", "", "", "", "", "", ""}},
-				nil,
 				point.New(4, 5),
 			},
-			m:            NewMove(color.White, point.New(4, 4)),
+			m:            game.NewMove(color.White, point.New(4, 4)),
 			expErrSubstr: "illegal",
 		},
 	}
