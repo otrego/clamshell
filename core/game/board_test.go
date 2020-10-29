@@ -98,8 +98,6 @@ func TestString(t *testing.T) {
 	}
 }
 
-// FIXME TestCapturedStones will sometimes fail due to got's points being out of order
-// compared to exp's points ordering. go-cmp panic'd when using points.
 func TestCapturedStones(t *testing.T) {
 	testCases := []struct {
 		desc string
