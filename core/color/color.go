@@ -1,6 +1,11 @@
 // Package color contains utilities related to player and stone color.
 package color
 
+import (
+	"errors"
+	"fmt"
+)
+
 // Color is typed string indicating player or stone color
 type Color string
 
@@ -22,4 +27,19 @@ func (c Color) Opposite() Color {
 		return Black
 	}
 	return c
+}
+
+// ErrColorConversion is an err
+var ErrColorConversion = errors.New("color conversion error")
+
+// FromSGFProp returns the color from a SGF property that's color related)
+func FromSGFProp(prop string) (Color, error) {
+	switch prop {
+	case "B", "AB":
+		return Black, nil
+	case "W", "AW":
+		return White, nil
+	default:
+		return Empty, fmt.Errorf("%w: converting property %q", ErrColorConversion, prop)
+	}
 }
