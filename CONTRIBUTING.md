@@ -51,6 +51,9 @@ get started with these editors.
 
 TODO: Add some details about IntelliJ. Pull requests welcome!
 
+**Sublime Text**
+*   This [workflow tutorial](https://www.alexedwards.net/blog/streamline-your-sublime-text-and-go-workflow) is a great guide towards setting up features such as auto-formatting, auto-linting, and auto-completion
+
 ## Setting Up Your Dev Environment
 
 First, make sure you have
