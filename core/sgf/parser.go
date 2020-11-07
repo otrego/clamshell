@@ -9,6 +9,7 @@ import (
 
 	"github.com/otrego/clamshell/core/color"
 	"github.com/otrego/clamshell/core/game"
+	"github.com/otrego/clamshell/core/move"
 )
 
 // Parse is a convenience helper to parse sgf strings.
@@ -371,7 +372,7 @@ func postProcessProperties(n *game.Node, prop string, propData []string) error {
 		if err != nil {
 			return err
 		}
-		moves, err := game.MoveListFromSGFPoints(col, propData)
+		moves, err := move.MoveListFromSGFPoints(col, propData)
 		if err != nil {
 			return err
 		}
@@ -385,7 +386,7 @@ func postProcessProperties(n *game.Node, prop string, propData []string) error {
 		if err != nil {
 			return err
 		}
-		move, err := game.MoveFromSGFPoint(col, propData[0])
+		move, err := move.MoveFromSGFPoint(col, propData[0])
 		if err != nil {
 			return err
 		}

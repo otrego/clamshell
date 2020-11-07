@@ -8,6 +8,7 @@ import (
 	"github.com/otrego/clamshell/core/color"
 	"github.com/otrego/clamshell/core/errcheck"
 	"github.com/otrego/clamshell/core/game"
+	"github.com/otrego/clamshell/core/move"
 	"github.com/otrego/clamshell/core/point"
 	"github.com/otrego/clamshell/core/sgf"
 	"github.com/otrego/clamshell/core/treepath"
@@ -278,7 +279,7 @@ func TestPropertyPostProcessing(t *testing.T) {
 			getter: func(n *game.Node) interface{} {
 				return n.Move
 			},
-			want: game.NewMove(color.Black, point.New(0, 1)),
+			want: move.NewMove(color.Black, point.New(0, 1)),
 		},
 		{
 			desc: "white move",
@@ -287,7 +288,7 @@ func TestPropertyPostProcessing(t *testing.T) {
 			getter: func(n *game.Node) interface{} {
 				return n.Move
 			},
-			want: game.NewMove(color.White, point.New(0, 1)),
+			want: move.NewMove(color.White, point.New(0, 1)),
 		},
 		{
 			desc: "black & white placements",
@@ -296,11 +297,11 @@ func TestPropertyPostProcessing(t *testing.T) {
 			getter: func(n *game.Node) interface{} {
 				return n.Placements
 			},
-			want: []*game.Move{
-				game.NewMove(color.Black, point.New(0, 1)),
-				game.NewMove(color.Black, point.New(0, 2)),
-				game.NewMove(color.White, point.New(1, 1)),
-				game.NewMove(color.White, point.New(1, 2)),
+			want: []*move.Move{
+				move.NewMove(color.Black, point.New(0, 1)),
+				move.NewMove(color.Black, point.New(0, 2)),
+				move.NewMove(color.White, point.New(1, 1)),
+				move.NewMove(color.White, point.New(1, 2)),
 			},
 		},
 	}
