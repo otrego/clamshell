@@ -372,7 +372,7 @@ func postProcessProperties(n *game.Node, prop string, propData []string) error {
 		if err != nil {
 			return err
 		}
-		moves, err := move.MoveListFromSGFPoints(col, propData)
+		moves, err := move.ListFromSGFPoints(col, propData)
 		if err != nil {
 			return err
 		}
@@ -386,7 +386,7 @@ func postProcessProperties(n *game.Node, prop string, propData []string) error {
 		if err != nil {
 			return err
 		}
-		move, err := move.MoveFromSGFPoint(col, propData[0])
+		move, err := move.FromSGFPoint(col, propData[0])
 		if err != nil {
 			return err
 		}

@@ -42,7 +42,7 @@ func (m *Move) IsPass() bool {
 
 // MoveFromSGFPoint converts from an SGF point of the form "ab" to a point
 // object, such as {0,1}.
-func MoveFromSGFPoint(col color.Color, sgfPt string) (*Move, error) {
+func FromSGFPoint(col color.Color, sgfPt string) (*Move, error) {
 	if sgfPt == "" {
 		// This is valid. This is a 'Pass' Move.
 		return &Move{color: col}, nil
@@ -56,7 +56,7 @@ func MoveFromSGFPoint(col color.Color, sgfPt string) (*Move, error) {
 
 // MoveListFromSGFPoints a move list of the form "ab", "bc" to a moves of the form
 // {0,1}, {0,2}. Note that pass-moves are not allowed in move-lists.
-func MoveListFromSGFPoints(col color.Color, sgfPts []string) ([]*Move, error) {
+func ListFromSGFPoints(col color.Color, sgfPts []string) ([]*Move, error) {
 	var moves []*Move
 	for _, sgfPt := range sgfPts {
 		pt, err := point.NewFromSGF(sgfPt)
