@@ -113,20 +113,22 @@ func process(files []string, an *katago.Analyzer) error {
 		if err != nil {
 			return err
 		}
-		glog.V(2).Infof("Finished processing: %v\n", result)
+		glog.Infof("Finished processing file %q", fi)
+		glog.V(2).Infof("Processing data: %v\n", result)
 
 		err = result.AddToGame(g)
 		if err != nil {
 			return err
 		}
+		glog.Infof("Finished adding to game for file %q", fi)
 
 		var positions []treepath.Treepath
 		if paths, err := kataprob.FindBlunders(g); err != nil {
-			positions = append(positions, paths...)
-		} else {
 			return err
+		} else {
+			positions = append(positions, paths...)
 		}
-		glog.V(2).Infof("Found Positions: %v\n", positions)
+		glog.Infof("Found Positions: %v\n", positions)
 	}
 	return nil
 }
