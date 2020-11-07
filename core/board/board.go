@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/otrego/clamshell/core/color"
-	"github.com/otrego/clamshell/core/game"
+	"github.com/otrego/clamshell/core/move"
 	"github.com/otrego/clamshell/core/point"
 )
 
@@ -33,7 +33,7 @@ func NewBoard(size int) *Board {
 // AddStone adds a stone to the board.
 // returns the captured stones, or err
 // if any Go (baduk) rules were broken
-func (b *Board) AddStone(m *game.Move) ([]*point.Point, error) {
+func (b *Board) AddStone(m *move.Move) ([]*point.Point, error) {
 	var ko *point.Point = b.ko
 	b.ko = nil
 
@@ -48,13 +48,13 @@ func (b *Board) AddStone(m *game.Move) ([]*point.Point, error) {
 	b.setColor(m)
 	capturedStones := b.findCapturedGroups(m)
 	if len(capturedStones) == 0 && len(b.capturedStones(m.Point())) != 0 {
-		b.setColor(game.NewMove(color.Empty, m.Point()))
+		b.setColor(move.NewMove(color.Empty, m.Point()))
 		return nil, fmt.Errorf("move %v is suicidal", m.Point())
 	}
 	if len(capturedStones) == 1 {
 		b.ko = m.Point()
 		if *ko == *(capturedStones[0]) {
-			b.setColor(game.NewMove(color.Empty, m.Point()))
+			b.setColor(move.NewMove(color.Empty, m.Point()))
 			return nil, fmt.Errorf("%v is an illegal ko move", m.Point())
 		}
 	}
@@ -64,7 +64,7 @@ func (b *Board) AddStone(m *game.Move) ([]*point.Point, error) {
 }
 
 // findCapturedGroups returns the groups captured by *Move m.
-func (b *Board) findCapturedGroups(m *game.Move) []*point.Point {
+func (b *Board) findCapturedGroups(m *move.Move) []*point.Point {
 	pt := m.Point()
 
 	points := b.getNeighbors(pt)
@@ -79,7 +79,7 @@ func (b *Board) findCapturedGroups(m *game.Move) []*point.Point {
 // the board.
 func (b *Board) removeCapturedStones(capturedStones []*point.Point) {
 	for _, point := range capturedStones {
-		b.setColor(game.NewMove(color.Empty, point))
+		b.setColor(move.NewMove(color.Empty, point))
 	}
 }
 
@@ -140,7 +140,7 @@ func (b *Board) colorAt(pt *point.Point) color.Color {
 }
 
 // setColor sets the color m.Color at point m.Point.
-func (b *Board) setColor(m *game.Move) {
+func (b *Board) setColor(m *move.Move) {
 	var x, y int = int(m.Point().X()), int(m.Point().Y())
 	b.board[y][x] = m.Color()
 }
