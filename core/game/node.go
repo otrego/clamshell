@@ -1,5 +1,9 @@
 package game
 
+import (
+	"github.com/otrego/clamshell/core/move"
+)
+
 // Node contains Properties, Children nodes, and Parent node.
 type Node struct {
 	// moveNum is the move and indicates the current move number or depth for this
@@ -12,10 +16,10 @@ type Node struct {
 
 	// Placements are stones that are used for setup, but actual moves. For
 	// example, handicap stones will be in in placements.
-	Placements []*Move
+	Placements []*move.Move
 
 	// Move indicates a move in the game.
-	Move *Move
+	Move *move.Move
 
 	// Properties contain all the raw/unprocessed properties
 	Properties map[string][]string
