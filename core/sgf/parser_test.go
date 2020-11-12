@@ -325,7 +325,7 @@ func TestPropertyPostProcessing(t *testing.T) {
 	}
 }
 
-func TestWrite(t *testing.T) {
+func TestSerialize(t *testing.T) {
 	testCases := []struct {
 		desc string
 		sgf  string
@@ -372,8 +372,8 @@ AB[na][ra][mb][rb][lc][qc][ld][od][qd][le][pe][qe][mf][nf][of][pg]
 			}
 
 			got, err := sgf.Parse(sgf.Serialize(g))
-			if !cmp.Equal(got, g) {
-				t.Error("Error")
+			if !cmp.Equal(got, g, cmp.AllowUnexported(game.Node{}, move.Move{}, point.Point{})) {
+				t.Error("new SGF does not create identical game tree as original SGF")
 			}
 		})
 	}
