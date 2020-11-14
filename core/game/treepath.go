@@ -1,10 +1,4 @@
-// Package treepath provides functionality for manipulating treepaths.
-//
-// Treepaths are string-encodings of paths through trees.
-//
-// Treepaths come originially from
-// https://github.com/Kashomon/glift-core/blob/master/src/rules/treepath.js
-package treepath
+package game
 
 import (
 	"fmt"
@@ -40,7 +34,7 @@ const (
 	repeatState
 )
 
-// Parse parses a treepath from a string to an array of ints (Treepath).
+// ParsePath parses a treepath from a string to an array of ints (Treepath).
 //
 // There are a couple different string short-hands that make using treepaths
 // a little easier
@@ -65,7 +59,7 @@ const (
 //    0:4           becomes [0,0,0,0]
 //    1:4           becomes [1,1,1,1]
 //    1.2:1.0.2:3   becomes [1,2,0,2,2,2]
-func Parse(path string) (Treepath, error) {
+func ParsePath(path string) (Treepath, error) {
 	out := Treepath{}
 	curState := variationState
 	buf := strings.Builder{}
