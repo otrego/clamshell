@@ -2,6 +2,7 @@ package sgf
 
 import (
 	"fmt"
+	"sort"
 	"strings"
 
 	"github.com/otrego/clamshell/core/game"
@@ -33,6 +34,12 @@ func writeNode(n *game.Node) string {
 	var sb strings.Builder
 
 	sb.WriteString(";")
+	keys := make([]string, 0)
+	for key := range n.Properties {
+		keys = append(keys, key)
+	}
+
+	sort.Strings(keys)
 	for key := range n.Properties {
 		sb.WriteString(key)
 		for _, value := range n.Properties[key] {
