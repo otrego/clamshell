@@ -12,6 +12,12 @@ type Point struct {
 	y int64
 }
 
+// Coord is a float point for representing points in space
+type Coord struct {
+	x float64
+	y float64
+}
+
 // pointToSgfMap is a translation reference between int64 Point
 // and string SGF-Point (rune) values
 var pointToSgfMap = map[int64]rune{
@@ -52,6 +58,20 @@ func (pt *Point) X() int64 { return pt.x }
 // Y returns the y-value.
 func (pt *Point) Y() int64 { return pt.y }
 
+// NewCd creates a new immutable Coord.
+func NewCd(x, y float64) *Coord {
+	return &Coord{
+		x: x,
+		y: y,
+	}
+}
+
+// X returns the x-value.
+func (pt *Coord) X() float64 { return pt.x }
+
+// Y returns the y-value.
+func (pt *Coord) Y() float64 { return pt.y }
+
 // ToSGF converts a pointer-type (immutable) *Point
 // to an SGF Point (two letter string).
 // The returned value is 0-indexed.
@@ -77,6 +97,11 @@ func (pt *Point) ToSGF() (string, error) {
 // String() method to represent and print a Point, useful for debugging and test purposes
 func (pt Point) String() string {
 	return fmt.Sprintf("{%d,%d}", pt.x, pt.y)
+}
+
+// String() method to represent and print a Coord, useful for debugging and test purposes
+func (pt Coord) String() string {
+	return fmt.Sprintf("{%v,%v}", pt.x, pt.y)
 }
 
 // NewFromSGF converts an SGF point (two letter string)
