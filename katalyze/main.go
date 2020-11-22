@@ -128,7 +128,11 @@ func process(files []string, an *katago.Analyzer) error {
 		} else {
 			positions = append(positions, paths...)
 		}
-		glog.Infof("Found Positions: %v\n", positions)
+		var found []string
+		for _, tp := range positions {
+			found = append(found, tp.CompactString())
+		}
+		glog.Infof("Found Positions: %v", found)
 	}
 	return nil
 }
