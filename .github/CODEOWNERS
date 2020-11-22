@@ -1,0 +1,7 @@
+# Codeowners file for auto-assignment of experienced developers for code review
+
+*	@kashomon @mhoak
+
+# Auto-assignment of relevant developers for code review
+
+core/sgf/	@kashomon @mhoak @TrevorPeters
