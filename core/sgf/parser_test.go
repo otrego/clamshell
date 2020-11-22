@@ -13,7 +13,6 @@ import (
 	"github.com/otrego/clamshell/core/move"
 	"github.com/otrego/clamshell/core/point"
 	"github.com/otrego/clamshell/core/sgf"
-	"github.com/otrego/clamshell/core/treepath"
 )
 
 type propmap map[string][]string
@@ -244,7 +243,7 @@ AB[na][ra][mb][rb][lc][qc][ld][od][qd][le][pe][qe][mf][nf][of][pg]
 			}
 
 			for path, pmap := range tc.pathToProps {
-				tp, err := treepath.Parse(path)
+				tp, err := game.ParsePath(path)
 				if err != nil {
 					t.Error(err)
 					continue
@@ -314,7 +313,7 @@ func TestPropertyPostProcessing(t *testing.T) {
 				t.Error(err)
 				return
 			}
-			tp, err := treepath.Parse(tc.path)
+			tp, err := game.ParsePath(tc.path)
 			if err != nil {
 				t.Error(err)
 				return

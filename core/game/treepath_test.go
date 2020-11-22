@@ -1,10 +1,11 @@
-package game
+package game_test
 
 import (
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/otrego/clamshell/core/errcheck"
+	"github.com/otrego/clamshell/core/game"
 	"github.com/otrego/clamshell/core/sgf"
 )
 
@@ -115,7 +116,7 @@ func TestParsePath(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.desc, func(t *testing.T) {
-			got, err := ParsePath(tc.path)
+			got, err := game.ParsePath(tc.path)
 
 			cerr := errcheck.CheckCases(err, tc.expErrSubstr)
 			if cerr != nil {
@@ -126,7 +127,7 @@ func TestParsePath(t *testing.T) {
 				return
 			}
 
-			if !cmp.Equal(got, Treepath(tc.exp)) {
+			if !cmp.Equal(got, game.Treepath(tc.exp)) {
 				t.Errorf("ParsePath(%v)=%v, but expected %v", tc.path, got, tc.exp)
 			}
 		})
@@ -142,10 +143,10 @@ func TestApplyPath(t *testing.T) {
 	}{
 		{
 			desc: "first move",
-			path: "0",
+			path: ".0",
 			game: "(;GM[1];B[pd]C[foo])",
 			expProps: map[string][]string{
-				"C": []string{"zed"},
+				"C": []string{"foo"},
 				"B": []string{"pd"},
 			},
 		},
@@ -158,7 +159,7 @@ func TestApplyPath(t *testing.T) {
 				t.Error(err)
 				return
 			}
-			path, err := ParsePath(tc.path)
+			path, err := game.ParsePath(tc.path)
 			if err != nil {
 				t.Error(err)
 				return
@@ -176,7 +177,7 @@ func TestString(t *testing.T) {
 
 	testCases := []struct {
 		desc string
-		tp   Treepath
+		tp   game.Treepath
 		exp  string
 	}{
 		{
@@ -208,7 +209,7 @@ func TestString(t *testing.T) {
 func TestCompactString(t *testing.T) {
 	testCases := []struct {
 		desc string
-		tp   Treepath
+		tp   game.Treepath
 		exp  string
 	}{
 		{

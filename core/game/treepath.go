@@ -5,8 +5,6 @@ import (
 	"strconv"
 	"strings"
 	"unicode"
-
-	"github.com/otrego/clamshell/core/game"
 )
 
 // A Treepath is a list of variations that says how to travel through a tree of
@@ -159,7 +157,7 @@ func ParsePath(path string) (Treepath, error) {
 //
 // 1. There are no more variation numbers in the treepath.
 // 2. There is not a child with the given variation number.
-func (tp Treepath) Apply(n *game.Node) *game.Node {
+func (tp Treepath) Apply(n *Node) *Node {
 	curNode := n
 	for _, v := range tp {
 		if v < len(curNode.Children) {
