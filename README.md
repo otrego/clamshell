@@ -16,11 +16,19 @@ go test ./...
 
 ## Setting up a Dev Environment
 
-This assumes that you have familiarity with and have installed the following:
+To start doing basic Pull Requests (PRs), you'll need the following configured:
 
 1.   [Go(lang)](https://golang.org/doc/install)
 2.   [Git](https://git-scm.com/book/en/v2)
-2.   [Docker](https://www.docker.com/get-started). In particular, Docker Desktop.
+3.   Some IDE to edit the code.
+
+To work on katalyze / katago-related KRs, you'll need katago installed:
+
+1.   [Katago](https://github.com/lightvector/KataGo).
+
+To work on the Server codebase, you'll need a couple more tools:
+
+1.   [Docker](https://www.docker.com/get-started). In particular, Docker Desktop.
 
 ### Inital OS Setup
 
