@@ -133,11 +133,12 @@ func process(files []string, an *katago.Analyzer) error {
 		glog.Infof("Finished adding to game for file %q", fi)
 
 		var positions []game.Treepath
-		if paths, err := kataprob.FindBlunders(g); err != nil {
+		paths, err := kataprob.FindBlunders(g)
+		if err != nil {
 			return err
-		} else {
-			positions = append(positions, paths...)
 		}
+		positions = append(positions, paths...)
+
 		var found []string
 		for _, tp := range positions {
 			found = append(found, tp.CompactString())
