@@ -1,14 +1,15 @@
-package treepath
+package game_test
 
 import (
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/otrego/clamshell/core/errcheck"
+	"github.com/otrego/clamshell/core/game"
 	"github.com/otrego/clamshell/core/sgf"
 )
 
-func TestParse(t *testing.T) {
+func TestParsePath(t *testing.T) {
 	testCases := []struct {
 		desc         string
 		path         string
@@ -115,7 +116,7 @@ func TestParse(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.desc, func(t *testing.T) {
-			got, err := Parse(tc.path)
+			got, err := game.ParsePath(tc.path)
 
 			cerr := errcheck.CheckCases(err, tc.expErrSubstr)
 			if cerr != nil {
@@ -126,8 +127,8 @@ func TestParse(t *testing.T) {
 				return
 			}
 
-			if !cmp.Equal(got, Treepath(tc.exp)) {
-				t.Errorf("Parse(%v)=%v, but expected %v", tc.path, got, tc.exp)
+			if !cmp.Equal(got, game.Treepath(tc.exp)) {
+				t.Errorf("ParsePath(%v)=%v, but expected %v", tc.path, got, tc.exp)
 			}
 		})
 	}
@@ -136,21 +137,21 @@ func TestParse(t *testing.T) {
 func TestApplyPath(t *testing.T) {
 	testCases := []struct {
 		desc     string
-		initPath string
+		path     string
 		game     string
 		expProps map[string][]string
 	}{
 		{
-			desc:     "first move",
-			initPath: "0",
-			game:     "(;GM[1];B[pd]C[foo])",
+			desc: "first move",
+			path: ".0",
+			game: "(;GM[1];B[pd]C[foo])",
 			expProps: map[string][]string{
-				"C": []string{"zed"},
+				"C": []string{"foo"},
 				"B": []string{"pd"},
 			},
 		},
 	}
-	t.Skip("Parsing is currently incorrect:Re-enable test once https://github.com/otrego/clamshell/issues/83 is fixed")
+
 	for _, tc := range testCases {
 		t.Run(tc.desc, func(t *testing.T) {
 			g, err := sgf.FromString(tc.game).Parse()
@@ -158,7 +159,7 @@ func TestApplyPath(t *testing.T) {
 				t.Error(err)
 				return
 			}
-			path, err := Parse(tc.initPath)
+			path, err := game.ParsePath(tc.path)
 			if err != nil {
 				t.Error(err)
 				return
@@ -176,7 +177,7 @@ func TestString(t *testing.T) {
 
 	testCases := []struct {
 		desc string
-		tp   Treepath
+		tp   game.Treepath
 		exp  string
 	}{
 		{
@@ -208,7 +209,7 @@ func TestString(t *testing.T) {
 func TestCompactString(t *testing.T) {
 	testCases := []struct {
 		desc string
-		tp   Treepath
+		tp   game.Treepath
 		exp  string
 	}{
 		{
