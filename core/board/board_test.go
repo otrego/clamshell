@@ -6,7 +6,7 @@ import (
 
 	"github.com/otrego/clamshell/core/color"
 	"github.com/otrego/clamshell/core/errcheck"
-	"github.com/otrego/clamshell/core/game"
+	"github.com/otrego/clamshell/core/move"
 	"github.com/otrego/clamshell/core/point"
 )
 
@@ -158,7 +158,7 @@ func TestRemoveCapturedStones(t *testing.T) {
 	testCases := []struct {
 		desc string
 		b    *Board
-		m    *game.Move
+		m    *move.Move
 		exp  string
 	}{
 		{
@@ -174,7 +174,7 @@ func TestRemoveCapturedStones(t *testing.T) {
 				{"", "", "", "", "B", "", "", "", ""}},
 				nil,
 			},
-			m: game.NewMove(color.Black, point.New(4, 4)),
+			m: move.NewMove(color.Black, point.New(4, 4)),
 			exp: "[. . . . B . . . .]\n" +
 				"[. . . B . B . . .]\n" +
 				"[. . . B . B . . .]\n" +
@@ -202,14 +202,14 @@ func TestAddStone(t *testing.T) {
 	testCases := []struct {
 		desc         string
 		b            *Board
-		m            *game.Move
+		m            *move.Move
 		exp          string
 		expErrSubstr string
 	}{
 		{
 			desc: "successful added stone",
 			b:    NewBoard(9),
-			m:    game.NewMove(color.Black, point.New(4, 4)),
+			m:    move.NewMove(color.Black, point.New(4, 4)),
 			exp: "[. . . . . . . . .]\n" +
 				"[. . . . . . . . .]\n" +
 				"[. . . . . . . . .]\n" +
@@ -233,7 +233,7 @@ func TestAddStone(t *testing.T) {
 				{"", "", "", "", "B", "", "", "", ""}},
 				nil,
 			},
-			m: game.NewMove(color.Black, point.New(4, 4)),
+			m: move.NewMove(color.Black, point.New(4, 4)),
 			exp: "[. . . . B . . . .]\n" +
 				"[. . . B . B . . .]\n" +
 				"[. . . B . B . . .]\n" +
@@ -257,7 +257,7 @@ func TestAddStone(t *testing.T) {
 				{"", "", "", "", "", "", "", "", ""}},
 				nil,
 			},
-			m:            game.NewMove(color.White, point.New(33, 4)),
+			m:            move.NewMove(color.White, point.New(33, 4)),
 			expErrSubstr: "out of bound",
 		},
 		{
@@ -273,7 +273,7 @@ func TestAddStone(t *testing.T) {
 				{"", "", "", "", "", "", "", "", ""}},
 				nil,
 			},
-			m:            game.NewMove(color.White, point.New(4, 3)),
+			m:            move.NewMove(color.White, point.New(4, 3)),
 			expErrSubstr: "occupied",
 		},
 		{
@@ -289,7 +289,7 @@ func TestAddStone(t *testing.T) {
 				{"", "", "", "", "", "", "", "", ""}},
 				nil,
 			},
-			m:            game.NewMove(color.White, point.New(4, 4)),
+			m:            move.NewMove(color.White, point.New(4, 4)),
 			expErrSubstr: "suicidal",
 		},
 		{
@@ -305,7 +305,7 @@ func TestAddStone(t *testing.T) {
 				{"", "", "", "", "", "", "", "", ""}},
 				point.New(4, 5),
 			},
-			m:            game.NewMove(color.White, point.New(4, 4)),
+			m:            move.NewMove(color.White, point.New(4, 4)),
 			expErrSubstr: "illegal",
 		},
 	}

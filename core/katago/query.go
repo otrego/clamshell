@@ -8,6 +8,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/otrego/clamshell/core/game"
+	"github.com/otrego/clamshell/core/move"
 	"github.com/otrego/clamshell/core/point"
 )
 
@@ -123,7 +124,7 @@ func (gc *gameConverter) point(pt *point.Point) string {
 
 // move converts from a game-move to a move-array with a GTP Point. This is a
 // format peculiar to Katago.
-func (gc *gameConverter) move(mv *game.Move) Move {
+func (gc *gameConverter) move(mv *move.Move) Move {
 	return Move{string(mv.Color()), gc.point(mv.Point())}
 }
 

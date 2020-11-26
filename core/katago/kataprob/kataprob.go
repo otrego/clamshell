@@ -9,15 +9,14 @@ import (
 	"github.com/golang/glog"
 	"github.com/otrego/clamshell/core/game"
 	"github.com/otrego/clamshell/core/katago"
-	"github.com/otrego/clamshell/core/treepath"
 )
 
 // FindBlunders finds positions (paths) that result from big swings in points.
-func FindBlunders(g *game.Game) ([]treepath.Treepath, error) {
+func FindBlunders(g *game.Game) ([]game.Treepath, error) {
 	blunderAmt := 3.0
 
-	var cur treepath.Treepath
-	var found []treepath.Treepath
+	var cur game.Treepath
+	var found []game.Treepath
 	if g.Root == nil {
 		return found, nil
 	}
@@ -25,13 +24,13 @@ func FindBlunders(g *game.Game) ([]treepath.Treepath, error) {
 	var prevLead float64
 
 	for n := g.Root; n != nil; n = n.Next(0) {
-		glog.Infof("VarNum %v\n", n.VarNum())
-		glog.Infof("MoveNum %v\n", n.MoveNum())
+		glog.V(3).Infof("VarNum %v\n", n.VarNum())
+		glog.V(3).Infof("MoveNum %v\n", n.MoveNum())
 
 		// We assume alternating moves. Lead is always presented as
 		pl := prevLead
 		cur = append(cur, n.VarNum())
-		glog.Infof("PrevLead %v\n", prevLead)
+		glog.V(3).Infof("PrevLead %v\n", prevLead)
 
 		d := n.AnalysisData()
 		if d == nil {
@@ -41,19 +40,21 @@ func FindBlunders(g *game.Game) ([]treepath.Treepath, error) {
 
 		katad, ok := d.(*katago.AnalysisResult)
 		if !ok {
-			glog.Infof("not analysisResult")
+			glog.V(2).Infof("not analysisResult")
 			continue
 		}
 		if katad.RootInfo == nil {
-			glog.Infof("no RootInfo")
+			// This
+			glog.Errorf("no RootInfo for at move %v", n.MoveNum())
 			continue
 		}
 
 		lead := katad.RootInfo.ScoreLead
 		nextLead := -1 * lead
-		glog.Infof("Next ScoreLead: %v:", nextLead)
+		glog.V(3).Infof("Next ScoreLead: %v:", nextLead)
 		delta := nextLead - pl
-		glog.Infof("Delta: %v:", delta)
+		glog.V(3).Infof("Delta: %v:", delta)
+
 		if delta >= math.Abs(blunderAmt) {
 			found = append(found, cur.Clone())
 		}
