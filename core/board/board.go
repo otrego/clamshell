@@ -130,7 +130,7 @@ func (b *Board) capturedStones(pt *point.Point) []*point.Point {
 func (b *Board) inBounds(pt *point.Point) bool {
 	var x, y int = int(pt.X()), int(pt.Y())
 	return x < len(b.board[0]) && y < len(b.board) &&
-		x > 0 && y > 0
+		x >= 0 && y >= 0
 }
 
 // colorAt returns the color at point pt.
