@@ -33,9 +33,9 @@ import (
 	"strings"
 
 	"github.com/golang/glog"
-	"github.com/otrego/clamshell/core/game"
 	"github.com/otrego/clamshell/core/katago"
 	"github.com/otrego/clamshell/core/katago/kataprob"
+	"github.com/otrego/clamshell/core/movetree"
 	"github.com/otrego/clamshell/core/sgf"
 )
 
@@ -132,7 +132,7 @@ func process(files []string, an *katago.Analyzer) error {
 		}
 		glog.Infof("Finished adding to game for file %q", fi)
 
-		var positions []game.Treepath
+		var positions []movetree.Treepath
 		paths, err := kataprob.FindBlunders(g)
 		if err != nil {
 			return err

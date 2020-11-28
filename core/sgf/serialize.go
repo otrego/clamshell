@@ -5,18 +5,18 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/otrego/clamshell/core/game"
+	"github.com/otrego/clamshell/core/movetree"
 )
 
 // Serialize converts a Game into SGF format.
 // Calls serializeHelper.
-func Serialize(g *game.Game) string {
+func Serialize(g *movetree.MoveTree) string {
 	return fmt.Sprintf("(%s)", serializeHelper(g.Root))
 }
 
 // serializeHelper is a recursive DFS searching all
 // descendant nodes of n.
-func serializeHelper(n *game.Node) string {
+func serializeHelper(n *movetree.Node) string {
 	var sb strings.Builder
 	sb.WriteString(writeNode(n))
 	for _, child := range n.Children {
@@ -30,7 +30,7 @@ func serializeHelper(n *game.Node) string {
 }
 
 // writeNode writes a node in SGF format
-func writeNode(n *game.Node) string {
+func writeNode(n *movetree.Node) string {
 	var sb strings.Builder
 
 	sb.WriteString(";")

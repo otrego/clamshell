@@ -7,16 +7,16 @@ import (
 	"math"
 
 	"github.com/golang/glog"
-	"github.com/otrego/clamshell/core/game"
 	"github.com/otrego/clamshell/core/katago"
+	"github.com/otrego/clamshell/core/movetree"
 )
 
 // FindBlunders finds positions (paths) that result from big swings in points.
-func FindBlunders(g *game.Game) ([]game.Treepath, error) {
+func FindBlunders(g *movetree.MoveTree) ([]movetree.Treepath, error) {
 	blunderAmt := 3.0
 
-	var cur game.Treepath
-	var found []game.Treepath
+	var cur movetree.Treepath
+	var found []movetree.Treepath
 	if g.Root == nil {
 		return found, nil
 	}

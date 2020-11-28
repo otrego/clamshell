@@ -1,11 +1,11 @@
-package game_test
+package movetree_test
 
 import (
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/otrego/clamshell/core/errcheck"
-	"github.com/otrego/clamshell/core/game"
+	"github.com/otrego/clamshell/core/movetree"
 	"github.com/otrego/clamshell/core/sgf"
 )
 
@@ -116,7 +116,7 @@ func TestParsePath(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.desc, func(t *testing.T) {
-			got, err := game.ParsePath(tc.path)
+			got, err := movetree.ParsePath(tc.path)
 
 			cerr := errcheck.CheckCases(err, tc.expErrSubstr)
 			if cerr != nil {
@@ -127,7 +127,7 @@ func TestParsePath(t *testing.T) {
 				return
 			}
 
-			if !cmp.Equal(got, game.Treepath(tc.exp)) {
+			if !cmp.Equal(got, movetree.Treepath(tc.exp)) {
 				t.Errorf("ParsePath(%v)=%v, but expected %v", tc.path, got, tc.exp)
 			}
 		})
@@ -159,7 +159,7 @@ func TestApplyPath(t *testing.T) {
 				t.Error(err)
 				return
 			}
-			path, err := game.ParsePath(tc.path)
+			path, err := movetree.ParsePath(tc.path)
 			if err != nil {
 				t.Error(err)
 				return
@@ -174,10 +174,9 @@ func TestApplyPath(t *testing.T) {
 }
 
 func TestString(t *testing.T) {
-
 	testCases := []struct {
 		desc string
-		tp   game.Treepath
+		tp   movetree.Treepath
 		exp  string
 	}{
 		{
@@ -209,7 +208,7 @@ func TestString(t *testing.T) {
 func TestCompactString(t *testing.T) {
 	testCases := []struct {
 		desc string
-		tp   game.Treepath
+		tp   movetree.Treepath
 		exp  string
 	}{
 		{

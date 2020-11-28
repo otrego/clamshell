@@ -7,8 +7,8 @@ import (
 	"github.com/google/go-cmp/cmp"
 	"github.com/otrego/clamshell/core/color"
 	"github.com/otrego/clamshell/core/errcheck"
-	"github.com/otrego/clamshell/core/game"
 	"github.com/otrego/clamshell/core/move"
+	"github.com/otrego/clamshell/core/movetree"
 	"github.com/otrego/clamshell/core/point"
 	"github.com/otrego/clamshell/core/sgf"
 )
@@ -237,11 +237,11 @@ AB[na][ra][mb][rb][lc][qc][ld][od][qd][le][pe][qe][mf][nf][of][pg]
 				return
 			}
 			if g == nil {
-				t.Fatal("unexpectedly nil game")
+				t.Fatal("unexpectedly nil movetree")
 			}
 
 			for path, pmap := range tc.pathToProps {
-				tp, err := game.ParsePath(path)
+				tp, err := movetree.ParsePath(path)
 				if err != nil {
 					t.Error(err)
 					continue
@@ -261,7 +261,7 @@ AB[na][ra][mb][rb][lc][qc][ld][od][qd][le][pe][qe][mf][nf][of][pg]
 	}
 }
 
-type propGetter func(*game.Node) interface{}
+type propGetter func(*movetree.Node) interface{}
 
 func TestPropertyPostProcessing(t *testing.T) {
 	testCases := []struct {
@@ -275,7 +275,7 @@ func TestPropertyPostProcessing(t *testing.T) {
 			desc: "black move",
 			sgf:  "(;GM[1];B[ab])",
 			path: "0",
-			getter: func(n *game.Node) interface{} {
+			getter: func(n *movetree.Node) interface{} {
 				return n.Move
 			},
 			want: move.NewMove(color.Black, point.New(0, 1)),
@@ -284,7 +284,7 @@ func TestPropertyPostProcessing(t *testing.T) {
 			desc: "white move",
 			sgf:  "(;GM[1];W[ab])",
 			path: "0",
-			getter: func(n *game.Node) interface{} {
+			getter: func(n *movetree.Node) interface{} {
 				return n.Move
 			},
 			want: move.NewMove(color.White, point.New(0, 1)),
@@ -293,7 +293,7 @@ func TestPropertyPostProcessing(t *testing.T) {
 			desc: "black & white placements",
 			sgf:  "(;GM[1];AB[ab][ac]AW[bb][bc])",
 			path: "0",
-			getter: func(n *game.Node) interface{} {
+			getter: func(n *movetree.Node) interface{} {
 				return n.Placements
 			},
 			want: []*move.Move{
@@ -311,7 +311,7 @@ func TestPropertyPostProcessing(t *testing.T) {
 				t.Error(err)
 				return
 			}
-			tp, err := game.ParsePath(tc.path)
+			tp, err := movetree.ParsePath(tc.path)
 			if err != nil {
 				t.Error(err)
 				return
