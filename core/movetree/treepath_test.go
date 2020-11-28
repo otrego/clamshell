@@ -1,11 +1,11 @@
-package game_test
+package movetree_test
 
 import (
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/otrego/clamshell/core/errcheck"
-	"github.com/otrego/clamshell/core/game"
+	"github.com/otrego/clamshell/core/movetree"
 	"github.com/otrego/clamshell/core/sgf"
 )
 
@@ -174,10 +174,9 @@ func TestApplyPath(t *testing.T) {
 }
 
 func TestString(t *testing.T) {
-
 	testCases := []struct {
 		desc string
-		tp   game.Treepath
+		tp   movetree.Treepath
 		exp  string
 	}{
 		{
@@ -209,7 +208,7 @@ func TestString(t *testing.T) {
 func TestCompactString(t *testing.T) {
 	testCases := []struct {
 		desc string
-		tp   game.Treepath
+		tp   movetree.Treepath
 		exp  string
 	}{
 		{

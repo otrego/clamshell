@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
-	"github.com/otrego/clamshell/core/game"
+	"github.com/otrego/clamshell/core/movetree"
 	"github.com/otrego/clamshell/core/sgf"
 )
 
@@ -193,7 +193,7 @@ func TestAddToGame(t *testing.T) {
 				t.Fatal(err)
 			}
 			for tpRaw, valp := range tc.expWinRate {
-				tp, err := game.ParsePath(tpRaw)
+				tp, err := movetree.ParsePath(tpRaw)
 				if err != nil {
 					t.Error(err)
 					continue

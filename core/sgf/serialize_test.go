@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/otrego/clamshell/core/game"
+	"github.com/otrego/clamshell/core/movetree"
 	"github.com/otrego/clamshell/core/sgf"
 )
 
@@ -89,17 +89,17 @@ SQ[ra][rb][rc]
 				return
 			}
 
-			//convert original game back to sgf, then back to new game
+			//convert original movetree back to sgf, then back to new game
 			got, err := sgf.Parse(sgf.Serialize(g))
 
-			//check if both games are identical
+			//check if both movetrees are identical
 			var sbWant strings.Builder
 			var sbGot strings.Builder
-			g.Root.Traverse(func(n *game.Node) {
+			g.Root.Traverse(func(n *movetree.Node) {
 				sbWant.WriteString(fmt.Sprintf("%v", n.Properties))
 			})
 
-			got.Root.Traverse(func(n *game.Node) {
+			got.Root.Traverse(func(n *movetree.Node) {
 				sbGot.WriteString(fmt.Sprintf("%v", n.Properties))
 			})
 
