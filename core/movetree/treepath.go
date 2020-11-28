@@ -183,6 +183,12 @@ func (tp Treepath) String() string {
 	return fmt.Sprintf("%v", strArr)
 }
 
+// Clone makes a copy of the treepath.
+func (tp Treepath) Clone() Treepath {
+	// A shallow copy should be sufficient.
+	return tp[:]
+}
+
 // CompactString returns the treepath as a CompactString (short-hand).
 // examples:
 //      []                  becomes "."
