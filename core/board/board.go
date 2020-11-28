@@ -31,9 +31,27 @@ func NewBoard(size int) *Board {
 }
 
 // AddStone adds a stone to the board.
+// Does not remove captured stones.
+// returns err if Move is out of bounds
+// or the position is already occupied.
+func (b *Board) AddStone(m *move.Move) error {
+	if !b.inBounds(m.Point()) {
+		return fmt.Errorf("move %v out of bounds for %dx%d board",
+			m.Point(), len(b.board[0]), len(b.board))
+	}
+	if b.colorAt(m.Point()) != color.Empty {
+		return fmt.Errorf("move %v already occupied", m.Point())
+	}
+
+	b.setColor(m)
+	return nil
+}
+
+// PlaceStone adds a stone to the board
+// and removes captured stones (if any).
 // returns the captured stones, or err
 // if any Go (baduk) rules were broken
-func (b *Board) AddStone(m *move.Move) ([]*point.Point, error) {
+func (b *Board) PlaceStone(m *move.Move) ([]*point.Point, error) {
 	var ko *point.Point = b.ko
 	b.ko = nil
 
@@ -155,6 +173,22 @@ func (b *Board) getNeighbors(pt *point.Point) []*point.Point {
 	points[3] = point.New(pt.X(), pt.Y()-1)
 
 	return points
+}
+
+// GetPlacements returns a list of all the current stone positions.
+func (b *Board) GetPlacements() []*move.Move {
+	moves := make([]*move.Move, 0)
+
+	for i := 0; i < len(b.board); i++ {
+		for j := 0; j < len(b.board[0]); j++ {
+			if b.board[i][j] != color.Empty {
+				moves = append(moves,
+					move.NewMove(b.board[i][j], point.New(int64(j), int64(i))))
+			}
+		}
+	}
+
+	return moves
 }
 
 // String returns a string representation of this board.
