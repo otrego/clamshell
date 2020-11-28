@@ -33,6 +33,8 @@ This assumes that you have familiarity with and have installed the following:
 
 ### Installing KataGo
 
+ZORK
+
 [KataGo](https://github.com/lightvector/KataGo) works with either
 [CUDA](https://developer.nvidia.com/cuda-zone) or
 [OpenCL](https://www.khronos.org/opencl/). With OpenCL, you can use it without
