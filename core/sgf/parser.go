@@ -8,16 +8,16 @@ import (
 	"unicode"
 
 	"github.com/otrego/clamshell/core/color"
-	"github.com/otrego/clamshell/core/game"
 	"github.com/otrego/clamshell/core/move"
+	"github.com/otrego/clamshell/core/movetree"
 )
 
 // Parse is a convenience helper to parse sgf strings.
-func Parse(s string) (*game.Game, error) {
+func Parse(s string) (*movetree.MoveTree, error) {
 	return FromString(s).Parse()
 }
 
-// Parser parses SGFs into game trees
+// Parser parses SGFs into MoveTree objects.
 type Parser struct {
 	rdr io.RuneReader
 }
@@ -45,15 +45,15 @@ type stateData struct {
 	holdChar rune
 	buf      strings.Builder
 
-	branches []*game.Node
-	curnode  *game.Node
+	branches []*movetree.Node
+	curnode  *movetree.Node
 }
 
-func (sd *stateData) addBranch(n *game.Node) {
+func (sd *stateData) addBranch(n *movetree.Node) {
 	sd.branches = append(sd.branches, n)
 }
 
-func (sd *stateData) popBranch() (*game.Node, error) {
+func (sd *stateData) popBranch() (*movetree.Node, error) {
 	if len(sd.branches) == 0 {
 		return nil, sd.parseError("unable to pop-branch; likely due to empty variation")
 	}
@@ -86,7 +86,7 @@ type propBuffer struct {
 	propdata []string
 }
 
-func (b *propBuffer) flush(n *game.Node) error {
+func (b *propBuffer) flush(n *movetree.Node) error {
 	if b.prop != "" && len(b.propdata) != 0 {
 		// Properties cannot be empty, propdata must be non-zero
 		n.Properties[b.prop] = b.propdata
@@ -140,9 +140,10 @@ func (p parseState) String() string {
 	}
 }
 
-// Parse parses a game into a tree of moves, return a game or a parsing error.
-func (p *Parser) Parse() (*game.Game, error) {
-	g := game.New()
+// Parse parses a movetree into a tree of moves, return a movetree or a parsing
+// error.
+func (p *Parser) Parse() (*movetree.MoveTree, error) {
+	g := movetree.New()
 	stateData := &stateData{}
 	pbuf := &propBuffer{}
 
@@ -214,7 +215,7 @@ func (p *Parser) Parse() (*game.Game, error) {
 // Transitions:
 //
 //     beginning => between
-func handleBeginning(stateData *stateData, pbuf *propBuffer, g *game.Game) error {
+func handleBeginning(stateData *stateData, pbuf *propBuffer, g *movetree.MoveTree) error {
 	if unicode.IsSpace(stateData.curchar) {
 		return nil // We can safely ignore whitespace here.
 	} else if stateData.curchar == lparen {
@@ -277,7 +278,7 @@ func handleBetween(stateData *stateData, pbuf *propBuffer) error {
 			return stateData.parseError(err.Error())
 		}
 		cn := stateData.curnode
-		stateData.curnode = game.NewNode()
+		stateData.curnode = movetree.NewNode()
 		cn.AddChild(stateData.curnode)
 		stateData.curnode.Parent = cn
 		return nil
@@ -365,7 +366,7 @@ func handlePropData(stateData *stateData, pbuf *propBuffer) error {
 
 // postProcessProperties adds post-processing to properties, to allow for more
 // structure.
-func postProcessProperties(n *game.Node, prop string, propData []string) error {
+func postProcessProperties(n *movetree.Node, prop string, propData []string) error {
 	switch prop {
 	case "AW", "AB":
 		col, err := color.FromSGFProp(prop)
@@ -394,39 +395,4 @@ func postProcessProperties(n *game.Node, prop string, propData []string) error {
 	}
 
 	return nil
-}
-
-// Serialize converts a Game into SGF format.
-// Calls serializeHelper.
-func Serialize(g *game.Game) string {
-	return fmt.Sprintf("(%s)", serializeHelper(g.Root))
-}
-
-// serializHelper is a recursive DFS searching all
-// descendant nodes of n.
-func serializeHelper(n *game.Node) string {
-	var sb strings.Builder
-	sb.WriteString(writeNode(n))
-	for _, child := range n.Children {
-		if len(n.Children) > 1 {
-			sb.WriteString(fmt.Sprintf("(%s)", serializeHelper(child)))
-		} else {
-			sb.WriteString(serializeHelper(child))
-		}
-	}
-	return sb.String()
-}
-
-// writeNode writes a node in SGF format
-func writeNode(n *game.Node) string {
-	var sb strings.Builder
-
-	sb.WriteString(";")
-	for key := range n.Properties {
-		sb.WriteString(key)
-		for _, value := range n.Properties[key] {
-			sb.WriteString(fmt.Sprintf("[%s]", value))
-		}
-	}
-	return sb.String()
 }

@@ -7,8 +7,8 @@ import (
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
+	"github.com/otrego/clamshell/core/movetree"
 	"github.com/otrego/clamshell/core/sgf"
-	"github.com/otrego/clamshell/core/treepath"
 )
 
 func TestParseResult_Short(t *testing.T) {
@@ -148,15 +148,6 @@ func TestAddToGame(t *testing.T) {
 		expWinRate map[string]*float64
 	}{
 		{
-			desc:   "degenerate case",
-			rawSgf: `(;GM[1];B[ac];W[cd];B[de])`,
-			expWinRate: map[string]*float64{
-				".":    nil,
-				".0":   nil,
-				".0.0": nil,
-			},
-		},
-		{
 			desc:   "basic attachment",
 			rawSgf: `(;GM[1];B[ac];W[cd];B[de])`,
 			analysis: AnalysisList{
@@ -193,7 +184,7 @@ func TestAddToGame(t *testing.T) {
 				t.Fatal(err)
 			}
 			for tpRaw, valp := range tc.expWinRate {
-				tp, err := treepath.Parse(tpRaw)
+				tp, err := movetree.ParsePath(tpRaw)
 				if err != nil {
 					t.Error(err)
 					continue

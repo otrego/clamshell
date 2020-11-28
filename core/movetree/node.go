@@ -1,4 +1,4 @@
-package game
+package movetree
 
 import (
 	"github.com/otrego/clamshell/core/move"
