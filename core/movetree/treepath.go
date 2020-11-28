@@ -1,4 +1,4 @@
-package game
+package movetree
 
 import (
 	"fmt"
@@ -181,6 +181,12 @@ func (tp Treepath) String() string {
 		strArr = append(strArr, strconv.Itoa(i))
 	}
 	return fmt.Sprintf("%v", strArr)
+}
+
+// Clone makes a copy of the treepath.
+func (tp Treepath) Clone() Treepath {
+	// A shallow copy should be sufficient.
+	return tp[:]
 }
 
 // CompactString returns the treepath as a CompactString (short-hand).

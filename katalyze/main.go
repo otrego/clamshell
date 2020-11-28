@@ -33,9 +33,9 @@ import (
 	"strings"
 
 	"github.com/golang/glog"
-	"github.com/otrego/clamshell/core/game"
 	"github.com/otrego/clamshell/core/katago"
 	"github.com/otrego/clamshell/core/katago/kataprob"
+	"github.com/otrego/clamshell/core/movetree"
 	"github.com/otrego/clamshell/core/sgf"
 )
 
@@ -43,7 +43,7 @@ var (
 	outputDir       = flag.String("output_dir", "", "Directory for returning the processed SGFs. By default, uses current directory")
 	modelFlag       = flag.String("model", "", "The model to use for katago. If not set, looks for env var $KATAGO_MODEL. Example: g170-b10c128-s197428736-d67404019.bin.gz")
 	configFlag      = flag.String("config", "", "The analysis config file to use. If not set, looks for env var $KATAGO_ANALYSIS_CONFIG. Example: analysis_example.cfg")
-	analysisThreads = flag.Int("analysisThreads", 8, "The number of analysis threads")
+	analysisThreads = flag.Int("analysis_threads", 8, "The number of analysis threads")
 
 	startFromMove = flag.Int("start_from_move", 0, "Start all games from the specified move number; this is primarily used for debugging")
 	maxMoves      = flag.Int("max_moves_per_game", 0, "Only allow this many moves per game to be analyzed. If specified at zero, analyze the whole game")
@@ -58,9 +58,21 @@ func main() {
 		model = *modelFlag
 	}
 
+	if model == "" {
+		glog.Exit("--model=<katago-model> must be specified, but was empty")
+	}
+
 	analysisConfig := os.Getenv("KATAGO_ANALYSIS_CONFIG")
 	if *configFlag != "" {
 		analysisConfig = *configFlag
+	}
+	if analysisConfig == "" {
+		glog.Exit("--config=<analysis-config> must be specified, but was empty")
+	}
+
+	files := getSGFs(flag.Args())
+	if len(files) == 0 {
+		glog.Exit("No SGF files specified -- must be specified as args to katalyze")
 	}
 
 	an := katago.New(model, analysisConfig, *analysisThreads)
@@ -68,8 +80,6 @@ func main() {
 	if err := an.Start(); err != nil {
 		glog.Exitf("error booting Katago: %v", err)
 	}
-
-	files := getSGFs(flag.Args())
 
 	if err := process(files, an); err != nil {
 		glog.Exitf("error processing files: %v", err)
@@ -113,20 +123,27 @@ func process(files []string, an *katago.Analyzer) error {
 		if err != nil {
 			return err
 		}
-		glog.V(2).Infof("Finished processing: %v\n", result)
+		glog.Infof("Finished processing file %q", fi)
+		glog.V(2).Infof("Processing data: %v\n", result)
 
 		err = result.AddToGame(g)
 		if err != nil {
 			return err
 		}
+		glog.Infof("Finished adding to game for file %q", fi)
 
-		var positions []game.Treepath
-		if paths, err := kataprob.FindBlunders(g); err != nil {
-			positions = append(positions, paths...)
-		} else {
+		var positions []movetree.Treepath
+		paths, err := kataprob.FindBlunders(g)
+		if err != nil {
 			return err
 		}
-		glog.V(2).Infof("Found Positions: %v\n", positions)
+		positions = append(positions, paths...)
+
+		var found []string
+		for _, tp := range positions {
+			found = append(found, tp.CompactString())
+		}
+		glog.Infof("Found Positions: %v", found)
 	}
 	return nil
 }
