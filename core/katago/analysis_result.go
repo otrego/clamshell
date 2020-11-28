@@ -87,14 +87,14 @@ func (al AnalysisList) AddToGame(g *game.Game) error {
 
 	if len(alc) == 0 {
 		// Degenerate case, but not an error per-se.
-		return nil
+		return errors.New("during AddToGame, no analysis data")
 	}
 
 	// Here we assume the AnalysisList is sorted.
 	curNode := g.Root
 	if curNode == nil {
 		// Degenerate case.
-		return errors.New("nil root node")
+		return errors.New("during AddToGame, nil root node")
 	}
 
 	anIdx := 0
