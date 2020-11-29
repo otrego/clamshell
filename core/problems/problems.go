@@ -31,8 +31,8 @@ func Flatten(tp movetree.Treepath, g *movetree.MoveTree) (*movetree.MoveTree, er
 	sbAB.WriteString("AB")
 	sbAW.WriteString("AW")
 	for _, move := range placements {
-		str, err := move.Point().ToSGF()
-		if err != nil {
+		str, err2 := move.Point().ToSGF()
+		if err2 != nil {
 			return nil, err
 		}
 		if move.Color() == color.Black {
@@ -55,8 +55,8 @@ func Flatten(tp movetree.Treepath, g *movetree.MoveTree) (*movetree.MoveTree, er
 	sbSGF.WriteString(")")
 
 	// create new Flattened movetree
-	gFlat, err := sgf.Parse(sbSGF.String())
-	if err != nil {
+	gFlat, err3 := sgf.Parse(sbSGF.String())
+	if err3 != nil {
 		return nil, err
 	}
 
@@ -85,8 +85,8 @@ func PopulateBoard(tp movetree.Treepath, g *movetree.MoveTree) (*board.Board, er
 			return nil, fmt.Errorf("treepath leads to nil movetree node")
 		}
 
-		_, err := b.PlaceStone(n.Move)
-		if err != nil {
+		_, err2 := b.PlaceStone(n.Move)
+		if err2 != nil {
 			return nil, err
 		}
 	}
