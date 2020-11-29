@@ -2,7 +2,6 @@ package problems
 
 import (
 	"fmt"
-	"log"
 	"strconv"
 	"strings"
 
@@ -12,21 +11,29 @@ import (
 	"github.com/otrego/clamshell/core/sgf"
 )
 
-// Flatten
+// Flatten takes a Treepath and a MoveTree and returns
+// the root of the flat movetree. the flat movetree
+// ignores the last two nodes of the treepath
 func Flatten(tp movetree.Treepath, g *movetree.MoveTree) (*movetree.MoveTree, error) {
-	b := populateBoard(tp, g)
+	b, err := PopulateBoard(tp, g)
 	placements := b.GetPlacements()
+
+	if err != nil {
+		return nil, err
+	}
 
 	var sbSGF strings.Builder
 	var sbAB strings.Builder
 	var sbAW strings.Builder
 
+	// write new SGF AB and AW properties and values
+	// for the new Flattened SGF file
 	sbAB.WriteString("AB")
 	sbAW.WriteString("AW")
 	for _, move := range placements {
 		str, err := move.Point().ToSGF()
 		if err != nil {
-			log.Fatal(err)
+			return nil, err
 		}
 		if move.Color() == color.Black {
 			sbAB.WriteString(fmt.Sprintf("[%s]", str))
@@ -35,25 +42,35 @@ func Flatten(tp movetree.Treepath, g *movetree.MoveTree) (*movetree.MoveTree, er
 		}
 	}
 
+	// build new SGF file and replace the old AW and AB
+	// with the new AW and BW
 	sbSGF.WriteString("(;")
 	for key, value := range g.Root.Properties {
 		if key != "AW" && key != "AB" {
-			sbSGF.WriteString(fmt.Sprintf("%s[%s]", key, value))
+			sbSGF.WriteString(fmt.Sprintf("%s%s", key, value))
 		}
 	}
 	sbSGF.WriteString(sbAB.String())
 	sbSGF.WriteString(sbAW.String())
 	sbSGF.WriteString(")")
 
-	return sgf.Parse(sbSGF.String())
+	// create new Flattened movetree
+	gFlat, err := sgf.Parse(sbSGF.String())
+	if err != nil {
+		return nil, err
+	}
+
+	return gFlat, nil
 
 }
 
-func populateBoard(tp movetree.Treepath, g *movetree.MoveTree) *board.Board {
+// PopulateBoard populates a go board given a MoveTree and Treepath
+// returns the populated board.
+func PopulateBoard(tp movetree.Treepath, g *movetree.MoveTree) (*board.Board, error) {
 	n := g.Root
 	i, err := strconv.Atoi(n.Properties["SZ"][0])
 	if err != nil {
-
+		return nil, err
 	}
 	b := board.NewBoard(i)
 	for _, move := range n.Placements {
@@ -65,13 +82,13 @@ func populateBoard(tp movetree.Treepath, g *movetree.MoveTree) *board.Board {
 	for i := 0; i < len(tp)-2; i++ {
 		n = n.Next(tp[i])
 		if n == nil {
-			log.Fatal(fmt.Errorf("treepath leads to nil movetree node"))
+			return nil, fmt.Errorf("treepath leads to nil movetree node")
 		}
 
 		_, err := b.PlaceStone(n.Move)
 		if err != nil {
-			log.Fatal(err)
+			return nil, err
 		}
 	}
-	return b
+	return b, nil
 }
