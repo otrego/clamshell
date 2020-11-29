@@ -198,7 +198,7 @@ func TestRemoveCapturedStones(t *testing.T) {
 	}
 }
 
-func TestAddStone(t *testing.T) {
+func TestPlaceStone(t *testing.T) {
 	testCases := []struct {
 		desc         string
 		b            *Board
@@ -209,12 +209,26 @@ func TestAddStone(t *testing.T) {
 		{
 			desc: "successful added stone",
 			b:    NewBoard(9),
-			m:    move.NewMove(color.Black, point.New(4, 4)),
+			m:    move.NewMove(color.Black, point.New(8, 8)),
 			exp: "[. . . . . . . . .]\n" +
 				"[. . . . . . . . .]\n" +
 				"[. . . . . . . . .]\n" +
 				"[. . . . . . . . .]\n" +
-				"[. . . . B . . . .]\n" +
+				"[. . . . . . . . .]\n" +
+				"[. . . . . . . . .]\n" +
+				"[. . . . . . . . .]\n" +
+				"[. . . . . . . . .]\n" +
+				"[. . . . . . . . B]",
+		},
+		{
+			desc: "successful added stone",
+			b:    NewBoard(9),
+			m:    move.NewMove(color.Black, point.New(0, 0)),
+			exp: "[B . . . . . . . .]\n" +
+				"[. . . . . . . . .]\n" +
+				"[. . . . . . . . .]\n" +
+				"[. . . . . . . . .]\n" +
+				"[. . . . . . . . .]\n" +
 				"[. . . . . . . . .]\n" +
 				"[. . . . . . . . .]\n" +
 				"[. . . . . . . . .]\n" +
@@ -311,7 +325,7 @@ func TestAddStone(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(tc.desc, func(t *testing.T) {
-			_, err := tc.b.AddStone(tc.m)
+			_, err := tc.b.PlaceStone(tc.m)
 			got := tc.b.String()
 
 			cerr := errcheck.CheckCases(err, tc.expErrSubstr)

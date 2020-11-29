@@ -71,7 +71,7 @@ func (b *Board) PlaceStone(m *move.Move) ([]*point.Point, error) {
 	}
 	if len(capturedStones) == 1 {
 		b.ko = m.Point()
-		if *ko == *(capturedStones[0]) {
+		if ko != nil && *ko == *(capturedStones[0]) {
 			b.setColor(move.NewMove(color.Empty, m.Point()))
 			return nil, fmt.Errorf("%v is an illegal ko move", m.Point())
 		}
@@ -88,7 +88,9 @@ func (b *Board) findCapturedGroups(m *move.Move) []*point.Point {
 	points := b.getNeighbors(pt)
 	capturedStones := make([]*point.Point, 0)
 	for _, point := range points {
-		capturedStones = append(capturedStones, b.capturedStones(point)...)
+		if b.inBounds(point) {
+			capturedStones = append(capturedStones, b.capturedStones(point)...)
+		}
 	}
 	return capturedStones
 }
@@ -175,7 +177,8 @@ func (b *Board) getNeighbors(pt *point.Point) []*point.Point {
 	return points
 }
 
-// GetPlacements returns a list of all the current stone positions.
+// GetPlacements returns an array of all the current stone positions
+// as a []*move.Move .
 func (b *Board) GetPlacements() []*move.Move {
 	moves := make([]*move.Move, 0)
 
