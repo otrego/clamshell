@@ -89,7 +89,7 @@ func TestEnsurePathExistsCreatesDir(t *testing.T) {
 
 func TestEnsurePathExistsErrors(t *testing.T) {
 	tmp := os.TempDir()
-	root := fmt.Sprintf("%s%s%d", tmp, "otrego_data_test", rand.Int())
+	root := fmt.Sprintf("%s%c%s%d", tmp, os.PathSeparator, "otrego_data_test", rand.Int())
 
 	_, err := NewDiskStore(root)
 	if err == nil {
