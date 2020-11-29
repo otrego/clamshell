@@ -48,7 +48,7 @@ func TestDiskStorePutAndGet(t *testing.T) {
 
 func TestEnsurePathExistsCreatesDir(t *testing.T) {
 	tmp := os.TempDir()
-	root := fmt.Sprintf("%s%s%d", tmp, "otrego_data_test", rand.Int())
+	root := fmt.Sprintf("%s%c%s%d", tmp, os.PathSeparator, "otrego_data_test", rand.Int())
 	defer os.RemoveAll(root)
 
 	err := os.Mkdir(root, 0755)
