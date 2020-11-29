@@ -174,9 +174,9 @@ func (b *Board) getNeighbors(pt *point.Point) []*point.Point {
 	return points
 }
 
-// GetPlacements returns an array of all the current stone positions
+// GetFullBoardState returns an array of all the current stone positions
 // as a []*move.Move .
-func (b *Board) GetPlacements() []*move.Move {
+func (b *Board) GetFullBoardState() []*move.Move {
 	moves := make([]*move.Move, 0)
 
 	for i := 0; i < len(b.board); i++ {

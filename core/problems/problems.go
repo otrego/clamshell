@@ -16,7 +16,7 @@ import (
 // ignores the last two nodes of the treepath
 func Flatten(tp movetree.Treepath, g *movetree.MoveTree) (*movetree.MoveTree, error) {
 	b, err := PopulateBoard(tp, g)
-	placements := b.GetPlacements()
+	placements := b.GetFullBoardState()
 
 	if err != nil {
 		return nil, err
