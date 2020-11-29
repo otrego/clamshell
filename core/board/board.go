@@ -55,12 +55,9 @@ func (b *Board) PlaceStone(m *move.Move) ([]*point.Point, error) {
 	var ko *point.Point = b.ko
 	b.ko = nil
 
-	if !b.inBounds(m.Point()) {
-		return nil, fmt.Errorf("move %v out of bounds for %dx%d board",
-			m.Point(), len(b.board[0]), len(b.board))
-	}
-	if b.colorAt(m.Point()) != color.Empty {
-		return nil, fmt.Errorf("move %v already occupied", m.Point())
+	err := b.AddStone(m)
+	if err != nil {
+		return nil, err
 	}
 
 	b.setColor(m)
