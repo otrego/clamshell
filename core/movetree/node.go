@@ -34,6 +34,10 @@ type Node struct {
 	analysisData interface{}
 }
 
+// RootProperties
+type RootProperties struct {
+}
+
 // NewNode creates a Node.
 func NewNode() *Node {
 	return &Node{
