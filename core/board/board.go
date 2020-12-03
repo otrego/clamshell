@@ -30,23 +30,6 @@ func NewBoard(size int) *Board {
 	return &board
 }
 
-// AddStone adds a stone to the board.
-// Does not remove captured stones.
-// returns err if Move is out of bounds
-// or the position is already occupied.
-func (b *Board) AddStone(m *move.Move) error {
-	if !b.inBounds(m.Point()) {
-		return fmt.Errorf("move %v out of bounds for %dx%d board",
-			m.Point(), len(b.board[0]), len(b.board))
-	}
-	if b.colorAt(m.Point()) != color.Empty {
-		return fmt.Errorf("move %v already occupied", m.Point())
-	}
-
-	b.setColor(m)
-	return nil
-}
-
 // PlaceStone adds a stone to the board
 // and removes captured stones (if any).
 // returns the captured stones, or err
@@ -55,9 +38,12 @@ func (b *Board) PlaceStone(m *move.Move) ([]*point.Point, error) {
 	var ko *point.Point = b.ko
 	b.ko = nil
 
-	err := b.AddStone(m)
-	if err != nil {
-		return nil, err
+	if !b.inBounds(m.Point()) {
+		return nil, fmt.Errorf("move %v out of bounds for %dx%d board",
+			m.Point(), len(b.board[0]), len(b.board))
+	}
+	if b.colorAt(m.Point()) != color.Empty {
+		return nil, fmt.Errorf("move %v already occupied", m.Point())
 	}
 
 	b.setColor(m)
@@ -174,8 +160,7 @@ func (b *Board) getNeighbors(pt *point.Point) []*point.Point {
 	return points
 }
 
-// GetFullBoardState returns an array of all the current stone positions
-// as a []*move.Move .
+// GetFullBoardState returns an array of all the current stone positions.
 func (b *Board) GetFullBoardState() []*move.Move {
 	moves := make([]*move.Move, 0)
 
