@@ -51,6 +51,7 @@ func Flatten(tp movetree.Treepath, g *movetree.MoveTree) (*movetree.MoveTree, er
 }
 
 // PopulateBoard populates a go board given a MoveTree and Treepath
+// Captures are intentionally discarded here.
 // returns the populated board.
 func PopulateBoard(tp movetree.Treepath, g *movetree.MoveTree) (*board.Board, error) {
 	n := g.Root
@@ -70,7 +71,7 @@ func PopulateBoard(tp movetree.Treepath, g *movetree.MoveTree) (*board.Board, er
 		if n == nil {
 			return nil, fmt.Errorf("treepath leads to nil movetree node")
 		}
-		// discards captures when placing stone
+
 		_, err2 := b.PlaceStone(n.Move)
 		if err2 != nil {
 			return nil, err
