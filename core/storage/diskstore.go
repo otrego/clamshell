@@ -2,9 +2,9 @@ package storage
 
 import (
 	"errors"
-	"fmt"
 	"io/ioutil"
 	"os"
+	"path"
 )
 
 // DiskStore is an on-disk filestore implementation that is particularly useful
@@ -12,6 +12,8 @@ import (
 type DiskStore struct {
 	rootDir string
 }
+
+const defaultDirPrms = 0755
 
 // NewDiskStore returns a new Filestore that is on-disk
 func NewDiskStore(root string) (*DiskStore, error) {
@@ -52,7 +54,7 @@ func (ds *DiskStore) Put(t StoredDataType, filename string, json string) error {
 }
 
 func (ds *DiskStore) path(t StoredDataType, filename string) string {
-	return fmt.Sprintf("%s/%s/%s", ds.rootDir, t, filename)
+	return path.Join(ds.rootDir, string(t), filename)
 }
 
 // ensureDirectoryStructure ensures that paths exist for each
@@ -63,13 +65,13 @@ func (ds *DiskStore) ensureDirectoryStructure(rootDir string) error {
 		return err
 	}
 	if !fileInfo.IsDir() {
-		return errors.New("Directory does not exist")
+		return errors.New("directory does not exist")
 	}
 	for _, t := range storedDataTypes {
-		curDir := fmt.Sprintf("%s/%s", ds.rootDir, t)
+		curDir := path.Join(ds.rootDir, string(t))
 		fileInfo, err := os.Stat(curDir)
 		if err != nil {
-			os.Mkdir(curDir, 0755)
+			os.Mkdir(curDir, defaultDirPrms)
 		} else if !fileInfo.IsDir() {
 			return errors.New("file is in place of directory")
 		}

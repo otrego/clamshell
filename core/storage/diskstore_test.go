@@ -6,7 +6,9 @@ import (
 	"log"
 	"math/rand"
 	"os"
+	"path"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"testing"
 )
@@ -19,11 +21,10 @@ func TestDiskGetNoFileErrors(t *testing.T) {
 	defer os.RemoveAll(dir)
 
 	ds, _ := NewDiskStore(dir)
-	_, err = ds.Get(SGFInput, "testfile.json")
+	_, err = ds.Get(Games, "testfile.json")
 	if err == nil {
 		log.Fatal(err, "An error should have been generated for a file that didn't exist")
 	}
-
 }
 
 func TestDiskStorePutAndGet(t *testing.T) {
@@ -35,9 +36,9 @@ func TestDiskStorePutAndGet(t *testing.T) {
 
 	ds, _ := NewDiskStore(dir)
 	contents := "{\"some\": \"value\"}"
-	ds.Put(SGFInput, "testfile.json", contents)
+	ds.Put(Games, "testfile.json", contents)
 
-	result, err := ds.Get(SGFInput, "testfile.json")
+	result, err := ds.Get(Games, "testfile.json")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -48,7 +49,7 @@ func TestDiskStorePutAndGet(t *testing.T) {
 
 func TestEnsurePathExistsCreatesDir(t *testing.T) {
 	tmp := os.TempDir()
-	root := fmt.Sprintf("%s%c%s%d", tmp, os.PathSeparator, "otrego_data_test", rand.Int())
+	root := path.Join(tmp, "otrego_data_test"+strconv.Itoa(rand.Int()))
 	defer os.RemoveAll(root)
 
 	err := os.Mkdir(root, 0755)
@@ -89,7 +90,7 @@ func TestEnsurePathExistsCreatesDir(t *testing.T) {
 
 func TestEnsurePathExistsErrors(t *testing.T) {
 	tmp := os.TempDir()
-	root := fmt.Sprintf("%s%c%s%d", tmp, os.PathSeparator, "otrego_data_test", rand.Int())
+	root := path.Join(tmp, "otrego_data_test"+strconv.Itoa(rand.Int()))
 
 	_, err := NewDiskStore(root)
 	if err == nil {
