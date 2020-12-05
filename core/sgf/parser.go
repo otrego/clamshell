@@ -7,9 +7,8 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/otrego/clamshell/core/color"
-	"github.com/otrego/clamshell/core/move"
 	"github.com/otrego/clamshell/core/movetree"
+	"github.com/otrego/clamshell/core/prop"
 )
 
 // Parse is a convenience helper to parse sgf strings.
@@ -88,8 +87,6 @@ type propBuffer struct {
 
 func (b *propBuffer) flush(n *movetree.Node) error {
 	if b.prop != "" && len(b.propdata) != 0 {
-		// Properties cannot be empty, propdata must be non-zero
-		n.Properties[b.prop] = b.propdata
 		if err := postProcessProperties(n, b.prop, b.propdata); err != nil {
 			return err
 		}
@@ -366,33 +363,15 @@ func handlePropData(stateData *stateData, pbuf *propBuffer) error {
 
 // postProcessProperties adds post-processing to properties, to allow for more
 // structure.
-func postProcessProperties(n *movetree.Node, prop string, propData []string) error {
-	switch prop {
-	case "AW", "AB":
-		col, err := color.FromSGFProp(prop)
-		if err != nil {
-			return err
-		}
-		moves, err := move.ListFromSGFPoints(col, propData)
-		if err != nil {
-			return err
-		}
-		n.Placements = append(n.Placements, moves...)
-
-	case "B", "W":
-		if n.Move != nil {
-			return fmt.Errorf("found two moves on one node")
-		}
-		col, err := color.FromSGFProp(prop)
-		if err != nil {
-			return err
-		}
-		move, err := move.FromSGFPoint(col, propData[0])
-		if err != nil {
-			return err
-		}
-		n.Move = move
+func postProcessProperties(n *movetree.Node, p string, propData []string) error {
+	if !prop.HasConverter(p) {
+		// For properties without an explicit converter, add to unprocessed
+		// Properties.
+		n.Properties[p] = propData
+		return nil
 	}
-
+	if err := prop.Converter(p).From(n, p, propData); err != nil {
+		return err
+	}
 	return nil
 }
