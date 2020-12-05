@@ -1,6 +1,7 @@
 package storage
 
 import (
+	"context"
 	"errors"
 	"io/ioutil"
 	"os"
@@ -28,7 +29,7 @@ func NewDiskStore(root string) (*DiskStore, error) {
 }
 
 // Get abstract method to get JSON content from a Filestore
-func (ds *DiskStore) Get(t StoredDataType, filename string) (string, error) {
+func (ds *DiskStore) Get(ctx context.Context, t StoredDataType, filename string) (string, error) {
 	path := ds.path(t, filename)
 	_, err := os.Stat(path)
 	if err != nil {
@@ -42,13 +43,13 @@ func (ds *DiskStore) Get(t StoredDataType, filename string) (string, error) {
 }
 
 // List is method to list available files
-func (ds *DiskStore) List(t StoredDataType) ([]string, error) {
+func (ds *DiskStore) List(ctx context.Context, t StoredDataType) ([]string, error) {
 	ioutil.ReadDir(ds.rootDir)
 	return []string{""}, nil
 }
 
 // Put is method to Put a file to disk
-func (ds *DiskStore) Put(t StoredDataType, filename string, json string) error {
+func (ds *DiskStore) Put(ctx context.Context, t StoredDataType, filename string, json string) error {
 	path := ds.path(t, filename)
 	return ioutil.WriteFile(path, []byte(json), os.ModePerm)
 }

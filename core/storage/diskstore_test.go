@@ -21,7 +21,7 @@ func TestDiskGetNoFileErrors(t *testing.T) {
 	defer os.RemoveAll(dir)
 
 	ds, _ := NewDiskStore(dir)
-	_, err = ds.Get(Games, "testfile.json")
+	_, err = ds.Get(nil, Games, "testfile.json")
 	if err == nil {
 		log.Fatal(err, "An error should have been generated for a file that didn't exist")
 	}
@@ -36,9 +36,9 @@ func TestDiskStorePutAndGet(t *testing.T) {
 
 	ds, _ := NewDiskStore(dir)
 	contents := "{\"some\": \"value\"}"
-	ds.Put(Games, "testfile.json", contents)
+	ds.Put(nil, Games, "testfile.json", contents)
 
-	result, err := ds.Get(Games, "testfile.json")
+	result, err := ds.Get(nil, Games, "testfile.json")
 	if err != nil {
 		log.Fatal(err)
 	}

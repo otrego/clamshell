@@ -1,10 +1,12 @@
 package storage
 
+import "context"
+
 // Filestore is a interface for file storage
 type Filestore interface {
-	Get(StoredDataType, string) (string, error)
-	List(StoredDataType, string) ([]string, error)
-	Put(StoredDataType, string, string) error
+	Get(context.Context, StoredDataType, string) (string, error)
+	List(context.Context, StoredDataType, string) ([]string, error)
+	Put(context.Context, StoredDataType, string, string) error
 }
 
 // StoredDataType designates which type of data is stored
