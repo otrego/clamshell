@@ -1,12 +1,6 @@
 // Package prop adds methods for handling SGF properties, including validation.
 package prop
 
-import (
-	"strings"
-
-	"github.com/otrego/clamshell/core/movetree"
-)
-
 // Prop is used to store a label parsed from SGF
 type Prop string
 
@@ -22,37 +16,4 @@ var ValidProperties = map[Prop]bool{"AB": true, "AE": true, "AN": true, "AP": tr
 func Validate(prop Prop) bool {
 	_, ok := ValidProperties[prop]
 	return ok
-}
-
-// FromSGF converts an SGF Property to node property
-type FromSGF func(node *movetree.Node, values []string) error
-
-// ToSGF converts an Node property to an SGF property list.
-type ToSGF func(node *movetree.Node) ([]string, error)
-
-// A Converter converts SGF properties to / from node properties.
-type Converter struct {
-	// Prop is the name of the SGF property. Ex: "AW"
-	Prop Prop
-	// From converts from SGF data
-	From FromSGF
-	// To converts to SGF data
-	To ToSGF
-}
-
-// BuildSGFString adds SGF content to a string builder.
-func (c *Converter) BuildSGFString(node *movetree.Node, sb *strings.Builder) error {
-	data, err := c.To(node)
-	if err != nil {
-		return err
-	}
-	sb.WriteString(string(c.Prop))
-	if data != nil && len(data) == 0 {
-		// Special case (mostly for passes)
-		sb.WriteString("[]")
-	}
-	for _, d := range data {
-		sb.WriteString("[" + d + "]")
-	}
-	return nil
 }

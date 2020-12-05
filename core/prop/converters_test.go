@@ -21,49 +21,75 @@ func TestConverters_From(t *testing.T) {
 		prop string
 		data []string
 
-		expNode      *movetree.Node
+		makeExpNode  func(n *movetree.Node)
 		expErrSubstr string
 	}{
 		{
 			desc: "black move: pass",
 			prop: "B",
 			data: []string{},
-			expNode: func(n *movetree.Node) *movetree.Node {
+			makeExpNode: func(n *movetree.Node) {
 				n.Move = move.NewPass(color.Black)
-				return n
-			}(movetree.NewNode()),
+			},
 		},
 		{
-			desc: "black move: pass v2",
+			desc: "black move: pass empty str",
 			prop: "B",
 			data: []string{""},
-			expNode: func(n *movetree.Node) *movetree.Node {
+			makeExpNode: func(n *movetree.Node) {
 				n.Move = move.NewPass(color.Black)
-				return n
-			}(movetree.NewNode()),
+			},
 		},
 		{
 			desc: "black move",
 			prop: "B",
 			data: []string{"ab"},
-			expNode: func(n *movetree.Node) *movetree.Node {
+			makeExpNode: func(n *movetree.Node) {
 				n.Move = move.NewMove(color.Black, point.New(0, 1))
-				return n
-			}(movetree.NewNode()),
+			},
+		},
+		{
+			desc: "white move",
+			prop: "W",
+			data: []string{"ab"},
+			makeExpNode: func(n *movetree.Node) {
+				n.Move = move.NewMove(color.White, point.New(0, 1))
+			},
+		},
+		{
+			desc: "black placements",
+			prop: "AB",
+			data: []string{"aa", "bb"},
+			makeExpNode: func(n *movetree.Node) {
+				n.Placements = []*move.Move{
+					move.NewMove(color.Black, point.New(0, 0)),
+					move.NewMove(color.Black, point.New(1, 1)),
+				}
+			},
+		},
+		{
+			desc: "white placements",
+			prop: "AW",
+			data: []string{"aa", "bb"},
+			makeExpNode: func(n *movetree.Node) {
+				n.Placements = []*move.Move{
+					move.NewMove(color.White, point.New(0, 0)),
+					move.NewMove(color.White, point.New(1, 1)),
+				}
+			},
 		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.desc, func(t *testing.T) {
 			n := movetree.NewNode()
-			conv := PropConverter(tc.prop)
+			conv := Converter(tc.prop)
 			if conv == nil {
 				t.Fatal("expected converter, but found none")
 			}
-			if tc.prop != string(conv.Prop) {
-				t.Errorf("got converter with prop %q, but expected it to be %q", tc.prop, conv.Prop)
-			}
-			err := conv.From(n, tc.data)
+			expNode := movetree.NewNode()
+			tc.makeExpNode(expNode)
+			err := conv.From(n, tc.prop, tc.data)
 			cerr := errcheck.CheckCases(err, tc.expErrSubstr)
 			if cerr != nil {
 				t.Fatal(cerr)
@@ -71,36 +97,97 @@ func TestConverters_From(t *testing.T) {
 			if err != nil {
 				return
 			}
-			if !reflect.DeepEqual(n, tc.expNode) {
-				t.Errorf("got node %v, but expected node %v", n, tc.expNode)
+			if !reflect.DeepEqual(n, expNode) {
+				t.Errorf("got node %v, but expected node %v", n, expNode)
 			}
 		})
 	}
 }
 
-func TestConverters_To(t *testing.T) {
+func TestConverters_ConvertNode(t *testing.T) {
 	testCases := []struct {
-		desc string
-		prop string
-		n    *movetree.Node
+		desc     string
+		makeNode func(*movetree.Node)
 
-		expData      []string
+		expOut       string
 		expErrSubstr string
 	}{
 		{
 			desc: "black move: pass",
-			prop: "B",
+			makeNode: func(n *movetree.Node) {
+				n.Move = move.NewPass(color.Black)
+			},
+			expOut: "B[]",
+		},
+		{
+			desc: "black move: non-pass",
+			makeNode: func(n *movetree.Node) {
+				n.Move = move.NewMove(color.Black, point.New(0, 1))
+			},
+			expOut: "B[ab]",
+		},
+		{
+			desc: "white move: non-pass",
+			makeNode: func(n *movetree.Node) {
+				n.Move = move.NewMove(color.White, point.New(0, 1))
+			},
+			expOut: "W[ab]",
+		},
+		{
+			desc: "black placements",
+			makeNode: func(n *movetree.Node) {
+				n.Placements = []*move.Move{
+					move.NewMove(color.Black, point.New(0, 1)),
+					move.NewMove(color.Black, point.New(0, 2)),
+				}
+			},
+			expOut: "AB[ab][ac]",
+		},
+		{
+			desc: "white placements",
+			makeNode: func(n *movetree.Node) {
+				n.Placements = []*move.Move{
+					move.NewMove(color.White, point.New(0, 1)),
+					move.NewMove(color.White, point.New(0, 2)),
+				}
+			},
+			expOut: "AW[ab][ac]",
+		},
+		{
+			desc: "black move, extra properties",
+			makeNode: func(n *movetree.Node) {
+				n.Move = move.NewMove(color.Black, point.New(0, 1))
+				n.Properties["ZZ"] = []string{"zork"}
+			},
+			expOut: "B[ab]ZZ[zork]",
+		},
+		{
+			desc: "extra properties, sorting",
+			makeNode: func(n *movetree.Node) {
+				n.Move = move.NewMove(color.Black, point.New(0, 1))
+				n.Properties["ZZ"] = []string{"zork"}
+				n.Properties["AA"] = []string{"ark"}
+				n.Properties["BB"] = []string{"bark"}
+			},
+			expOut: "B[ab]AA[ark]BB[bark]ZZ[zork]",
 		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.desc, func(t *testing.T) {
-			conv := PropConverter(tc.prop)
-			if conv == nil {
-				t.Fatal("expected converter, but found none")
+			node := movetree.NewNode()
+			tc.makeNode(node)
+			out, err := ConvertNode(node)
+			cerr := errcheck.CheckCases(err, tc.expErrSubstr)
+			if cerr != nil {
+				t.Fatal(cerr)
 			}
-			if tc.prop != string(conv.Prop) {
-				t.Errorf("got converter with prop %q, but expected it to be %q", tc.prop, conv.Prop)
+			if err != nil {
+				return
+			}
+
+			if out != tc.expOut {
+				t.Errorf("ConvertNode(%v)=%v, but expected %v", node, out, tc.expOut)
 			}
 		})
 	}
