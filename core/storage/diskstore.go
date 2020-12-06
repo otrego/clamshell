@@ -28,7 +28,7 @@ func NewDiskStore(root string) (*DiskStore, error) {
 	return ds, nil
 }
 
-// Get abstract method to get JSON content from a Filestore
+// Get is a method to retrieve string content from a file on Filestore
 func (ds *DiskStore) Get(ctx context.Context, t StoredDataType, filename string) (string, error) {
 	path := ds.path(t, filename)
 	_, err := os.Stat(path)
@@ -44,8 +44,17 @@ func (ds *DiskStore) Get(ctx context.Context, t StoredDataType, filename string)
 
 // List is method to list available files
 func (ds *DiskStore) List(ctx context.Context, t StoredDataType) ([]string, error) {
-	ioutil.ReadDir(ds.rootDir)
-	return []string{""}, nil
+	files, err := ioutil.ReadDir(ds.rootDir)
+	if err != nil {
+		return nil, err
+	}
+
+	ret := make([]string, len(files))
+	for i := 0; i < len(files); i++ {
+		ret[i] = files[i].Name()
+	}
+
+	return ret, nil
 }
 
 // Put is method to Put a file to disk
