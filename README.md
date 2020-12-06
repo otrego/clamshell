@@ -11,7 +11,7 @@ page](https://github.com/otrego/community/).
 
 In Otrego, we highly value developing a positive and supportive community. If
 you would like to participate in the Otrego Community, please read our [Code of
-Conduct](CODE_OF_CONDUCT.md)
+Conduct](CODE_OF_CONDUCT.md).
 
 ## Getting Started
 
