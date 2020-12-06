@@ -19,7 +19,7 @@ const (
 	Analysis StoredDataType = "analysis"
 	// Problems is the directory for AI problems that have been generated
 	// and turned into SGF.
-	Problems StoredDataType = "ai_problem_sgf"
+	Problems StoredDataType = "gen_problems"
 )
 
 var storedDataTypes = []StoredDataType{
