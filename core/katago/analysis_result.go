@@ -8,7 +8,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/otrego/clamshell/core/game"
+	"github.com/otrego/clamshell/core/movetree"
 )
 
 // AnalysisResult represents the result of an analysis from katago.
@@ -78,23 +78,23 @@ func (al AnalysisList) Sort() {
 	})
 }
 
-// AddToGame attaches an analysis list to an existing game, based on turn
+// AddToGame attaches an analysis list to an existing movetree, based on turn
 // number.
-func (al AnalysisList) AddToGame(g *game.Game) error {
+func (al AnalysisList) AddToGame(g *movetree.MoveTree) error {
 	// make a shallow copy so we can sort without modifying recevier.
 	alc := al[:]
 	alc.Sort()
 
 	if len(alc) == 0 {
 		// Degenerate case, but not an error per-se.
-		return nil
+		return errors.New("during AddToGame, no analysis data")
 	}
 
 	// Here we assume the AnalysisList is sorted.
 	curNode := g.Root
 	if curNode == nil {
 		// Degenerate case.
-		return errors.New("nil root node")
+		return errors.New("during AddToGame, nil root node")
 	}
 
 	anIdx := 0
@@ -124,9 +124,9 @@ func (al AnalysisList) AddToGame(g *game.Game) error {
 				break
 			}
 		} else if curNode.MoveNum() > curAn.TurnNumber {
-			// This shouldn't happen if we always start at the root of the game.
+			// This shouldn't happen if we always start at the root of the movetree.
 			// Return an error if it does.
-			return fmt.Errorf("analysis TurnNumber %d got behind of the game move number %d", curAn.TurnNumber, curNode.MoveNum())
+			return fmt.Errorf("analysis TurnNumber %d got behind of the movetree move number %d", curAn.TurnNumber, curNode.MoveNum())
 		}
 	}
 	return nil

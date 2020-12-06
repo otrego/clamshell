@@ -1,27 +1,30 @@
 package sgf_test
 
 import (
+	"fmt"
 	"reflect"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/otrego/clamshell/core/color"
 	"github.com/otrego/clamshell/core/errcheck"
-	"github.com/otrego/clamshell/core/game"
 	"github.com/otrego/clamshell/core/move"
+	"github.com/otrego/clamshell/core/movetree"
 	"github.com/otrego/clamshell/core/point"
 	"github.com/otrego/clamshell/core/sgf"
-	"github.com/otrego/clamshell/core/treepath"
 )
 
 type propmap map[string][]string
 
+type nodeCheck func(n *movetree.Node) error
+
 func TestParse(t *testing.T) {
 	testCases := []struct {
-		desc         string
-		sgf          string
-		pathToProps  map[string]propmap
-		expErrSubstr string
+		desc            string
+		sgf             string
+		pathToProps     map[string]propmap
+		pathToNodeCheck map[string]nodeCheck
+		expErrSubstr    string
 	}{
 		{
 			desc: "basic parse, no errors",
@@ -47,24 +50,40 @@ func TestParse(t *testing.T) {
 		},
 		{
 			desc: "check parsing root: multi property",
-			sgf:  "(;GM[1]AW[ab][bc][dc])",
+			sgf:  "(;GM[1]AW[ab][bc])",
 			pathToProps: map[string]propmap{
 				".": propmap{
 					"GM": []string{"1"},
-					"AW": []string{"ab", "bc", "dc"},
+				},
+			},
+			pathToNodeCheck: map[string]nodeCheck{
+				".": func(n *movetree.Node) error {
+					expPlacements := []*move.Move{
+						move.NewMove(color.White, point.New(0, 1)),
+						move.NewMove(color.White, point.New(1, 2)),
+					}
+					if !reflect.DeepEqual(n.Placements, expPlacements) {
+						return fmt.Errorf("incorrect placements; got %v, but wanted %v", n.Placements, expPlacements)
+					}
+					return nil
 				},
 			},
 		},
 		{
 			desc: "add new node",
-			sgf:  "(;GM[1]AW[ab][bc][dc];B[cc])",
+			sgf:  "(;GM[1];B[cc])",
 			pathToProps: map[string]propmap{
 				".": propmap{
 					"GM": []string{"1"},
-					"AW": []string{"ab", "bc", "dc"},
 				},
-				"0": propmap{
-					"B": []string{"cc"},
+			},
+			pathToNodeCheck: map[string]nodeCheck{
+				"0": func(n *movetree.Node) error {
+					expMove := move.NewMove(color.Black, point.New(2, 2))
+					if !reflect.DeepEqual(n.Move, expMove) {
+						return fmt.Errorf("incorrect move; got %v, but wanted %v", n.Move, expMove)
+					}
+					return nil
 				},
 			},
 		},
@@ -98,19 +117,22 @@ func TestParse(t *testing.T) {
 		{
 			desc: "basic variation",
 			sgf:  `(;GM[1](;B[aa];W[ab])(;B[ab];W[ac]))`,
-			pathToProps: map[string]propmap{
-				"0.0": propmap{
-					"W": []string{"ab"},
+			pathToNodeCheck: map[string]nodeCheck{
+				"0.0": func(n *movetree.Node) error {
+					expMove := move.NewMove(color.White, point.New(0, 1))
+					if !reflect.DeepEqual(n.Move, expMove) {
+						return fmt.Errorf("incorrect move; got %v, but wanted %v", n.Move, expMove)
+					}
+					return nil
 				},
-				"1.0": propmap{
-					"W": []string{"ac"},
+				"1.0": func(n *movetree.Node) error {
+					expMove := move.NewMove(color.White, point.New(0, 2))
+					if !reflect.DeepEqual(n.Move, expMove) {
+						return fmt.Errorf("incorrect move; got %v, but wanted %v", n.Move, expMove)
+					}
+					return nil
 				},
 			},
-		},
-		{
-			desc:         "basic variation error: two moves on one node",
-			sgf:          `(;GM[1](;B[aa]W[ab])(;B[ab];W[ac]))`,
-			expErrSubstr: "found two moves",
 		},
 
 		{
@@ -178,23 +200,46 @@ AB[na][ra][mb][rb][lc][qc][ld][od][qd][le][pe][qe][mf][nf][of][pg]
 				".": propmap{
 					"GM": []string{"1"},
 				},
-				"0.0": propmap{
-					"W": []string{"nc"},
+			},
+			pathToNodeCheck: map[string]nodeCheck{
+				"0.0": func(n *movetree.Node) error {
+					expMove := move.NewMove(color.White, point.New(13, 2))
+					if !reflect.DeepEqual(n.Move, expMove) {
+						return fmt.Errorf("incorrect move; got %v, but wanted %v", n.Move, expMove)
+					}
+					return nil
 				},
 				// should be same, since treepath terminates
-				"0.0.0": propmap{
-					"W": []string{"nc"},
+				"0.0.0": func(n *movetree.Node) error {
+					expMove := move.NewMove(color.White, point.New(13, 2))
+					if !reflect.DeepEqual(n.Move, expMove) {
+						return fmt.Errorf("incorrect move; got %v, but wanted %v", n.Move, expMove)
+					}
+					return nil
 				},
-				"1.1.0": propmap{
-					"B": []string{"oa"},
+				"1.1.0": func(n *movetree.Node) error {
+					expMove := move.NewMove(color.Black, point.New(14, 0))
+					if !reflect.DeepEqual(n.Move, expMove) {
+						return fmt.Errorf("incorrect move; got %v, but wanted %v", n.Move, expMove)
+					}
+					return nil
 				},
-				"3": propmap{
-					"B": []string{""},
+				"3": func(n *movetree.Node) error {
+					expMove := move.NewPass(color.Black)
+					if !reflect.DeepEqual(n.Move, expMove) {
+						return fmt.Errorf("incorrect move; got %v, but wanted %v", n.Move, expMove)
+					}
+					return nil
 				},
 			},
 		},
 
 		// error cases
+		{
+			desc:         "basic variation error: two moves on one node",
+			sgf:          `(;GM[1](;B[aa]W[ab])(;B[ab];W[ac]))`,
+			expErrSubstr: "found two moves",
+		},
 		{
 			desc:         "error parsing: nonsense",
 			sgf:          "I am a banana",
@@ -238,11 +283,11 @@ AB[na][ra][mb][rb][lc][qc][ld][od][qd][le][pe][qe][mf][nf][of][pg]
 				return
 			}
 			if g == nil {
-				t.Fatal("unexpectedly nil game")
+				t.Fatal("unexpectedly nil movetree")
 			}
 
 			for path, pmap := range tc.pathToProps {
-				tp, err := treepath.Parse(path)
+				tp, err := movetree.ParsePath(path)
 				if err != nil {
 					t.Error(err)
 					continue
@@ -258,11 +303,22 @@ AB[na][ra][mb][rb][lc][qc][ld][od][qd][le][pe][qe][mf][nf][of][pg]
 					}
 				}
 			}
+			for path, check := range tc.pathToNodeCheck {
+				tp, err := movetree.ParsePath(path)
+				if err != nil {
+					t.Error(err)
+					continue
+				}
+				n := tp.Apply(g.Root)
+				if err := check(n); err != nil {
+					t.Errorf("At path %q, found incorrect contents %v", path, err)
+				}
+			}
 		})
 	}
 }
 
-type propGetter func(*game.Node) interface{}
+type propGetter func(*movetree.Node) interface{}
 
 func TestPropertyPostProcessing(t *testing.T) {
 	testCases := []struct {
@@ -276,7 +332,7 @@ func TestPropertyPostProcessing(t *testing.T) {
 			desc: "black move",
 			sgf:  "(;GM[1];B[ab])",
 			path: "0",
-			getter: func(n *game.Node) interface{} {
+			getter: func(n *movetree.Node) interface{} {
 				return n.Move
 			},
 			want: move.NewMove(color.Black, point.New(0, 1)),
@@ -285,7 +341,7 @@ func TestPropertyPostProcessing(t *testing.T) {
 			desc: "white move",
 			sgf:  "(;GM[1];W[ab])",
 			path: "0",
-			getter: func(n *game.Node) interface{} {
+			getter: func(n *movetree.Node) interface{} {
 				return n.Move
 			},
 			want: move.NewMove(color.White, point.New(0, 1)),
@@ -294,7 +350,7 @@ func TestPropertyPostProcessing(t *testing.T) {
 			desc: "black & white placements",
 			sgf:  "(;GM[1];AB[ab][ac]AW[bb][bc])",
 			path: "0",
-			getter: func(n *game.Node) interface{} {
+			getter: func(n *movetree.Node) interface{} {
 				return n.Placements
 			},
 			want: []*move.Move{
@@ -312,7 +368,7 @@ func TestPropertyPostProcessing(t *testing.T) {
 				t.Error(err)
 				return
 			}
-			tp, err := treepath.Parse(tc.path)
+			tp, err := movetree.ParsePath(tc.path)
 			if err != nil {
 				t.Error(err)
 				return

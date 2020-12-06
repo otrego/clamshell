@@ -6,7 +6,7 @@ import (
 )
 
 func TestValidate(t *testing.T) {
-	valid := prop.Field("TB")
+	valid := prop.Prop("TB")
 
 	test := prop.Validate(valid)
 	if test != true {
@@ -15,7 +15,7 @@ func TestValidate(t *testing.T) {
 }
 
 func TestInvalidate(t *testing.T) {
-	invalid := prop.Field("TQB")
+	invalid := prop.Prop("TQB")
 
 	test := prop.Validate(invalid)
 	if test != false {

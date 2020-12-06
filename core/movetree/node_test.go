@@ -1,4 +1,4 @@
-package game
+package movetree
 
 import (
 	"testing"
@@ -7,7 +7,6 @@ import (
 )
 
 func TestTraverse(t *testing.T) {
-
 	testCases := []struct {
 		desc string
 		n    Node

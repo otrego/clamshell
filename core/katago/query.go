@@ -7,8 +7,8 @@ import (
 	"strconv"
 
 	"github.com/google/uuid"
-	"github.com/otrego/clamshell/core/game"
 	"github.com/otrego/clamshell/core/move"
+	"github.com/otrego/clamshell/core/movetree"
 	"github.com/otrego/clamshell/core/point"
 )
 
@@ -100,13 +100,13 @@ func (q *Query) ToJSON() ([]byte, error) {
 	return json.Marshal(q)
 }
 
-// gameConverter is used to convert games into query objects.
-type gameConverter struct {
-	g *game.Game
+// movetreeConverter is used to convert movetrees into query objects.
+type movetreeConverter struct {
+	g *movetree.MoveTree
 }
 
 // point converts a point to a GTP point
-func (gc *gameConverter) point(pt *point.Point) string {
+func (gc *movetreeConverter) point(pt *point.Point) string {
 	if pt == nil {
 		// We treat nil points as passes.
 		return "pass"
@@ -122,15 +122,15 @@ func (gc *gameConverter) point(pt *point.Point) string {
 	return fmt.Sprintf("%c%d", val, pt.Y()+1)
 }
 
-// move converts from a game-move to a move-array with a GTP Point. This is a
+// move converts from a movetree-move to a move-array with a GTP Point. This is a
 // format peculiar to Katago.
-func (gc *gameConverter) move(mv *move.Move) Move {
+func (gc *movetreeConverter) move(mv *move.Move) Move {
 	return Move{string(mv.Color()), gc.point(mv.Point())}
 }
 
 // initialStones converts the initial placements (e.g., handicap stones) into
 // the initial stones for the analysis.
-func (gc *gameConverter) initialStones() []Move {
+func (gc *movetreeConverter) initialStones() []Move {
 	var out []Move
 	for _, mv := range gc.g.Root.Placements {
 		out = append(out, gc.move(mv))
@@ -140,7 +140,7 @@ func (gc *gameConverter) initialStones() []Move {
 
 // initialPlayer sets the initial player. By default, katago assumes
 // black-to-play, so this isn't necessary.
-func (gc *gameConverter) initialPlayer() string {
+func (gc *movetreeConverter) initialPlayer() string {
 	if val, ok := gc.g.Root.Properties["PL"]; ok && len(val) > 0 {
 		return val[0]
 	}
@@ -148,7 +148,7 @@ func (gc *gameConverter) initialPlayer() string {
 }
 
 // mainBranchMoves gets moves along the primary branch (0th-variation).
-func (gc *gameConverter) mainBranchMoves(startFrom, maxMove int) []Move {
+func (gc *movetreeConverter) mainBranchMoves(startFrom, maxMove int) []Move {
 	out := []Move{}
 	idx := 0
 	for n := gc.g.Root; ; n = n.Children[0] {
@@ -168,7 +168,7 @@ func (gc *gameConverter) mainBranchMoves(startFrom, maxMove int) []Move {
 }
 
 // rules gets the relevant rule-set, returning TrompTaylorRules if not provided.
-func (gc *gameConverter) rules() Rules {
+func (gc *movetreeConverter) rules() Rules {
 	if val, ok := gc.g.Root.Properties["RU"]; ok && len(val) > 0 {
 		return Rules(val[0])
 	}
@@ -177,7 +177,7 @@ func (gc *gameConverter) rules() Rules {
 
 // komi gets the komi value, parsed as a float. Note that the decimal-part can
 // only be exactl 0.5 or 0.
-func (gc *gameConverter) komi() (*float64, error) {
+func (gc *movetreeConverter) komi() (*float64, error) {
 	if val, ok := gc.g.Root.Properties["KM"]; ok && len(val) > 0 {
 		km, err := strconv.ParseFloat(val[0], 64)
 		if err != nil {
@@ -194,7 +194,7 @@ func (gc *gameConverter) komi() (*float64, error) {
 
 // boardSize gets the size of the go board. Only sizes ups to 25 are allowed,
 // but should typically be 19, 13, or 9.
-func (gc *gameConverter) boardSize() (int, error) {
+func (gc *movetreeConverter) boardSize() (int, error) {
 	if val, ok := gc.g.Root.Properties["SZ"]; ok && len(val) > 0 {
 		sz, err := strconv.Atoi(val[0])
 		if err != nil {
@@ -208,8 +208,8 @@ func (gc *gameConverter) boardSize() (int, error) {
 	return 19, nil
 }
 
-// analyzeMainBranch analyzes the main branch of the game.
-func (gc *gameConverter) analyzeMainBranch(startFrom, maxMoves int) []int {
+// analyzeMainBranch analyzes the main branch of the movetree.
+func (gc *movetreeConverter) analyzeMainBranch(startFrom, maxMoves int) []int {
 	var out []int
 	numAnalyzed := 0
 	if maxMoves == 0 {
@@ -229,10 +229,10 @@ func NewInt(i int) *int {
 	return &i
 }
 
-// QueryOptions contains options for constructing a Query from a game.
+// QueryOptions contains options for constructing a Query from a movetree.
 type QueryOptions struct {
 	// MaxMoves is used to provide a max when analyzing moves. By default, analyze the
-	// whole game. Largely used for debugging.
+	// whole movetree. Largely used for debugging.
 	MaxMoves *int
 
 	// StartFrom indicates which move to start from. By default, start from the
@@ -278,9 +278,9 @@ func defaultOptions(opts *QueryOptions) *QueryOptions {
 }
 
 // AnalysisQueryFromGame creates a Katago query object from a go-game.
-func AnalysisQueryFromGame(g *game.Game, inOpts *QueryOptions) (*Query, error) {
+func AnalysisQueryFromGame(g *movetree.MoveTree, inOpts *QueryOptions) (*Query, error) {
 	q := NewQuery()
-	gc := &gameConverter{g: g}
+	gc := &movetreeConverter{g: g}
 	opts := defaultOptions(inOpts)
 
 	q.InitialStones = gc.initialStones()
