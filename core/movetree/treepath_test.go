@@ -144,10 +144,10 @@ func TestApplyPath(t *testing.T) {
 		{
 			desc: "first move",
 			path: ".0",
-			game: "(;GM[1];B[pd]C[foo])",
+			game: "(;GM[1];PM[1]B[pd]C[foo])",
 			expProps: map[string][]string{
-				"C": []string{"foo"},
-				"B": []string{"pd"},
+				"C":  []string{"foo"},
+				"PM": []string{"1"},
 			},
 		},
 	}

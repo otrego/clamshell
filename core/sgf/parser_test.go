@@ -1,6 +1,7 @@
 package sgf_test
 
 import (
+	"fmt"
 	"reflect"
 	"testing"
 
@@ -15,12 +16,15 @@ import (
 
 type propmap map[string][]string
 
+type nodeCheck func(n *movetree.Node) error
+
 func TestParse(t *testing.T) {
 	testCases := []struct {
-		desc         string
-		sgf          string
-		pathToProps  map[string]propmap
-		expErrSubstr string
+		desc            string
+		sgf             string
+		pathToProps     map[string]propmap
+		pathToNodeCheck map[string]nodeCheck
+		expErrSubstr    string
 	}{
 		{
 			desc: "basic parse, no errors",
@@ -46,24 +50,40 @@ func TestParse(t *testing.T) {
 		},
 		{
 			desc: "check parsing root: multi property",
-			sgf:  "(;GM[1]AW[ab][bc][dc])",
+			sgf:  "(;GM[1]AW[ab][bc])",
 			pathToProps: map[string]propmap{
 				".": propmap{
 					"GM": []string{"1"},
-					"AW": []string{"ab", "bc", "dc"},
+				},
+			},
+			pathToNodeCheck: map[string]nodeCheck{
+				".": func(n *movetree.Node) error {
+					expPlacements := []*move.Move{
+						move.NewMove(color.White, point.New(0, 1)),
+						move.NewMove(color.White, point.New(1, 2)),
+					}
+					if !reflect.DeepEqual(n.Placements, expPlacements) {
+						return fmt.Errorf("incorrect placements; got %v, but wanted %v", n.Placements, expPlacements)
+					}
+					return nil
 				},
 			},
 		},
 		{
 			desc: "add new node",
-			sgf:  "(;GM[1]AW[ab][bc][dc];B[cc])",
+			sgf:  "(;GM[1];B[cc])",
 			pathToProps: map[string]propmap{
 				".": propmap{
 					"GM": []string{"1"},
-					"AW": []string{"ab", "bc", "dc"},
 				},
-				"0": propmap{
-					"B": []string{"cc"},
+			},
+			pathToNodeCheck: map[string]nodeCheck{
+				"0": func(n *movetree.Node) error {
+					expMove := move.NewMove(color.Black, point.New(2, 2))
+					if !reflect.DeepEqual(n.Move, expMove) {
+						return fmt.Errorf("incorrect move; got %v, but wanted %v", n.Move, expMove)
+					}
+					return nil
 				},
 			},
 		},
@@ -97,19 +117,22 @@ func TestParse(t *testing.T) {
 		{
 			desc: "basic variation",
 			sgf:  `(;GM[1](;B[aa];W[ab])(;B[ab];W[ac]))`,
-			pathToProps: map[string]propmap{
-				"0.0": propmap{
-					"W": []string{"ab"},
+			pathToNodeCheck: map[string]nodeCheck{
+				"0.0": func(n *movetree.Node) error {
+					expMove := move.NewMove(color.White, point.New(0, 1))
+					if !reflect.DeepEqual(n.Move, expMove) {
+						return fmt.Errorf("incorrect move; got %v, but wanted %v", n.Move, expMove)
+					}
+					return nil
 				},
-				"1.0": propmap{
-					"W": []string{"ac"},
+				"1.0": func(n *movetree.Node) error {
+					expMove := move.NewMove(color.White, point.New(0, 2))
+					if !reflect.DeepEqual(n.Move, expMove) {
+						return fmt.Errorf("incorrect move; got %v, but wanted %v", n.Move, expMove)
+					}
+					return nil
 				},
 			},
-		},
-		{
-			desc:         "basic variation error: two moves on one node",
-			sgf:          `(;GM[1](;B[aa]W[ab])(;B[ab];W[ac]))`,
-			expErrSubstr: "found two moves",
 		},
 
 		{
@@ -177,23 +200,46 @@ AB[na][ra][mb][rb][lc][qc][ld][od][qd][le][pe][qe][mf][nf][of][pg]
 				".": propmap{
 					"GM": []string{"1"},
 				},
-				"0.0": propmap{
-					"W": []string{"nc"},
+			},
+			pathToNodeCheck: map[string]nodeCheck{
+				"0.0": func(n *movetree.Node) error {
+					expMove := move.NewMove(color.White, point.New(13, 2))
+					if !reflect.DeepEqual(n.Move, expMove) {
+						return fmt.Errorf("incorrect move; got %v, but wanted %v", n.Move, expMove)
+					}
+					return nil
 				},
 				// should be same, since treepath terminates
-				"0.0.0": propmap{
-					"W": []string{"nc"},
+				"0.0.0": func(n *movetree.Node) error {
+					expMove := move.NewMove(color.White, point.New(13, 2))
+					if !reflect.DeepEqual(n.Move, expMove) {
+						return fmt.Errorf("incorrect move; got %v, but wanted %v", n.Move, expMove)
+					}
+					return nil
 				},
-				"1.1.0": propmap{
-					"B": []string{"oa"},
+				"1.1.0": func(n *movetree.Node) error {
+					expMove := move.NewMove(color.Black, point.New(14, 0))
+					if !reflect.DeepEqual(n.Move, expMove) {
+						return fmt.Errorf("incorrect move; got %v, but wanted %v", n.Move, expMove)
+					}
+					return nil
 				},
-				"3": propmap{
-					"B": []string{""},
+				"3": func(n *movetree.Node) error {
+					expMove := move.NewPass(color.Black)
+					if !reflect.DeepEqual(n.Move, expMove) {
+						return fmt.Errorf("incorrect move; got %v, but wanted %v", n.Move, expMove)
+					}
+					return nil
 				},
 			},
 		},
 
 		// error cases
+		{
+			desc:         "basic variation error: two moves on one node",
+			sgf:          `(;GM[1](;B[aa]W[ab])(;B[ab];W[ac]))`,
+			expErrSubstr: "found two moves",
+		},
 		{
 			desc:         "error parsing: nonsense",
 			sgf:          "I am a banana",
@@ -255,6 +301,17 @@ AB[na][ra][mb][rb][lc][qc][ld][od][qd][le][pe][qe][mf][nf][of][pg]
 					if !cmp.Equal(foundData, expData) {
 						t.Errorf("At path %q, property %q was %v, but expected %v", path, prop, foundData, expData)
 					}
+				}
+			}
+			for path, check := range tc.pathToNodeCheck {
+				tp, err := movetree.ParsePath(path)
+				if err != nil {
+					t.Error(err)
+					continue
+				}
+				n := tp.Apply(g.Root)
+				if err := check(n); err != nil {
+					t.Errorf("At path %q, found incorrect contents %v", path, err)
 				}
 			}
 		})

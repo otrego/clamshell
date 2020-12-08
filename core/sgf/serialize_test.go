@@ -90,7 +90,11 @@ SQ[ra][rb][rc]
 			}
 
 			//convert original movetree back to sgf, then back to new game
-			got, err := sgf.Parse(sgf.Serialize(g))
+			serialized, err := sgf.Serialize(g)
+			if err != nil {
+				t.Fatal(err)
+			}
+			got, err := sgf.Parse(serialized)
 
 			//check if both movetrees are identical
 			var sbWant strings.Builder

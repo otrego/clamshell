@@ -19,6 +19,11 @@ func NewMove(col color.Color, pt *point.Point) *Move {
 	return &Move{color: col, point: pt}
 }
 
+// NewPass creates a a new pass Move.
+func NewPass(col color.Color) *Move {
+	return &Move{color: col, point: nil}
+}
+
 // Color returns the color.
 func (m *Move) Color() color.Color {
 	return m.color
