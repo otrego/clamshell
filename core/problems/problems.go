@@ -5,7 +5,6 @@ import (
 	"strconv"
 
 	"github.com/otrego/clamshell/core/board"
-	"github.com/otrego/clamshell/core/color"
 	"github.com/otrego/clamshell/core/movetree"
 )
 
@@ -21,28 +20,7 @@ func Flatten(tp movetree.Treepath, g *movetree.MoveTree) (*movetree.MoveTree, er
 	gflat := movetree.New()
 	gflat.Root.Placements = b.GetFullBoardState()
 
-	aw := make([]string, 0)
-	ab := make([]string, 0)
-
-	for _, move := range gflat.Root.Placements {
-		str, err1 := move.Point().ToSGF()
-		if err1 != nil {
-			return nil, err
-		}
-
-		if move.Color() == color.Black {
-			ab = append(ab, str)
-		} else {
-			aw = append(aw, str)
-		}
-	}
-
 	for key, value := range g.Root.Properties {
-		if key == "AW" {
-			g.Root.Properties[key] = aw
-		} else if key == "AB" {
-			gflat.Root.Properties[key] = ab
-		}
 		gflat.Root.Properties[key] = value
 	}
 

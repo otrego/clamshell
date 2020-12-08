@@ -5,6 +5,7 @@ import (
 
 	"github.com/otrego/clamshell/core/movetree"
 	"github.com/otrego/clamshell/core/problems"
+	"github.com/otrego/clamshell/core/prop"
 	"github.com/otrego/clamshell/core/sgf"
 )
 
@@ -51,6 +52,7 @@ func TestFlatten(t *testing.T) {
 			g, _ := sgf.Parse(tc.sgf)
 			bWant, _ := problems.PopulateBoard(tp, g)
 
+			// Test that the boards are identical
 			tpRoot, _ := movetree.ParsePath("0:2")
 			gFlat, err := problems.Flatten(tp, g)
 			if err != nil {
@@ -59,6 +61,14 @@ func TestFlatten(t *testing.T) {
 			bGot, _ := problems.PopulateBoard(tpRoot, gFlat)
 			if bWant.String() != bGot.String() {
 				t.Errorf("wanted \n %s \n\n but got \n %s", bWant.String(), bGot.String())
+			}
+
+			// Test that the properties are identical
+			propsWant, _ := prop.ConvertNode(g.Root)
+			propsGot, _ := prop.ConvertNode(gFlat.Root)
+
+			if bWant.String() != bGot.String() {
+				t.Errorf("wanted %s \n but got %s", propsWant, propsGot)
 			}
 		})
 	}
