@@ -30,10 +30,11 @@ func NewBoard(size int) *Board {
 	return &board
 }
 
-// AddStone adds a stone to the board.
+// PlaceStone adds a stone to the board
+// and removes captured stones (if any).
 // returns the captured stones, or err
 // if any Go (baduk) rules were broken
-func (b *Board) AddStone(m *move.Move) ([]*point.Point, error) {
+func (b *Board) PlaceStone(m *move.Move) ([]*point.Point, error) {
 	var ko *point.Point = b.ko
 	b.ko = nil
 
@@ -53,7 +54,7 @@ func (b *Board) AddStone(m *move.Move) ([]*point.Point, error) {
 	}
 	if len(capturedStones) == 1 {
 		b.ko = m.Point()
-		if *ko == *(capturedStones[0]) {
+		if ko != nil && *ko == *(capturedStones[0]) {
 			b.setColor(move.NewMove(color.Empty, m.Point()))
 			return nil, fmt.Errorf("%v is an illegal ko move", m.Point())
 		}
@@ -70,7 +71,9 @@ func (b *Board) findCapturedGroups(m *move.Move) []*point.Point {
 	points := b.getNeighbors(pt)
 	capturedStones := make([]*point.Point, 0)
 	for _, point := range points {
-		capturedStones = append(capturedStones, b.capturedStones(point)...)
+		if b.inBounds(point) {
+			capturedStones = append(capturedStones, b.capturedStones(point)...)
+		}
 	}
 	return capturedStones
 }
@@ -130,7 +133,7 @@ func (b *Board) capturedStones(pt *point.Point) []*point.Point {
 func (b *Board) inBounds(pt *point.Point) bool {
 	var x, y int = int(pt.X()), int(pt.Y())
 	return x < len(b.board[0]) && y < len(b.board) &&
-		x > 0 && y > 0
+		x >= 0 && y >= 0
 }
 
 // colorAt returns the color at point pt.
@@ -155,6 +158,22 @@ func (b *Board) getNeighbors(pt *point.Point) []*point.Point {
 	points[3] = point.New(pt.X(), pt.Y()-1)
 
 	return points
+}
+
+// GetFullBoardState returns an array of all the current stone positions.
+func (b *Board) GetFullBoardState() []*move.Move {
+	moves := make([]*move.Move, 0)
+
+	for i := 0; i < len(b.board); i++ {
+		for j := 0; j < len(b.board[0]); j++ {
+			if b.board[i][j] != color.Empty {
+				moves = append(moves,
+					move.NewMove(b.board[i][j], point.New(int64(j), int64(i))))
+			}
+		}
+	}
+
+	return moves
 }
 
 // String returns a string representation of this board.
