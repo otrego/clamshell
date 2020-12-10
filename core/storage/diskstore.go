@@ -2,7 +2,7 @@ package storage
 
 import (
 	"context"
-	"errors"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"path"
@@ -21,11 +21,32 @@ func NewDiskStore(root string) (*DiskStore, error) {
 	ds := &DiskStore{
 		rootDir: root,
 	}
-	err := ds.ensureDirectoryStructure(root)
+	err := ds.makeGenDirs()
 	if err != nil {
 		return nil, err
 	}
 	return ds, nil
+}
+
+// makeGenDirs ensures that paths exist for each of the expected file outputs
+func (ds *DiskStore) makeGenDirs() error {
+	fileInfo, err := os.Stat(ds.rootDir)
+	if err != nil {
+		return err
+	}
+	if !fileInfo.IsDir() {
+		return fmt.Errorf("root directory %v does not exist", ds.rootDir)
+	}
+	for _, t := range storedDataTypes {
+		curDir := path.Join(ds.rootDir, string(t))
+		fileInfo, err := os.Stat(curDir)
+		if err != nil {
+			os.Mkdir(curDir, defaultDirPrms)
+		} else if !fileInfo.IsDir() {
+			return fmt.Errorf("non-directory is in place of directory %v", curDir)
+		}
+	}
+	return nil
 }
 
 // Get is a method to retrieve string content from a file on Filestore
@@ -58,33 +79,13 @@ func (ds *DiskStore) List(ctx context.Context, t StoredDataType) ([]string, erro
 }
 
 // Put is method to Put a file to disk
-func (ds *DiskStore) Put(ctx context.Context, t StoredDataType, filename string, json string) error {
-	path := ds.path(t, filename)
-	return ioutil.WriteFile(path, []byte(json), os.ModePerm)
+func (ds *DiskStore) Put(ctx context.Context, t StoredDataType, filename string, contents string) error {
+	p := ds.path(t, filename)
+	return ioutil.WriteFile(p, []byte(contents), os.ModePerm)
 }
 
 func (ds *DiskStore) path(t StoredDataType, filename string) string {
 	return path.Join(ds.rootDir, string(t), filename)
 }
 
-// ensureDirectoryStructure ensures that paths exist for each
-// of the expected file outputs
-func (ds *DiskStore) ensureDirectoryStructure(rootDir string) error {
-	fileInfo, err := os.Stat(rootDir)
-	if err != nil {
-		return err
-	}
-	if !fileInfo.IsDir() {
-		return errors.New("directory does not exist")
-	}
-	for _, t := range storedDataTypes {
-		curDir := path.Join(ds.rootDir, string(t))
-		fileInfo, err := os.Stat(curDir)
-		if err != nil {
-			os.Mkdir(curDir, defaultDirPrms)
-		} else if !fileInfo.IsDir() {
-			return errors.New("file is in place of directory")
-		}
-	}
-	return nil
-}
+var _ Filestore = &DiskStore{}
