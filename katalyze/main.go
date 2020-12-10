@@ -90,10 +90,10 @@ func main() {
 	outDir := cwd
 	if *outputDir != "" {
 		outDir = path.Join(cwd, *outputDir)
-		if _, err := os.Stat(outDir); os.IsNotExist(err) {
+		if _, errz := os.Stat(outDir); os.IsNotExist(errz) {
 			os.Mkdir(outDir, 0775)
-		} else if err != nil {
-			glog.Exit(err)
+		} else if errz != nil {
+			glog.Exit(errz)
 		}
 	}
 	glog.Infof("Writing files to output dir %v", outDir)
