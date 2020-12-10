@@ -79,7 +79,7 @@ func main() {
 	}
 
 	an := katago.New(model, analysisConfig, *analysisThreads)
-	if err := an.Start(); err != nil {
+	if err = an.Start(); err != nil {
 		glog.Exitf("error booting Katago: %v", err)
 	}
 
@@ -92,6 +92,8 @@ func main() {
 		outDir = path.Join(cwd, *outputDir)
 		if _, err := os.Stat(outDir); os.IsNotExist(err) {
 			os.Mkdir(outDir, 0775)
+		} else if err != nil {
+			glog.Exit(err)
 		}
 	}
 	glog.Infof("Writing files to output dir %v", outDir)
@@ -106,7 +108,7 @@ func main() {
 		fs: store,
 	}
 
-	if err := proc.genProblems(files); err != nil {
+	if err = proc.genProblems(files); err != nil {
 		glog.Exitf("error processing files: %v", err)
 	}
 
