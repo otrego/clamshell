@@ -14,7 +14,8 @@ type DiskStore struct {
 	rootDir string
 }
 
-const defaultDirPrms = 0755
+// DefaultDirPerms is the Default directory permissions expected by DiskStore
+const DefaultDirPerms = 0755
 
 // NewDiskStore returns a new Filestore that is on-disk
 func NewDiskStore(root string) (*DiskStore, error) {
@@ -41,7 +42,7 @@ func (ds *DiskStore) makeGenDirs() error {
 		curDir := path.Join(ds.rootDir, string(t))
 		fileInfo, err := os.Stat(curDir)
 		if err != nil {
-			os.Mkdir(curDir, defaultDirPrms)
+			os.Mkdir(curDir, DefaultDirPerms)
 		} else if !fileInfo.IsDir() {
 			return fmt.Errorf("non-directory is in place of directory %v", curDir)
 		}
