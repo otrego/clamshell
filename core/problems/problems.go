@@ -8,10 +8,10 @@ import (
 	"github.com/otrego/clamshell/core/movetree"
 )
 
-// Flatten takes a Treepath and a MoveTree and returns
+// Flatten takes a Pathand a MoveTree and returns
 // the root of the flat movetree. the flat movetree
 // ignores the last two nodes of the treepath
-func Flatten(tp movetree.Treepath, g *movetree.MoveTree) (*movetree.MoveTree, error) {
+func Flatten(tp movetree.Path, g *movetree.MoveTree) (*movetree.MoveTree, error) {
 	b, err := PopulateBoard(tp, g)
 	if err != nil {
 		return nil, err
@@ -28,10 +28,10 @@ func Flatten(tp movetree.Treepath, g *movetree.MoveTree) (*movetree.MoveTree, er
 
 }
 
-// PopulateBoard populates a go board given a MoveTree and Treepath
+// PopulateBoard populates a go board given a MoveTree and Path
 // Captures are intentionally discarded here.
 // returns the populated board.
-func PopulateBoard(tp movetree.Treepath, g *movetree.MoveTree) (*board.Board, error) {
+func PopulateBoard(tp movetree.Path, g *movetree.MoveTree) (*board.Board, error) {
 	n := g.Root
 	i, err := strconv.Atoi(n.Properties["SZ"][0])
 	if err != nil {

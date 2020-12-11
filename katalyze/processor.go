@@ -24,14 +24,14 @@ type problemProcessor struct {
 
 type problem struct {
 	originalFile string
-	path         movetree.Treepath
+	path         movetree.Path
 	mt           *movetree.MoveTree
 	contents     string
 }
 
 func (p *problem) name() string {
 	return strings.TrimSuffix(p.originalFile, path.Ext(p.originalFile)) +
-		p.path.FileSafeCompactString() + ".sgf"
+		p.path.CompactString() + ".sgf"
 }
 
 // genProblems generates problems.
@@ -84,7 +84,7 @@ func (p *problemProcessor) processGame(fi string) ([]*problem, error) {
 	}
 	glog.Infof("Finished adding to game for file %q", fi)
 
-	var positions []movetree.Treepath
+	var positions []movetree.Path
 	paths, err := kataprob.FindBlunders(g)
 	if err != nil {
 		return nil, err

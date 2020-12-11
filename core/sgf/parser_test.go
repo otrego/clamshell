@@ -34,7 +34,7 @@ func TestParse(t *testing.T) {
 			desc: "check parsing root: simple property",
 			sgf:  "(;GM[1])",
 			pathToProps: map[string]propmap{
-				".": propmap{
+				"-": propmap{
 					"GM": []string{"1"},
 				},
 			},
@@ -43,7 +43,7 @@ func TestParse(t *testing.T) {
 			desc: "check parsing root: lots of whitespace",
 			sgf:  "\n   (;  C[1 \n1]   )",
 			pathToProps: map[string]propmap{
-				".": propmap{
+				"-": propmap{
 					"C": []string{"1 \n1"},
 				},
 			},
@@ -52,12 +52,12 @@ func TestParse(t *testing.T) {
 			desc: "check parsing root: multi property",
 			sgf:  "(;GM[1]AW[ab][bc])",
 			pathToProps: map[string]propmap{
-				".": propmap{
+				"-": propmap{
 					"GM": []string{"1"},
 				},
 			},
 			pathToNodeCheck: map[string]nodeCheck{
-				".": func(n *movetree.Node) error {
+				"-": func(n *movetree.Node) error {
 					expPlacements := []*move.Move{
 						move.NewMove(color.White, point.New(0, 1)),
 						move.NewMove(color.White, point.New(1, 2)),
@@ -73,7 +73,7 @@ func TestParse(t *testing.T) {
 			desc: "add new node",
 			sgf:  "(;GM[1];B[cc])",
 			pathToProps: map[string]propmap{
-				".": propmap{
+				"-": propmap{
 					"GM": []string{"1"},
 				},
 			},
@@ -91,7 +91,7 @@ func TestParse(t *testing.T) {
 			desc: "comment with escaped rbrace",
 			sgf:  `(;C[aoeu [1k\]])`,
 			pathToProps: map[string]propmap{
-				".": propmap{
+				"-": propmap{
 					"C": []string{"aoeu [1k]"},
 				},
 			},
@@ -100,7 +100,7 @@ func TestParse(t *testing.T) {
 			desc: "comment with non-escapng backslash",
 			sgf:  `(;C[aoeu \z])`,
 			pathToProps: map[string]propmap{
-				".": propmap{
+				"-": propmap{
 					"C": []string{"aoeu \\z"},
 				},
 			},
@@ -109,7 +109,7 @@ func TestParse(t *testing.T) {
 			desc: "comment with lots of escaping",
 			sgf:  `(;C[\\\]])`,
 			pathToProps: map[string]propmap{
-				".": propmap{
+				"-": propmap{
 					"C": []string{`\\]`},
 				},
 			},
@@ -118,14 +118,14 @@ func TestParse(t *testing.T) {
 			desc: "basic variation",
 			sgf:  `(;GM[1](;B[aa];W[ab])(;B[ab];W[ac]))`,
 			pathToNodeCheck: map[string]nodeCheck{
-				"0.0": func(n *movetree.Node) error {
+				"0-0": func(n *movetree.Node) error {
 					expMove := move.NewMove(color.White, point.New(0, 1))
 					if !reflect.DeepEqual(n.Move, expMove) {
 						return fmt.Errorf("incorrect move; got %v, but wanted %v", n.Move, expMove)
 					}
 					return nil
 				},
-				"1.0": func(n *movetree.Node) error {
+				"1-0": func(n *movetree.Node) error {
 					expMove := move.NewMove(color.White, point.New(0, 2))
 					if !reflect.DeepEqual(n.Move, expMove) {
 						return fmt.Errorf("incorrect move; got %v, but wanted %v", n.Move, expMove)
@@ -156,7 +156,7 @@ TR[sa][sb][sc]
 SQ[ra][rb][rc]
 )`,
 			pathToProps: map[string]propmap{
-				".": propmap{
+				"-": propmap{
 					"GM": []string{"1"},
 					"SQ": []string{"ra", "rb", "rc"},
 					"PW": []string{"White"},
@@ -197,12 +197,12 @@ AB[na][ra][mb][rb][lc][qc][ld][od][qd][le][pe][qe][mf][nf][of][pg]
 (;B[]C[A default consideration]
 	;W[mc]C[White lives easily]))`,
 			pathToProps: map[string]propmap{
-				".": propmap{
+				"-": propmap{
 					"GM": []string{"1"},
 				},
 			},
 			pathToNodeCheck: map[string]nodeCheck{
-				"0.0": func(n *movetree.Node) error {
+				"0-0": func(n *movetree.Node) error {
 					expMove := move.NewMove(color.White, point.New(13, 2))
 					if !reflect.DeepEqual(n.Move, expMove) {
 						return fmt.Errorf("incorrect move; got %v, but wanted %v", n.Move, expMove)
@@ -210,14 +210,14 @@ AB[na][ra][mb][rb][lc][qc][ld][od][qd][le][pe][qe][mf][nf][of][pg]
 					return nil
 				},
 				// should be same, since treepath terminates
-				"0.0.0": func(n *movetree.Node) error {
+				"0-0-0": func(n *movetree.Node) error {
 					expMove := move.NewMove(color.White, point.New(13, 2))
 					if !reflect.DeepEqual(n.Move, expMove) {
 						return fmt.Errorf("incorrect move; got %v, but wanted %v", n.Move, expMove)
 					}
 					return nil
 				},
-				"1.1.0": func(n *movetree.Node) error {
+				"1-1-0": func(n *movetree.Node) error {
 					expMove := move.NewMove(color.Black, point.New(14, 0))
 					if !reflect.DeepEqual(n.Move, expMove) {
 						return fmt.Errorf("incorrect move; got %v, but wanted %v", n.Move, expMove)
