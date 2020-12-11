@@ -12,11 +12,11 @@ import (
 )
 
 // FindBlunders finds positions (paths) that result from big swings in points.
-func FindBlunders(g *movetree.MoveTree) ([]movetree.Treepath, error) {
+func FindBlunders(g *movetree.MoveTree) ([]movetree.Path, error) {
 	blunderAmt := 3.0
 
-	var cur movetree.Treepath
-	var found []movetree.Treepath
+	var cur movetree.Path
+	var found []movetree.Path
 	if g.Root == nil {
 		return found, nil
 	}

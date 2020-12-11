@@ -22,8 +22,8 @@ func TestParsePath(t *testing.T) {
 			exp:  []int{},
 		},
 		{
-			desc: "empty treepath, using leading .",
-			path: ".",
+			desc: "empty treepath, using leading -",
+			path: "-",
 			exp:  []int{},
 		},
 		{
@@ -42,8 +42,8 @@ func TestParsePath(t *testing.T) {
 			exp:  []int{10},
 		},
 		{
-			desc: "move 2.3",
-			path: "2.3",
+			desc: "move 2-3",
+			path: "2-3",
 			exp:  []int{2, 3},
 		},
 		{
@@ -52,64 +52,64 @@ func TestParsePath(t *testing.T) {
 			exp:  []int{3},
 		},
 		{
-			desc: "variation 3, with leading .",
-			path: ".3",
+			desc: "variation 3, with leading -",
+			path: "-3",
 			exp:  []int{3},
 		},
 		{
-			desc: "move 2.0",
-			path: "2.0",
+			desc: "move 2-0",
+			path: "2-0",
 			exp:  []int{2, 0},
 		},
 		{
-			desc: "move 0.0.0.0 = 4 moves",
-			path: "0.0.0.0",
+			desc: "move 0-0-0-0 = 4 moves",
+			path: "0-0-0-0",
 			exp:  []int{0, 0, 0, 0},
 		},
 		{
-			desc: "move 0.0.0.0 = 4 moves, leading .",
-			path: ".0.0.0.0",
+			desc: "move 0-0-0-0 = 4 moves, leading -",
+			path: "-0-0-0-0",
 			exp:  []int{0, 0, 0, 0},
 		},
 		{
-			desc: "move 0.0:3 = 4 moves",
-			path: "0.0:3",
+			desc: "move 0-0x3 = 4 moves",
+			path: "0-0x3",
 			exp:  []int{0, 0, 0, 0},
 		},
 		{
-			desc: "move 0:4 = 4 moves",
-			path: "0:4",
+			desc: "move 0x4 = 4 moves",
+			path: "0x4",
 			exp:  []int{0, 0, 0, 0},
 		},
 		{
-			desc: "move 0:4 = 4 moves @ var 1",
-			path: "1:4",
+			desc: "move 0x4 = 4 moves @ var 1",
+			path: "1x4",
 			exp:  []int{1, 1, 1, 1},
 		},
 		{
 			desc: "complicated pattern",
-			path: "1.2:1.0.3:3",
+			path: "1-2x1-0-3x3",
 			exp:  []int{1, 2, 0, 3, 3, 3},
 		},
 		// Error cases
 		{
-			desc:         "move a:2 is invalid - not a number",
-			path:         "a:2",
+			desc:         "move ax2 is invalid - not a number",
+			path:         "ax2",
 			expErrSubstr: "unexpected char",
 		},
 		{
-			desc:         "move -1:2 is invalid - negatives are not allowed",
-			path:         "-1:2",
+			desc:         "move .1x2 is invalid - periods are not allowed",
+			path:         ".1x2",
 			expErrSubstr: "unexpected char",
 		},
 		{
-			desc:         "move 1::2 is invalid - no repeat separators",
-			path:         "1::2",
+			desc:         "move 1xx2 is invalid - no repeat separators",
+			path:         "1xx2",
 			expErrSubstr: "separator",
 		},
 		{
-			desc:         "move 1..2 is invalid - no repeat separators",
-			path:         "1..2",
+			desc:         "move 1--2 is invalid - no repeat separators",
+			path:         "1--2",
 			expErrSubstr: "separator",
 		},
 	}
@@ -127,7 +127,7 @@ func TestParsePath(t *testing.T) {
 				return
 			}
 
-			if !cmp.Equal(got, movetree.Treepath(tc.exp)) {
+			if !cmp.Equal(got, movetree.Path(tc.exp)) {
 				t.Errorf("ParsePath(%v)=%v, but expected %v", tc.path, got, tc.exp)
 			}
 		})
@@ -143,7 +143,7 @@ func TestApplyPath(t *testing.T) {
 	}{
 		{
 			desc: "first move",
-			path: ".0",
+			path: "-0",
 			game: "(;GM[1];PM[1]B[pd]C[foo])",
 			expProps: map[string][]string{
 				"C":  []string{"foo"},
@@ -176,7 +176,7 @@ func TestApplyPath(t *testing.T) {
 func TestString(t *testing.T) {
 	testCases := []struct {
 		desc string
-		tp   movetree.Treepath
+		tp   movetree.Path
 		exp  string
 	}{
 		{
@@ -208,33 +208,33 @@ func TestString(t *testing.T) {
 func TestCompactString(t *testing.T) {
 	testCases := []struct {
 		desc string
-		tp   movetree.Treepath
+		tp   movetree.Path
 		exp  string
 	}{
 		{
 			desc: "empty treepath",
 			tp:   []int{},
-			exp:  ".",
+			exp:  "-",
 		},
 		{
 			desc: "short treepath",
 			tp:   []int{1},
-			exp:  ".1",
+			exp:  "-1",
 		},
 		{
 			desc: "long repeat",
 			tp:   []int{1, 1, 1, 1},
-			exp:  ".1:4",
+			exp:  "-1x4",
 		},
 		{
 			desc: "long no repeat",
 			tp:   []int{1, 2, 3, 4, 5, 6},
-			exp:  ".1.2.3.4.5.6",
+			exp:  "-1-2-3-4-5-6",
 		},
 		{
 			desc: "long mixed",
 			tp:   []int{1, 2, 2, 0, 0, 5, 0, 2, 2, 2, 2, 1},
-			exp:  ".1.2:2.0:2.5.0.2:4.1",
+			exp:  "-1-2x2-0x2-5-0-2x4-1",
 		},
 	}
 	for _, tc := range testCases {

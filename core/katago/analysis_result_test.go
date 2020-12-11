@@ -167,10 +167,10 @@ func TestAddToGame(t *testing.T) {
 				},
 			},
 			expWinRate: map[string]*float64{
-				".":      nil,
-				".0":     floatPtr(0.1),
-				".0.0":   nil,
-				".0.0.0": floatPtr(0.3),
+				"-":      nil,
+				"-0":     floatPtr(0.1),
+				"-0-0":   nil,
+				"-0-0-0": floatPtr(0.3),
 			},
 		},
 	}
