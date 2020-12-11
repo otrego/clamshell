@@ -1,9 +1,8 @@
 package storage
 
 import (
-	"fmt"
+	"context"
 	"io/ioutil"
-	"log"
 	"math/rand"
 	"os"
 	"path"
@@ -14,33 +13,42 @@ import (
 )
 
 func TestDiskGetNoFileErrors(t *testing.T) {
+	ctx := context.Background()
 	dir, err := ioutil.TempDir("", "prefix")
 	if err != nil {
-		log.Fatal(err)
+		t.Fatal(err)
 	}
 	defer os.RemoveAll(dir)
 
-	ds, _ := NewDiskStore(dir)
-	_, err = ds.Get(nil, Games, "testfile.json")
+	ds, err := NewDiskStore(dir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, err = ds.Get(ctx, Games, "testfile.json")
 	if err == nil {
-		log.Fatal(err, "An error should have been generated for a file that didn't exist")
+		t.Fatal(err)
 	}
 }
 
 func TestDiskStorePutAndGet(t *testing.T) {
+	ctx := context.Background()
 	dir, err := ioutil.TempDir("", "prefix")
 	if err != nil {
-		log.Fatal(err)
+		t.Fatal(err)
 	}
 	defer os.RemoveAll(dir)
 
-	ds, _ := NewDiskStore(dir)
+	ds, err := NewDiskStore(dir)
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	contents := "{\"some\": \"value\"}"
 	ds.Put(nil, Games, "testfile.json", contents)
 
-	result, err := ds.Get(nil, Games, "testfile.json")
+	result, err := ds.Get(ctx, Games, "testfile.json")
 	if err != nil {
-		log.Fatal(err)
+		t.Fatal(err)
 	}
 	if result != contents {
 		t.Errorf("Stored and retrieve result not equal to expected '%v' '%v'", result, contents)
@@ -54,25 +62,19 @@ func TestEnsurePathExistsCreatesDir(t *testing.T) {
 
 	err := os.Mkdir(root, 0755)
 	if err != nil {
-		log.Fatal(err, " Could not make a directory in temp dir")
+		t.Fatal(err, " Could not make a directory in temp dir")
 	}
-	ds, err := NewDiskStore(root)
-	if err != nil {
-		log.Fatal(err)
-	}
+	_, err = NewDiskStore(root)
 
-	err = ds.ensureDirectoryStructure(root)
 	if err != nil {
-		log.Fatal(err, "Could not make the expected directories for otrego")
-
+		t.Fatal(err, "Could not make the expected directories for otrego")
 	}
 	var files []string
-	err = filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
+	if err = filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
 		files = append(files, path)
 		return nil
-	})
-	if err != nil {
-		panic(err)
+	}); err != nil {
+		t.Fatal(err)
 	}
 
 	for _, dirName := range storedDataTypes {
@@ -83,17 +85,18 @@ func TestEnsurePathExistsCreatesDir(t *testing.T) {
 			}
 		}
 		if !found {
-			panic(fmt.Sprintf("could not find %s", dirName))
+			t.Fatalf("could not find %s", dirName)
 		}
 	}
 }
 
 func TestEnsurePathExistsErrors(t *testing.T) {
 	tmp := os.TempDir()
-	root := path.Join(tmp, "otrego_data_test"+strconv.Itoa(rand.Int()))
+	root := path.Join(tmp, "nonexistent_"+strconv.Itoa(rand.Int()))
 
-	_, err := NewDiskStore(root)
-	if err == nil {
-		log.Fatal("there should be an error when if dir doesn't exist")
+	d := &DiskStore{rootDir: root}
+
+	if err := d.makeGenDirs(); err == nil {
+		t.Fatal("got nil error, there should be an error when if dir doesn't exist")
 	}
 }

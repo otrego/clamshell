@@ -229,3 +229,11 @@ func (tp Treepath) CompactString() string {
 	}
 	return sb.String()
 }
+
+// FileSafeCompactString returns a compact-string that can be used in
+func (tp Treepath) FileSafeCompactString() string {
+	s := tp.CompactString()
+	s = strings.ReplaceAll(s, ".", "-")
+	s = strings.ReplaceAll(s, ":", "x")
+	return s
+}

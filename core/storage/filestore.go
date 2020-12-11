@@ -5,7 +5,7 @@ import "context"
 // Filestore is a interface for file storage
 type Filestore interface {
 	Get(context.Context, StoredDataType, string) (string, error)
-	List(context.Context, StoredDataType, string) ([]string, error)
+	List(context.Context, StoredDataType) ([]string, error)
 	Put(context.Context, StoredDataType, string, string) error
 }
 

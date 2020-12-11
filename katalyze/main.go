@@ -28,15 +28,15 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"io/ioutil"
 	"os"
+	"path"
 	"strings"
 
 	"github.com/golang/glog"
 	"github.com/otrego/clamshell/core/katago"
-	"github.com/otrego/clamshell/core/katago/kataprob"
-	"github.com/otrego/clamshell/core/movetree"
-	"github.com/otrego/clamshell/core/sgf"
+	"github.com/otrego/clamshell/core/storage"
 )
 
 var (
@@ -70,80 +70,77 @@ func main() {
 		glog.Exit("--config=<analysis-config> must be specified, but was empty")
 	}
 
-	files := getSGFs(flag.Args())
+	files, err := filterSGFs(flag.Args())
+	if err != nil {
+		glog.Exit(err)
+	}
 	if len(files) == 0 {
 		glog.Exit("No SGF files specified -- must be specified as args to katalyze")
 	}
 
 	an := katago.New(model, analysisConfig, *analysisThreads)
-
-	if err := an.Start(); err != nil {
+	if err = an.Start(); err != nil {
 		glog.Exitf("error booting Katago: %v", err)
 	}
 
-	if err := process(files, an); err != nil {
+	cwd, err := os.Getwd()
+	if err != nil {
+		glog.Exit(err)
+	}
+	outDir := cwd
+	if *outputDir != "" {
+		outDir = path.Join(cwd, *outputDir)
+		if _, errz := os.Stat(outDir); os.IsNotExist(errz) {
+			os.Mkdir(outDir, 0775)
+		} else if errz != nil {
+			glog.Exit(errz)
+		}
+	}
+	glog.Infof("Writing files to output dir %v", outDir)
+
+	store, err := storage.NewDiskStore(outDir)
+	if err != nil {
+		glog.Fatal(err)
+	}
+
+	proc := &problemProcessor{
+		an: an,
+		fs: store,
+	}
+
+	if err = proc.genProblems(files); err != nil {
 		glog.Exitf("error processing files: %v", err)
 	}
 
 	an.Stop()
 }
 
-func getSGFs(args []string) []string {
+func filterSGFs(args []string) ([]string, error) {
 	var out []string
-	for _, s := range args {
-		if strings.HasSuffix(s, ".sgf") {
-			out = append(out, s)
+	for _, fname := range args {
+		fi, err := os.Stat(fname)
+		if err != nil {
+			return nil, fmt.Errorf("error stating file %v: %v", fname, err)
 		}
-		// TODO(kashomon): For directories, read all SGFs in the relevant directory.
+
+		var files []string
+		switch m := fi.Mode(); {
+		case m.IsDir():
+			list, err := ioutil.ReadDir(fname)
+			if err != nil {
+				return nil, fmt.Errorf("error reading dir %v: %v", fname, err)
+			}
+			for _, l := range list {
+				files = append(files, path.Join(fname, l.Name()))
+			}
+		case m.IsRegular():
+			files = []string{fname}
+		}
+		for _, fin := range files {
+			if strings.HasSuffix(fin, ".sgf") {
+				out = append(out, fin)
+			}
+		}
 	}
-	return out
-}
-
-func process(files []string, an *katago.Analyzer) error {
-	glog.Infof("using files %v\n", files)
-	for _, fi := range files {
-		glog.Infof("Processing file %q", fi)
-
-		content, err := ioutil.ReadFile(fi)
-		if err != nil {
-			return err
-		}
-		g, err := sgf.FromString(string(content)).Parse()
-		if err != nil {
-			return err
-		}
-		q, err := katago.AnalysisQueryFromGame(g, &katago.QueryOptions{
-			MaxMoves:  maxMoves,
-			StartFrom: startFromMove,
-		})
-		if err != nil {
-			return err
-		}
-		result, err := an.AnalyzeGame(q)
-		if err != nil {
-			return err
-		}
-		glog.Infof("Finished processing file %q", fi)
-		glog.V(2).Infof("Processing data: %v\n", result)
-
-		err = result.AddToGame(g)
-		if err != nil {
-			return err
-		}
-		glog.Infof("Finished adding to game for file %q", fi)
-
-		var positions []movetree.Treepath
-		paths, err := kataprob.FindBlunders(g)
-		if err != nil {
-			return err
-		}
-		positions = append(positions, paths...)
-
-		var found []string
-		for _, tp := range positions {
-			found = append(found, tp.CompactString())
-		}
-		glog.Infof("Found Positions: %v", found)
-	}
-	return nil
+	return out, nil
 }
