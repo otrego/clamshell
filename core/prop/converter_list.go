@@ -2,6 +2,7 @@ package prop
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/otrego/clamshell/core/color"
@@ -11,6 +12,37 @@ import (
 
 // converters contain all the property converters.
 var converters = []*SGFConverter{
+	// Board Size
+	&SGFConverter{
+		Props: []Prop{"SZ"},
+		Scope: RootScope,
+		From: func(n *movetree.Node, prop string, data []string) error {
+			if l := len(data); l != 1 {
+				return fmt.Errorf("for prop %s, data  must be exactly 1, was %d", prop, l)
+			}
+			sz, err := strconv.Atoi(data[0])
+			if err != nil {
+				return fmt.Errorf("for prop %s, error parsing data %v as integer: %v", prop, data, err)
+			}
+			if sz < 1 || sz > 25 {
+				return fmt.Errorf("for prop %s, size was %d, but must be between 1 and 25", prop, sz)
+			}
+			n.Properties.Size = sz
+			return nil
+		},
+		To: func(n *movetree.Node) (string, error) {
+			sz := n.Properties.Size
+			if sz == 0 {
+				// BoardSize is unspecified.
+				return "", nil
+			}
+			if sz < 1 || sz > 25 {
+				return "", fmt.Errorf("board size was %d, but only values between 1 and 25 are allowed", sz)
+			}
+			return "SZ[" + strconv.Itoa(sz) + "]", nil
+		},
+	},
+
 	// Placements
 	&SGFConverter{
 		Props: []Prop{"AB", "AW"},
@@ -24,16 +56,16 @@ var converters = []*SGFConverter{
 			if err != nil {
 				return err
 			}
-			n.Placements = append(n.Placements, moves...)
+			n.Properties.Placements = append(n.Properties.Placements, moves...)
 			return nil
 		},
 		To: func(n *movetree.Node) (string, error) {
-			if len(n.Placements) == 0 {
+			if len(n.Properties.Placements) == 0 {
 				return "", nil
 			}
 			var black []string
 			var white []string
-			for _, mv := range n.Placements {
+			for _, mv := range n.Properties.Placements {
 				sgfPt, err := mv.Point().ToSGF()
 				if err != nil {
 					return "", err
@@ -70,7 +102,7 @@ var converters = []*SGFConverter{
 			if err != nil {
 				return err
 			}
-			if n.Move != nil {
+			if n.Properties.Move != nil {
 				return fmt.Errorf("found two moves on one node at move")
 			}
 			if len(data) != 1 && len(data) != 0 {
@@ -83,11 +115,11 @@ var converters = []*SGFConverter{
 			if err != nil {
 				return err
 			}
-			n.Move = move
+			n.Properties.Move = move
 			return nil
 		},
 		To: func(n *movetree.Node) (string, error) {
-			mv := n.Move
+			mv := n.Properties.Move
 			if mv == nil {
 				return "", nil
 			}

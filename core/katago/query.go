@@ -132,7 +132,7 @@ func (gc *movetreeConverter) move(mv *move.Move) Move {
 // the initial stones for the analysis.
 func (gc *movetreeConverter) initialStones() []Move {
 	var out []Move
-	for _, mv := range gc.g.Root.Placements {
+	for _, mv := range gc.g.Root.Properties.Placements {
 		out = append(out, gc.move(mv))
 	}
 	return out
@@ -141,7 +141,7 @@ func (gc *movetreeConverter) initialStones() []Move {
 // initialPlayer sets the initial player. By default, katago assumes
 // black-to-play, so this isn't necessary.
 func (gc *movetreeConverter) initialPlayer() string {
-	if val, ok := gc.g.Root.Properties["PL"]; ok && len(val) > 0 {
+	if val, ok := gc.g.Root.SGFProperties["PL"]; ok && len(val) > 0 {
 		return val[0]
 	}
 	return ""
@@ -155,8 +155,8 @@ func (gc *movetreeConverter) mainBranchMoves(startFrom, maxMove int) []Move {
 		if maxMove > 0 && n.MoveNum() > (maxMove+startFrom-1) {
 			break
 		}
-		if n.Move != nil {
-			out = append(out, gc.move(n.Move))
+		if n.Properties.Move != nil {
+			out = append(out, gc.move(n.Properties.Move))
 		}
 		if len(n.Children) == 0 {
 			// No more children; terminate traversal.
@@ -169,7 +169,7 @@ func (gc *movetreeConverter) mainBranchMoves(startFrom, maxMove int) []Move {
 
 // rules gets the relevant rule-set, returning TrompTaylorRules if not provided.
 func (gc *movetreeConverter) rules() Rules {
-	if val, ok := gc.g.Root.Properties["RU"]; ok && len(val) > 0 {
+	if val, ok := gc.g.Root.SGFProperties["RU"]; ok && len(val) > 0 {
 		return Rules(val[0])
 	}
 	return TrompTaylorRules
@@ -178,7 +178,7 @@ func (gc *movetreeConverter) rules() Rules {
 // komi gets the komi value, parsed as a float. Note that the decimal-part can
 // only be exactl 0.5 or 0.
 func (gc *movetreeConverter) komi() (*float64, error) {
-	if val, ok := gc.g.Root.Properties["KM"]; ok && len(val) > 0 {
+	if val, ok := gc.g.Root.SGFProperties["KM"]; ok && len(val) > 0 {
 		km, err := strconv.ParseFloat(val[0], 64)
 		if err != nil {
 			return nil, err
@@ -195,17 +195,11 @@ func (gc *movetreeConverter) komi() (*float64, error) {
 // boardSize gets the size of the go board. Only sizes ups to 25 are allowed,
 // but should typically be 19, 13, or 9.
 func (gc *movetreeConverter) boardSize() (int, error) {
-	if val, ok := gc.g.Root.Properties["SZ"]; ok && len(val) > 0 {
-		sz, err := strconv.Atoi(val[0])
-		if err != nil {
-			return 0, err
-		}
-		if sz > 25 {
-			return 0, fmt.Errorf("only sizes up to 25 are supported")
-		}
-		return sz, nil
+	sz := gc.g.Root.Properties.Size
+	if sz == 0 {
+		sz = 19
 	}
-	return 19, nil
+	return sz, nil
 }
 
 // analyzeMainBranch analyzes the main branch of the movetree.

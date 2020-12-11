@@ -62,8 +62,8 @@ func TestParse(t *testing.T) {
 						move.NewMove(color.White, point.New(0, 1)),
 						move.NewMove(color.White, point.New(1, 2)),
 					}
-					if !reflect.DeepEqual(n.Placements, expPlacements) {
-						return fmt.Errorf("incorrect placements; got %v, but wanted %v", n.Placements, expPlacements)
+					if !reflect.DeepEqual(n.Properties.Placements, expPlacements) {
+						return fmt.Errorf("incorrect placements; got %v, but wanted %v", n.Properties.Placements, expPlacements)
 					}
 					return nil
 				},
@@ -80,8 +80,8 @@ func TestParse(t *testing.T) {
 			pathToNodeCheck: map[string]nodeCheck{
 				"0": func(n *movetree.Node) error {
 					expMove := move.NewMove(color.Black, point.New(2, 2))
-					if !reflect.DeepEqual(n.Move, expMove) {
-						return fmt.Errorf("incorrect move; got %v, but wanted %v", n.Move, expMove)
+					if !reflect.DeepEqual(n.Properties.Move, expMove) {
+						return fmt.Errorf("incorrect move; got %v, but wanted %v", n.Properties.Move, expMove)
 					}
 					return nil
 				},
@@ -120,15 +120,15 @@ func TestParse(t *testing.T) {
 			pathToNodeCheck: map[string]nodeCheck{
 				"0-0": func(n *movetree.Node) error {
 					expMove := move.NewMove(color.White, point.New(0, 1))
-					if !reflect.DeepEqual(n.Move, expMove) {
-						return fmt.Errorf("incorrect move; got %v, but wanted %v", n.Move, expMove)
+					if !reflect.DeepEqual(n.Properties.Move, expMove) {
+						return fmt.Errorf("incorrect move; got %v, but wanted %v", n.Properties.Move, expMove)
 					}
 					return nil
 				},
 				"1-0": func(n *movetree.Node) error {
 					expMove := move.NewMove(color.White, point.New(0, 2))
-					if !reflect.DeepEqual(n.Move, expMove) {
-						return fmt.Errorf("incorrect move; got %v, but wanted %v", n.Move, expMove)
+					if !reflect.DeepEqual(n.Properties.Move, expMove) {
+						return fmt.Errorf("incorrect move; got %v, but wanted %v", n.Properties.Move, expMove)
 					}
 					return nil
 				},
@@ -160,7 +160,15 @@ SQ[ra][rb][rc]
 					"GM": []string{"1"},
 					"SQ": []string{"ra", "rb", "rc"},
 					"PW": []string{"White"},
-					"SZ": []string{"19"},
+				},
+			},
+			pathToNodeCheck: map[string]nodeCheck{
+				"-": func(n *movetree.Node) error {
+					expSize := 19
+					if n.Properties.Size != expSize {
+						return fmt.Errorf("incorrect size; got %v, but wanted %v", n.Properties.Size, expSize)
+					}
+					return nil
 				},
 			},
 		},
@@ -204,30 +212,30 @@ AB[na][ra][mb][rb][lc][qc][ld][od][qd][le][pe][qe][mf][nf][of][pg]
 			pathToNodeCheck: map[string]nodeCheck{
 				"0-0": func(n *movetree.Node) error {
 					expMove := move.NewMove(color.White, point.New(13, 2))
-					if !reflect.DeepEqual(n.Move, expMove) {
-						return fmt.Errorf("incorrect move; got %v, but wanted %v", n.Move, expMove)
+					if !reflect.DeepEqual(n.Properties.Move, expMove) {
+						return fmt.Errorf("incorrect move; got %v, but wanted %v", n.Properties.Move, expMove)
 					}
 					return nil
 				},
 				// should be same, since treepath terminates
 				"0-0-0": func(n *movetree.Node) error {
 					expMove := move.NewMove(color.White, point.New(13, 2))
-					if !reflect.DeepEqual(n.Move, expMove) {
-						return fmt.Errorf("incorrect move; got %v, but wanted %v", n.Move, expMove)
+					if !reflect.DeepEqual(n.Properties.Move, expMove) {
+						return fmt.Errorf("incorrect move; got %v, but wanted %v", n.Properties.Move, expMove)
 					}
 					return nil
 				},
 				"1-1-0": func(n *movetree.Node) error {
 					expMove := move.NewMove(color.Black, point.New(14, 0))
-					if !reflect.DeepEqual(n.Move, expMove) {
-						return fmt.Errorf("incorrect move; got %v, but wanted %v", n.Move, expMove)
+					if !reflect.DeepEqual(n.Properties.Move, expMove) {
+						return fmt.Errorf("incorrect move; got %v, but wanted %v", n.Properties.Move, expMove)
 					}
 					return nil
 				},
 				"3": func(n *movetree.Node) error {
 					expMove := move.NewPass(color.Black)
-					if !reflect.DeepEqual(n.Move, expMove) {
-						return fmt.Errorf("incorrect move; got %v, but wanted %v", n.Move, expMove)
+					if !reflect.DeepEqual(n.Properties.Move, expMove) {
+						return fmt.Errorf("incorrect move; got %v, but wanted %v", n.Properties.Move, expMove)
 					}
 					return nil
 				},
@@ -294,9 +302,9 @@ AB[na][ra][mb][rb][lc][qc][ld][od][qd][le][pe][qe][mf][nf][of][pg]
 				}
 				n := tp.Apply(g.Root)
 				for prop, expData := range pmap {
-					foundData, ok := n.Properties[prop]
+					foundData, ok := n.SGFProperties[prop]
 					if !ok {
-						t.Errorf("At path %q, properties did not contain expected property key %q. Properties were %v", path, prop, n.Properties)
+						t.Errorf("At path %q, properties did not contain expected property key %q. Properties were %v", path, prop, n.SGFProperties)
 					}
 					if !cmp.Equal(foundData, expData) {
 						t.Errorf("At path %q, property %q was %v, but expected %v", path, prop, foundData, expData)
@@ -333,7 +341,7 @@ func TestPropertyPostProcessing(t *testing.T) {
 			sgf:  "(;GM[1];B[ab])",
 			path: "0",
 			getter: func(n *movetree.Node) interface{} {
-				return n.Move
+				return n.Properties.Move
 			},
 			want: move.NewMove(color.Black, point.New(0, 1)),
 		},
@@ -342,7 +350,7 @@ func TestPropertyPostProcessing(t *testing.T) {
 			sgf:  "(;GM[1];W[ab])",
 			path: "0",
 			getter: func(n *movetree.Node) interface{} {
-				return n.Move
+				return n.Properties.Move
 			},
 			want: move.NewMove(color.White, point.New(0, 1)),
 		},
@@ -351,7 +359,7 @@ func TestPropertyPostProcessing(t *testing.T) {
 			sgf:  "(;GM[1];AB[ab][ac]AW[bb][bc])",
 			path: "0",
 			getter: func(n *movetree.Node) interface{} {
-				return n.Placements
+				return n.Properties.Placements
 			},
 			want: []*move.Move{
 				move.NewMove(color.Black, point.New(0, 1)),

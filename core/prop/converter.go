@@ -1,11 +1,31 @@
 package prop
 
 import (
+	"fmt"
 	"sort"
 	"strings"
 
 	"github.com/otrego/clamshell/core/movetree"
 )
+
+// ProcessPropertyData uses converters to process property data.
+func ProcessPropertyData(n *movetree.Node, p string, propData []string) error {
+	if !HasConverter(p) {
+		// For properties without an explicit converter, add to unprocessed
+		// Properties.
+		n.SGFProperties[p] = propData
+		return nil
+	}
+	conv := Converter(p)
+	if conv.Scope == RootScope && (n.MoveNum() != 0 || n.VarNum() != 0) {
+		return fmt.Errorf("error processing property %s: property is a root-node only property, but was found at {move:%d, variation: %d}", p, n.MoveNum(), n.VarNum())
+	}
+
+	if err := conv.From(n, p, propData); err != nil {
+		return err
+	}
+	return nil
+}
 
 // Scope indicates the scope for a property.
 type Scope string
@@ -66,14 +86,14 @@ func ConvertNode(n *movetree.Node) (string, error) {
 	}
 
 	var keys []string
-	for key := range n.Properties {
+	for key := range n.SGFProperties {
 		keys = append(keys, key)
 	}
 	sort.Strings(keys)
 
 	for _, key := range keys {
 		sb.WriteString(key)
-		for _, value := range n.Properties[key] {
+		for _, value := range n.SGFProperties[key] {
 			sb.WriteString("[" + value + "]")
 		}
 	}

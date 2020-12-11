@@ -166,7 +166,7 @@ func TestApplyPath(t *testing.T) {
 			}
 			n := path.Apply(g.Root)
 
-			if !cmp.Equal(n.Properties, tc.expProps) {
+			if !cmp.Equal(n.SGFProperties, tc.expProps) {
 				t.Errorf("path.Apply(root)=%v, expected %v. Diff=%v", n.Properties, tc.expProps, cmp.Diff(n.Properties, tc.expProps))
 			}
 		})

@@ -29,7 +29,7 @@ func TestConverters_From(t *testing.T) {
 			prop: "B",
 			data: []string{},
 			makeExpNode: func(n *movetree.Node) {
-				n.Move = move.NewPass(color.Black)
+				n.Properties.Move = move.NewPass(color.Black)
 			},
 		},
 		{
@@ -37,7 +37,7 @@ func TestConverters_From(t *testing.T) {
 			prop: "B",
 			data: []string{""},
 			makeExpNode: func(n *movetree.Node) {
-				n.Move = move.NewPass(color.Black)
+				n.Properties.Move = move.NewPass(color.Black)
 			},
 		},
 		{
@@ -45,7 +45,7 @@ func TestConverters_From(t *testing.T) {
 			prop: "B",
 			data: []string{"ab"},
 			makeExpNode: func(n *movetree.Node) {
-				n.Move = move.NewMove(color.Black, point.New(0, 1))
+				n.Properties.Move = move.NewMove(color.Black, point.New(0, 1))
 			},
 		},
 		{
@@ -53,7 +53,7 @@ func TestConverters_From(t *testing.T) {
 			prop: "W",
 			data: []string{"ab"},
 			makeExpNode: func(n *movetree.Node) {
-				n.Move = move.NewMove(color.White, point.New(0, 1))
+				n.Properties.Move = move.NewMove(color.White, point.New(0, 1))
 			},
 		},
 		{
@@ -61,7 +61,7 @@ func TestConverters_From(t *testing.T) {
 			prop: "AB",
 			data: []string{"aa", "bb"},
 			makeExpNode: func(n *movetree.Node) {
-				n.Placements = []*move.Move{
+				n.Properties.Placements = []*move.Move{
 					move.NewMove(color.Black, point.New(0, 0)),
 					move.NewMove(color.Black, point.New(1, 1)),
 				}
@@ -72,7 +72,7 @@ func TestConverters_From(t *testing.T) {
 			prop: "AW",
 			data: []string{"aa", "bb"},
 			makeExpNode: func(n *movetree.Node) {
-				n.Placements = []*move.Move{
+				n.Properties.Placements = []*move.Move{
 					move.NewMove(color.White, point.New(0, 0)),
 					move.NewMove(color.White, point.New(1, 1)),
 				}
@@ -83,13 +83,9 @@ func TestConverters_From(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.desc, func(t *testing.T) {
 			n := movetree.NewNode()
-			conv := Converter(tc.prop)
-			if conv == nil {
-				t.Fatal("expected converter, but found none")
-			}
 			expNode := movetree.NewNode()
 			tc.makeExpNode(expNode)
-			err := conv.From(n, tc.prop, tc.data)
+			err := ProcessPropertyData(n, tc.prop, tc.data)
 			cerr := errcheck.CheckCases(err, tc.expErrSubstr)
 			if cerr != nil {
 				t.Fatal(cerr)
@@ -115,28 +111,28 @@ func TestConverters_ConvertNode(t *testing.T) {
 		{
 			desc: "black move: pass",
 			makeNode: func(n *movetree.Node) {
-				n.Move = move.NewPass(color.Black)
+				n.Properties.Move = move.NewPass(color.Black)
 			},
 			expOut: "B[]",
 		},
 		{
 			desc: "black move: non-pass",
 			makeNode: func(n *movetree.Node) {
-				n.Move = move.NewMove(color.Black, point.New(0, 1))
+				n.Properties.Move = move.NewMove(color.Black, point.New(0, 1))
 			},
 			expOut: "B[ab]",
 		},
 		{
 			desc: "white move: non-pass",
 			makeNode: func(n *movetree.Node) {
-				n.Move = move.NewMove(color.White, point.New(0, 1))
+				n.Properties.Move = move.NewMove(color.White, point.New(0, 1))
 			},
 			expOut: "W[ab]",
 		},
 		{
 			desc: "black placements",
 			makeNode: func(n *movetree.Node) {
-				n.Placements = []*move.Move{
+				n.Properties.Placements = []*move.Move{
 					move.NewMove(color.Black, point.New(0, 1)),
 					move.NewMove(color.Black, point.New(0, 2)),
 				}
@@ -146,7 +142,7 @@ func TestConverters_ConvertNode(t *testing.T) {
 		{
 			desc: "white placements",
 			makeNode: func(n *movetree.Node) {
-				n.Placements = []*move.Move{
+				n.Properties.Placements = []*move.Move{
 					move.NewMove(color.White, point.New(0, 1)),
 					move.NewMove(color.White, point.New(0, 2)),
 				}
@@ -156,18 +152,18 @@ func TestConverters_ConvertNode(t *testing.T) {
 		{
 			desc: "black move, extra properties",
 			makeNode: func(n *movetree.Node) {
-				n.Move = move.NewMove(color.Black, point.New(0, 1))
-				n.Properties["ZZ"] = []string{"zork"}
+				n.Properties.Move = move.NewMove(color.Black, point.New(0, 1))
+				n.SGFProperties["ZZ"] = []string{"zork"}
 			},
 			expOut: "B[ab]ZZ[zork]",
 		},
 		{
 			desc: "extra properties, sorting",
 			makeNode: func(n *movetree.Node) {
-				n.Move = move.NewMove(color.Black, point.New(0, 1))
-				n.Properties["ZZ"] = []string{"zork"}
-				n.Properties["AA"] = []string{"ark"}
-				n.Properties["BB"] = []string{"bark"}
+				n.Properties.Move = move.NewMove(color.Black, point.New(0, 1))
+				n.SGFProperties["ZZ"] = []string{"zork"}
+				n.SGFProperties["AA"] = []string{"ark"}
+				n.SGFProperties["BB"] = []string{"bark"}
 			},
 			expOut: "B[ab]AA[ark]BB[bark]ZZ[zork]",
 		},
