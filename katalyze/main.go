@@ -40,6 +40,7 @@ import (
 )
 
 var (
+	storageProvider = flag.String("storage_provider", "", "Storage provider where analyzed games will be stored. Optional {localdisk|gcp}. Default is localdisk")
 	outputDir       = flag.String("output_dir", "", "Directory for returning the processed SGFs. By default, uses current directory")
 	bucket          = flag.String("bucket", "", "The bucket for CloudStorage of analyzed games. This param is optional.")
 	bucketPrefix    = flag.String("bucket_prefix", "", "Dictates the path within the bucket where games wil be stored. Required if the bucket parameter is supplied.")
@@ -85,7 +86,7 @@ func main() {
 		glog.Exitf("error booting Katago: %v", err)
 	}
 	var store storage.Filestore
-	if bucket != nil && len(*bucket) > 0 {
+	if storageProvider != nil && *storageProvider == "gcp" {
 		glog.Exitf("CloudStorage is not yet implemented")
 	} else {
 		store, err = getDiskStore()

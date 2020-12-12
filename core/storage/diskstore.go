@@ -17,6 +17,9 @@ type DiskStore struct {
 // DefaultDirPerms is the Default directory permissions expected by DiskStore
 const DefaultDirPerms = 0755
 
+// DefaultFilePerms is the Default file permissions expected by DiskStore
+const DefaultFilePerms = 0644
+
 // NewDiskStore returns a new Filestore that is on-disk
 func NewDiskStore(root string) (*DiskStore, error) {
 	ds := &DiskStore{
@@ -82,7 +85,7 @@ func (ds *DiskStore) List(ctx context.Context, t StoredDataType) ([]string, erro
 // Put is method to Put a file to disk
 func (ds *DiskStore) Put(ctx context.Context, t StoredDataType, filename string, contents string) error {
 	p := ds.path(t, filename)
-	return ioutil.WriteFile(p, []byte(contents), os.ModePerm)
+	return ioutil.WriteFile(p, []byte(contents), DefaultFilePerms)
 }
 
 func (ds *DiskStore) path(t StoredDataType, filename string) string {
