@@ -60,7 +60,7 @@ func TestEnsurePathExistsCreatesDir(t *testing.T) {
 	root := path.Join(tmp, "otrego_data_test"+strconv.Itoa(rand.Int()))
 	defer os.RemoveAll(root)
 
-	err := os.Mkdir(root, 0755)
+	err := os.Mkdir(root, DefaultDirPerms)
 	if err != nil {
 		t.Fatal(err, " Could not make a directory in temp dir")
 	}

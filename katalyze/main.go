@@ -40,7 +40,10 @@ import (
 )
 
 var (
+	storageProvider = flag.String("storage_provider", "", "Storage provider where analyzed games will be stored. Optional {localdisk|gcp}. Default is localdisk")
 	outputDir       = flag.String("output_dir", "", "Directory for returning the processed SGFs. By default, uses current directory")
+	bucket          = flag.String("bucket", "", "The bucket for CloudStorage of analyzed games. This param is optional.")
+	bucketPrefix    = flag.String("bucket_prefix", "", "Dictates the path within the bucket where games wil be stored. Required if the bucket parameter is supplied.")
 	modelFlag       = flag.String("model", "", "The model to use for katago. If not set, looks for env var $KATAGO_MODEL. Example: g170-b10c128-s197428736-d67404019.bin.gz")
 	configFlag      = flag.String("config", "", "The analysis config file to use. If not set, looks for env var $KATAGO_ANALYSIS_CONFIG. Example: analysis_example.cfg")
 	analysisThreads = flag.Int("analysis_threads", 8, "The number of analysis threads")
@@ -82,27 +85,15 @@ func main() {
 	if err = an.Start(); err != nil {
 		glog.Exitf("error booting Katago: %v", err)
 	}
-
-	cwd, err := os.Getwd()
+	var store storage.Filestore
+	if storageProvider != nil && *storageProvider == "gcp" {
+		glog.Exitf("CloudStorage is not yet implemented")
+	} else {
+		store, err = getDiskStore()
+	}
 	if err != nil {
 		glog.Exit(err)
 	}
-	outDir := cwd
-	if *outputDir != "" {
-		outDir = path.Join(cwd, *outputDir)
-		if _, errz := os.Stat(outDir); os.IsNotExist(errz) {
-			os.Mkdir(outDir, 0775)
-		} else if errz != nil {
-			glog.Exit(errz)
-		}
-	}
-	glog.Infof("Writing files to output dir %v", outDir)
-
-	store, err := storage.NewDiskStore(outDir)
-	if err != nil {
-		glog.Fatal(err)
-	}
-
 	proc := &problemProcessor{
 		an: an,
 		fs: store,
@@ -113,6 +104,28 @@ func main() {
 	}
 
 	an.Stop()
+}
+
+func getDiskStore() (storage.Filestore, error) {
+	cwd, err := os.Getwd()
+	if err != nil {
+		return nil, err
+	}
+	outDir := cwd
+	if *outputDir != "" {
+		outDir = path.Join(cwd, *outputDir)
+		if _, errz := os.Stat(outDir); os.IsNotExist(errz) {
+			os.Mkdir(outDir, storage.DefaultDirPerms)
+		} else if errz != nil {
+			glog.Exit(errz)
+		}
+	}
+	glog.Infof("Writing files to output dir %v", outDir)
+	storage, err := storage.NewDiskStore(outDir)
+	if err != nil {
+		return nil, err
+	}
+	return storage, nil
 }
 
 func filterSGFs(args []string) ([]string, error) {
