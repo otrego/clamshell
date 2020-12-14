@@ -17,7 +17,7 @@ func Flatten(tp movetree.Path, g *movetree.MoveTree) (*movetree.MoveTree, error)
 	}
 
 	gflat := movetree.New()
-	gflat.Root.Properties.Placements = b.GetFullBoardState()
+	gflat.Root.Placements = b.GetFullBoardState()
 
 	for key, value := range g.Root.SGFProperties {
 		gflat.Root.SGFProperties[key] = value
@@ -31,10 +31,10 @@ func Flatten(tp movetree.Path, g *movetree.MoveTree) (*movetree.MoveTree, error)
 // returns the populated board.
 func PopulateBoard(tp movetree.Path, g *movetree.MoveTree) (*board.Board, error) {
 	n := g.Root
-	i := n.Properties.Size
+	i := n.GameInfo.Size
 
 	b := board.NewBoard(i)
-	for _, move := range n.Properties.Placements {
+	for _, move := range n.Placements {
 		b.PlaceStone(move)
 	}
 
@@ -46,7 +46,7 @@ func PopulateBoard(tp movetree.Path, g *movetree.MoveTree) (*board.Board, error)
 			return nil, fmt.Errorf("treepath leads to nil movetree node")
 		}
 
-		_, err := b.PlaceStone(n.Properties.Move)
+		_, err := b.PlaceStone(n.Move)
 		if err != nil {
 			return nil, err
 		}

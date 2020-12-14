@@ -27,17 +27,24 @@ var converters = []*SGFConverter{
 			if sz < 1 || sz > 25 {
 				return fmt.Errorf("for prop %s, size was %d, but must be between 1 and 25", prop, sz)
 			}
-			n.Properties.Size = sz
+			if n.GameInfo == nil {
+				// For safety, make sure to set create gameinfo if it doesn't exist.
+				n.GameInfo = &movetree.GameInfo{}
+			}
+			n.GameInfo.Size = sz
 			return nil
 		},
 		To: func(n *movetree.Node) (string, error) {
-			sz := n.Properties.Size
+			if n.GameInfo == nil {
+				return "", nil
+			}
+			sz := n.GameInfo.Size
 			if sz == 0 {
 				// BoardSize is unspecified.
 				return "", nil
 			}
 			if sz < 1 || sz > 25 {
-				return "", fmt.Errorf("board size was %d, but only values between 1 and 25 are allowed", sz)
+				return "", fmt.Errorf("invalid board size: %d, but only values between 1 and 25 are allowed", sz)
 			}
 			return "SZ[" + strconv.Itoa(sz) + "]", nil
 		},
@@ -56,16 +63,16 @@ var converters = []*SGFConverter{
 			if err != nil {
 				return err
 			}
-			n.Properties.Placements = append(n.Properties.Placements, moves...)
+			n.Placements = append(n.Placements, moves...)
 			return nil
 		},
 		To: func(n *movetree.Node) (string, error) {
-			if len(n.Properties.Placements) == 0 {
+			if len(n.Placements) == 0 {
 				return "", nil
 			}
 			var black []string
 			var white []string
-			for _, mv := range n.Properties.Placements {
+			for _, mv := range n.Placements {
 				sgfPt, err := mv.Point().ToSGF()
 				if err != nil {
 					return "", err
@@ -102,7 +109,7 @@ var converters = []*SGFConverter{
 			if err != nil {
 				return err
 			}
-			if n.Properties.Move != nil {
+			if n.Move != nil {
 				return fmt.Errorf("found two moves on one node at move")
 			}
 			if len(data) != 1 && len(data) != 0 {
@@ -115,11 +122,11 @@ var converters = []*SGFConverter{
 			if err != nil {
 				return err
 			}
-			n.Properties.Move = move
+			n.Move = move
 			return nil
 		},
 		To: func(n *movetree.Node) (string, error) {
-			mv := n.Properties.Move
+			mv := n.Move
 			if mv == nil {
 				return "", nil
 			}

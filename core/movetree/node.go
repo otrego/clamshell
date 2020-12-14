@@ -4,19 +4,10 @@ import (
 	"github.com/otrego/clamshell/core/move"
 )
 
-// Properties contains typed game properties that can exist on any node.
-type Properties struct {
-	// Placements are stones that are used for setup, but actual moves. For
-	// example, handicap stones will be in in placements.
-	Placements []*move.Move
-
-	// Move indicates a move in the game.
-	Move *move.Move
-
+// GameInfo contains typed game properties that can exist only on the root.
+type GameInfo struct {
 	// Size of the board, where 19 = 19x19. Between 1 and 25 inclusive. A value of
 	// 0 should be taken to mean 'unspecified' and treated as 19x19.
-	//
-	// **RootProperty**
 	Size int
 }
 
@@ -36,8 +27,17 @@ type Node struct {
 	// Parent of this node.
 	Parent *Node
 
-	// Properties contains properties found on any node.
-	Properties *Properties
+	// Move indicates a move in the game. A move with a color + no intersection is
+	// used to indicate a pass.
+	Move *move.Move
+
+	// Placements are stones that are used for setup, but actual moves. For
+	// example, handicap stones will be in in placements.
+	Placements []*move.Move
+
+	// GameInfo contains properties only found on the root. Should be nil on
+	// non-root nodes.
+	GameInfo *GameInfo
 
 	// SGFProperties contain all the raw/unprocessed properties
 	SGFProperties map[string][]string
@@ -50,7 +50,6 @@ type Node struct {
 // NewNode creates a Node.
 func NewNode() *Node {
 	return &Node{
-		Properties:    &Properties{},
 		SGFProperties: make(map[string][]string),
 	}
 }

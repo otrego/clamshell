@@ -29,7 +29,7 @@ func TestConverters_From(t *testing.T) {
 			prop: "B",
 			data: []string{},
 			makeExpNode: func(n *movetree.Node) {
-				n.Properties.Move = move.NewPass(color.Black)
+				n.Move = move.NewPass(color.Black)
 			},
 		},
 		{
@@ -37,7 +37,7 @@ func TestConverters_From(t *testing.T) {
 			prop: "B",
 			data: []string{""},
 			makeExpNode: func(n *movetree.Node) {
-				n.Properties.Move = move.NewPass(color.Black)
+				n.Move = move.NewPass(color.Black)
 			},
 		},
 		{
@@ -45,7 +45,7 @@ func TestConverters_From(t *testing.T) {
 			prop: "B",
 			data: []string{"ab"},
 			makeExpNode: func(n *movetree.Node) {
-				n.Properties.Move = move.NewMove(color.Black, point.New(0, 1))
+				n.Move = move.NewMove(color.Black, point.New(0, 1))
 			},
 		},
 		{
@@ -53,7 +53,7 @@ func TestConverters_From(t *testing.T) {
 			prop: "W",
 			data: []string{"ab"},
 			makeExpNode: func(n *movetree.Node) {
-				n.Properties.Move = move.NewMove(color.White, point.New(0, 1))
+				n.Move = move.NewMove(color.White, point.New(0, 1))
 			},
 		},
 		{
@@ -61,7 +61,7 @@ func TestConverters_From(t *testing.T) {
 			prop: "AB",
 			data: []string{"aa", "bb"},
 			makeExpNode: func(n *movetree.Node) {
-				n.Properties.Placements = []*move.Move{
+				n.Placements = []*move.Move{
 					move.NewMove(color.Black, point.New(0, 0)),
 					move.NewMove(color.Black, point.New(1, 1)),
 				}
@@ -72,9 +72,19 @@ func TestConverters_From(t *testing.T) {
 			prop: "AW",
 			data: []string{"aa", "bb"},
 			makeExpNode: func(n *movetree.Node) {
-				n.Properties.Placements = []*move.Move{
+				n.Placements = []*move.Move{
 					move.NewMove(color.White, point.New(0, 0)),
 					move.NewMove(color.White, point.New(1, 1)),
+				}
+			},
+		},
+		{
+			desc: "size",
+			prop: "SZ",
+			data: []string{"13"},
+			makeExpNode: func(n *movetree.Node) {
+				n.GameInfo = &movetree.GameInfo{
+					Size: 13,
 				}
 			},
 		},
@@ -111,28 +121,28 @@ func TestConverters_ConvertNode(t *testing.T) {
 		{
 			desc: "black move: pass",
 			makeNode: func(n *movetree.Node) {
-				n.Properties.Move = move.NewPass(color.Black)
+				n.Move = move.NewPass(color.Black)
 			},
 			expOut: "B[]",
 		},
 		{
 			desc: "black move: non-pass",
 			makeNode: func(n *movetree.Node) {
-				n.Properties.Move = move.NewMove(color.Black, point.New(0, 1))
+				n.Move = move.NewMove(color.Black, point.New(0, 1))
 			},
 			expOut: "B[ab]",
 		},
 		{
 			desc: "white move: non-pass",
 			makeNode: func(n *movetree.Node) {
-				n.Properties.Move = move.NewMove(color.White, point.New(0, 1))
+				n.Move = move.NewMove(color.White, point.New(0, 1))
 			},
 			expOut: "W[ab]",
 		},
 		{
 			desc: "black placements",
 			makeNode: func(n *movetree.Node) {
-				n.Properties.Placements = []*move.Move{
+				n.Placements = []*move.Move{
 					move.NewMove(color.Black, point.New(0, 1)),
 					move.NewMove(color.Black, point.New(0, 2)),
 				}
@@ -142,7 +152,7 @@ func TestConverters_ConvertNode(t *testing.T) {
 		{
 			desc: "white placements",
 			makeNode: func(n *movetree.Node) {
-				n.Properties.Placements = []*move.Move{
+				n.Placements = []*move.Move{
 					move.NewMove(color.White, point.New(0, 1)),
 					move.NewMove(color.White, point.New(0, 2)),
 				}
@@ -152,7 +162,7 @@ func TestConverters_ConvertNode(t *testing.T) {
 		{
 			desc: "black move, extra properties",
 			makeNode: func(n *movetree.Node) {
-				n.Properties.Move = move.NewMove(color.Black, point.New(0, 1))
+				n.Move = move.NewMove(color.Black, point.New(0, 1))
 				n.SGFProperties["ZZ"] = []string{"zork"}
 			},
 			expOut: "B[ab]ZZ[zork]",
@@ -160,12 +170,37 @@ func TestConverters_ConvertNode(t *testing.T) {
 		{
 			desc: "extra properties, sorting",
 			makeNode: func(n *movetree.Node) {
-				n.Properties.Move = move.NewMove(color.Black, point.New(0, 1))
+				n.Move = move.NewMove(color.Black, point.New(0, 1))
 				n.SGFProperties["ZZ"] = []string{"zork"}
 				n.SGFProperties["AA"] = []string{"ark"}
 				n.SGFProperties["BB"] = []string{"bark"}
 			},
 			expOut: "B[ab]AA[ark]BB[bark]ZZ[zork]",
+		},
+		{
+			desc: "size",
+			makeNode: func(n *movetree.Node) {
+				n.GameInfo = &movetree.GameInfo{
+					Size: 13,
+				}
+			},
+			expOut: "SZ[13]",
+		},
+		{
+			desc: "size, empty",
+			makeNode: func(n *movetree.Node) {
+				n.GameInfo = &movetree.GameInfo{}
+			},
+			expOut: "",
+		},
+		{
+			desc: "size, invalid",
+			makeNode: func(n *movetree.Node) {
+				n.GameInfo = &movetree.GameInfo{
+					Size: 100,
+				}
+			},
+			expErrSubstr: "invalid board size",
 		},
 	}
 

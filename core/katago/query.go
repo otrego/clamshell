@@ -132,7 +132,7 @@ func (gc *movetreeConverter) move(mv *move.Move) Move {
 // the initial stones for the analysis.
 func (gc *movetreeConverter) initialStones() []Move {
 	var out []Move
-	for _, mv := range gc.g.Root.Properties.Placements {
+	for _, mv := range gc.g.Root.Placements {
 		out = append(out, gc.move(mv))
 	}
 	return out
@@ -155,8 +155,8 @@ func (gc *movetreeConverter) mainBranchMoves(startFrom, maxMove int) []Move {
 		if maxMove > 0 && n.MoveNum() > (maxMove+startFrom-1) {
 			break
 		}
-		if n.Properties.Move != nil {
-			out = append(out, gc.move(n.Properties.Move))
+		if n.Move != nil {
+			out = append(out, gc.move(n.Move))
 		}
 		if len(n.Children) == 0 {
 			// No more children; terminate traversal.
@@ -195,7 +195,7 @@ func (gc *movetreeConverter) komi() (*float64, error) {
 // boardSize gets the size of the go board. Only sizes ups to 25 are allowed,
 // but should typically be 19, 13, or 9.
 func (gc *movetreeConverter) boardSize() (int, error) {
-	sz := gc.g.Root.Properties.Size
+	sz := gc.g.Root.GameInfo.Size
 	if sz == 0 {
 		sz = 19
 	}

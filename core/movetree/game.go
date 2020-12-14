@@ -11,8 +11,9 @@ func New() *MoveTree {
 		Root: NewNode(),
 	}
 
-	// Sensible Defaults go here.
-	g.Root.Properties.Size = 19
+	// sensible defaults go here.
+	g.Root.GameInfo = &GameInfo{}
+	g.Root.GameInfo.Size = 19
 	g.Root.SGFProperties["GM"] = []string{"1"} // GM[1]=go
 	return g
 }
