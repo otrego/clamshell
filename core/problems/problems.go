@@ -2,7 +2,6 @@ package problems
 
 import (
 	"fmt"
-	"strconv"
 
 	"github.com/otrego/clamshell/core/board"
 	"github.com/otrego/clamshell/core/movetree"
@@ -20,12 +19,11 @@ func Flatten(tp movetree.Path, g *movetree.MoveTree) (*movetree.MoveTree, error)
 	gflat := movetree.New()
 	gflat.Root.Placements = b.GetFullBoardState()
 
-	for key, value := range g.Root.Properties {
-		gflat.Root.Properties[key] = value
+	for key, value := range g.Root.SGFProperties {
+		gflat.Root.SGFProperties[key] = value
 	}
 
 	return gflat, nil
-
 }
 
 // PopulateBoard populates a go board given a MoveTree and Path
@@ -33,10 +31,8 @@ func Flatten(tp movetree.Path, g *movetree.MoveTree) (*movetree.MoveTree, error)
 // returns the populated board.
 func PopulateBoard(tp movetree.Path, g *movetree.MoveTree) (*board.Board, error) {
 	n := g.Root
-	i, err := strconv.Atoi(n.Properties["SZ"][0])
-	if err != nil {
-		return nil, err
-	}
+	i := n.GameInfo.Size
+
 	b := board.NewBoard(i)
 	for _, move := range n.Placements {
 		b.PlaceStone(move)
@@ -50,8 +46,8 @@ func PopulateBoard(tp movetree.Path, g *movetree.MoveTree) (*board.Board, error)
 			return nil, fmt.Errorf("treepath leads to nil movetree node")
 		}
 
-		_, err2 := b.PlaceStone(n.Move)
-		if err2 != nil {
+		_, err := b.PlaceStone(n.Move)
+		if err != nil {
 			return nil, err
 		}
 	}

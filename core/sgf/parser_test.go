@@ -160,7 +160,15 @@ SQ[ra][rb][rc]
 					"GM": []string{"1"},
 					"SQ": []string{"ra", "rb", "rc"},
 					"PW": []string{"White"},
-					"SZ": []string{"19"},
+				},
+			},
+			pathToNodeCheck: map[string]nodeCheck{
+				"-": func(n *movetree.Node) error {
+					expSize := 19
+					if n.GameInfo.Size != expSize {
+						return fmt.Errorf("incorrect size; got %v, but wanted %v", n.GameInfo.Size, expSize)
+					}
+					return nil
 				},
 			},
 		},
@@ -294,9 +302,9 @@ AB[na][ra][mb][rb][lc][qc][ld][od][qd][le][pe][qe][mf][nf][of][pg]
 				}
 				n := tp.Apply(g.Root)
 				for prop, expData := range pmap {
-					foundData, ok := n.Properties[prop]
+					foundData, ok := n.SGFProperties[prop]
 					if !ok {
-						t.Errorf("At path %q, properties did not contain expected property key %q. Properties were %v", path, prop, n.Properties)
+						t.Errorf("At path %q, properties did not contain expected property key %q. Properties were %v", path, prop, n.SGFProperties)
 					}
 					if !cmp.Equal(foundData, expData) {
 						t.Errorf("At path %q, property %q was %v, but expected %v", path, prop, foundData, expData)

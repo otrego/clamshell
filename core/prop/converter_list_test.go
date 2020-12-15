@@ -78,18 +78,24 @@ func TestConverters_From(t *testing.T) {
 				}
 			},
 		},
+		{
+			desc: "size",
+			prop: "SZ",
+			data: []string{"13"},
+			makeExpNode: func(n *movetree.Node) {
+				n.GameInfo = &movetree.GameInfo{
+					Size: 13,
+				}
+			},
+		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.desc, func(t *testing.T) {
 			n := movetree.NewNode()
-			conv := Converter(tc.prop)
-			if conv == nil {
-				t.Fatal("expected converter, but found none")
-			}
 			expNode := movetree.NewNode()
 			tc.makeExpNode(expNode)
-			err := conv.From(n, tc.prop, tc.data)
+			err := ProcessPropertyData(n, tc.prop, tc.data)
 			cerr := errcheck.CheckCases(err, tc.expErrSubstr)
 			if cerr != nil {
 				t.Fatal(cerr)
@@ -157,7 +163,7 @@ func TestConverters_ConvertNode(t *testing.T) {
 			desc: "black move, extra properties",
 			makeNode: func(n *movetree.Node) {
 				n.Move = move.NewMove(color.Black, point.New(0, 1))
-				n.Properties["ZZ"] = []string{"zork"}
+				n.SGFProperties["ZZ"] = []string{"zork"}
 			},
 			expOut: "B[ab]ZZ[zork]",
 		},
@@ -165,11 +171,36 @@ func TestConverters_ConvertNode(t *testing.T) {
 			desc: "extra properties, sorting",
 			makeNode: func(n *movetree.Node) {
 				n.Move = move.NewMove(color.Black, point.New(0, 1))
-				n.Properties["ZZ"] = []string{"zork"}
-				n.Properties["AA"] = []string{"ark"}
-				n.Properties["BB"] = []string{"bark"}
+				n.SGFProperties["ZZ"] = []string{"zork"}
+				n.SGFProperties["AA"] = []string{"ark"}
+				n.SGFProperties["BB"] = []string{"bark"}
 			},
 			expOut: "B[ab]AA[ark]BB[bark]ZZ[zork]",
+		},
+		{
+			desc: "size",
+			makeNode: func(n *movetree.Node) {
+				n.GameInfo = &movetree.GameInfo{
+					Size: 13,
+				}
+			},
+			expOut: "SZ[13]",
+		},
+		{
+			desc: "size, empty",
+			makeNode: func(n *movetree.Node) {
+				n.GameInfo = &movetree.GameInfo{}
+			},
+			expOut: "",
+		},
+		{
+			desc: "size, invalid",
+			makeNode: func(n *movetree.Node) {
+				n.GameInfo = &movetree.GameInfo{
+					Size: 100,
+				}
+			},
+			expErrSubstr: "invalid board size",
 		},
 	}
 

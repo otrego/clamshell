@@ -100,11 +100,11 @@ SQ[ra][rb][rc]
 			var sbWant strings.Builder
 			var sbGot strings.Builder
 			g.Root.Traverse(func(n *movetree.Node) {
-				sbWant.WriteString(fmt.Sprintf("%v", n.Properties))
+				sbWant.WriteString(fmt.Sprintf("%v", n.SGFProperties))
 			})
 
 			got.Root.Traverse(func(n *movetree.Node) {
-				sbGot.WriteString(fmt.Sprintf("%v", n.Properties))
+				sbGot.WriteString(fmt.Sprintf("%v", n.SGFProperties))
 			})
 
 			if sbWant.String() != sbGot.String() {

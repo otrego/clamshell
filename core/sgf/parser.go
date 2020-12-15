@@ -87,7 +87,7 @@ type propBuffer struct {
 
 func (b *propBuffer) flush(n *movetree.Node) error {
 	if b.prop != "" && len(b.propdata) != 0 {
-		if err := postProcessProperties(n, b.prop, b.propdata); err != nil {
+		if err := prop.ProcessPropertyData(n, b.prop, b.propdata); err != nil {
 			return err
 		}
 	}
@@ -358,20 +358,5 @@ func handlePropData(stateData *stateData, pbuf *propBuffer) error {
 	// C[foo 1[k\] bar]
 	//    ^
 	stateData.addToBuf(stateData.curchar)
-	return nil
-}
-
-// postProcessProperties adds post-processing to properties, to allow for more
-// structure.
-func postProcessProperties(n *movetree.Node, p string, propData []string) error {
-	if !prop.HasConverter(p) {
-		// For properties without an explicit converter, add to unprocessed
-		// Properties.
-		n.Properties[p] = propData
-		return nil
-	}
-	if err := prop.Converter(p).From(n, p, propData); err != nil {
-		return err
-	}
 	return nil
 }
