@@ -1,0 +1,21 @@
+package movetree
+
+import (
+	"testing"
+
+	"github.com/google/go-cmp/cmp"
+)
+
+func TestDefaults(t *testing.T) {
+	g := New()
+
+	expSize := 19
+	if got := g.Root.GameInfo.Size; got != expSize {
+		t.Errorf("g.Root.GameInfo.Size was %v; expected %v", got, expSize)
+	}
+
+	expGM := []string{"1"}
+	if got := g.Root.SGFProperties["GM"]; !cmp.Equal(got, expGM) {
+		t.Errorf("g.Root.SGFProperties[GM] was %v; expected %v", got, expGM)
+	}
+}
