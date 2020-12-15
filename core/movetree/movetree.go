@@ -1,3 +1,5 @@
+// Package movetree contains logic for managing trees of moves in a game or
+// problem. A movetree can be serialized to / deserialized from an SGF.
 package movetree
 
 // MoveTree contains the game tree information for a go game.
