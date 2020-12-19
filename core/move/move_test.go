@@ -4,14 +4,16 @@ import (
 	"testing"
 
 	"github.com/otrego/clamshell/core/color"
+	"github.com/otrego/clamshell/core/errcheck"
 	"github.com/otrego/clamshell/core/point"
 )
 
 func TestFromSGFPoint(t *testing.T) {
 	testCases := []struct {
-		desc  string
-		sgfPt string
-		exp   *Move
+		desc         string
+		sgfPt        string
+		exp          *Move
+		expErrSubstr string
 	}{
 		{
 			desc:  "Valid Placement",
@@ -23,17 +25,32 @@ func TestFromSGFPoint(t *testing.T) {
 			sgfPt: "",
 			exp:   NewPass(color.Black),
 		},
+		{
+			desc:         "Out of bounds",
+			sgfPt:        "--",
+			expErrSubstr: "SGF string x and y value entries must",
+		},
 	}
 	for _, tc := range testCases {
 		t.Run(tc.desc, func(t *testing.T) {
-			m, _ := FromSGFPoint(color.Black, tc.sgfPt)
+			got, err := FromSGFPoint(color.Black, tc.sgfPt)
+
+			cerr := errcheck.CheckCases(err, tc.expErrSubstr)
+			if cerr != nil {
+				t.Error(cerr)
+				return
+			}
+			if err != nil {
+				return
+			}
+
 			if tc.exp.point != nil {
-				if m.color != tc.exp.color || m.point.X() != tc.exp.point.X() || m.point.Y() != tc.exp.point.Y() {
-					t.Errorf("got %v%v, expected %v%v", m.color, m.point, tc.exp.color, tc.exp.point)
+				if got.color != tc.exp.color || got.point.X() != tc.exp.point.X() || got.point.Y() != tc.exp.point.Y() {
+					t.Errorf("got %v%v, expected %v%v", got.color, got.point, tc.exp.color, tc.exp.point)
 				}
 			} else {
-				if m.color != tc.exp.color {
-					t.Errorf("got %v, expected %v", m.color, tc.exp.color)
+				if got.color != tc.exp.color {
+					t.Errorf("got %v, expected %v", got.color, tc.exp.color)
 				}
 			}
 
