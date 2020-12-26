@@ -18,6 +18,7 @@ func Flatten(tp movetree.Path, g *movetree.MoveTree) (*movetree.MoveTree, error)
 
 	gflat := movetree.New()
 	gflat.Root.Placements = b.GetFullBoardState()
+	gflat.Root.GameInfo.Size = g.Root.GameInfo.Size
 
 	for key, value := range g.Root.SGFProperties {
 		gflat.Root.SGFProperties[key] = value
