@@ -9,6 +9,10 @@ type GameInfo struct {
 	// Size of the board, where 19 = 19x19. Between 1 and 25 inclusive. A value of
 	// 0 should be taken to mean 'unspecified' and treated as 19x19.
 	Size int
+
+	// Komi are points added to the player with the white stones as compensation for playing second.
+	// Komi must have a decimal value of .0 or .5 (ex: 6.5)
+	Komi *float64
 }
 
 // Node contains Properties, Children nodes, and Parent node.

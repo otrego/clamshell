@@ -88,6 +88,24 @@ func TestConverters_From(t *testing.T) {
 				}
 			},
 		},
+		{
+			desc: "Komi",
+			prop: "KM",
+			data: []string{"3.5"},
+			makeExpNode: func(n *movetree.Node) {
+				n.GameInfo = &movetree.GameInfo{
+					Komi: new(float64),
+				}
+				*n.GameInfo.Komi = 3.5
+			},
+		},
+		{
+			desc:         "Bad Komi",
+			prop:         "KM",
+			data:         []string{"3.25"},
+			makeExpNode:  func(n *movetree.Node) {},
+			expErrSubstr: "for prop KM",
+		},
 	}
 
 	for _, tc := range testCases {
@@ -201,6 +219,47 @@ func TestConverters_ConvertNode(t *testing.T) {
 				}
 			},
 			expErrSubstr: "invalid board size",
+		},
+		{
+			desc: "komi",
+			makeNode: func(n *movetree.Node) {
+				n.GameInfo = &movetree.GameInfo{
+					Komi: new(float64),
+				}
+				*n.GameInfo.Komi = 3.5
+			},
+			expOut: "KM[3.5]",
+		},
+		{
+			desc: "komi, nil",
+			makeNode: func(n *movetree.Node) {
+				n.GameInfo = &movetree.GameInfo{}
+			},
+			expOut: "",
+		},
+		{
+			desc: "komi, gameInfo nil",
+			makeNode: func(n *movetree.Node) {
+				n.GameInfo = nil
+			},
+			expOut: "",
+		},
+		{
+			desc: "komi, gameInfo nil",
+			makeNode: func(n *movetree.Node) {
+				n.GameInfo = nil
+			},
+			expOut: "",
+		},
+		{
+			desc: "komi, invalid",
+			makeNode: func(n *movetree.Node) {
+				n.GameInfo = &movetree.GameInfo{
+					Komi: new(float64),
+				}
+				*n.GameInfo.Komi = 3.25
+			},
+			expErrSubstr: "invalid komi",
 		},
 	}
 

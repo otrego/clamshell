@@ -114,13 +114,6 @@ func TestCreateAnalysis(t *testing.T) {
 				return q
 			}(),
 		},
-
-		// Error cases
-		{
-			desc:         "error: bad komi value",
-			sgf:          "(;GM[1]KM[3.25];B[aa];W[bb];B[cc];W[dd])",
-			expErrSubstr: "invalid komi",
-		},
 	}
 
 	for _, tc := range testCases {

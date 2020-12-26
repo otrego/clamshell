@@ -178,11 +178,10 @@ func (gc *movetreeConverter) rules() Rules {
 // komi gets the komi value, parsed as a float. Note that the decimal-part can
 // only be exactl 0.5 or 0.
 func (gc *movetreeConverter) komi() (*float64, error) {
-	if val, ok := gc.g.Root.SGFProperties["KM"]; ok && len(val) > 0 {
-		km, err := strconv.ParseFloat(val[0], 64)
-		if err != nil {
-			return nil, err
-		}
+	if gc.g.Root.GameInfo.Komi != nil {
+
+		km := *gc.g.Root.GameInfo.Komi
+
 		_, fp := math.Modf(km)
 		if !(fp == 0.5 || fp == 0.0) {
 			return nil, fmt.Errorf("invalid komi: the only decimal-value allowed for komi is 0.0 or 0.5. komi was %f", km)
