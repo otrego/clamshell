@@ -1,10 +1,11 @@
+// Package crop allows easy generation of cropping bounding boxes using presets
 package crop
 
 import (
 	"github.com/otrego/clamshell/core/point"
 )
 
-//CroppingPreset : Convenience enum for specifying a cropping direction.
+// CroppingPreset : Convenience enum for specifying a cropping direction.
 type CroppingPreset int64
 
 const (
@@ -54,20 +55,20 @@ const (
 	All
 )
 
-//Cropping is a bounding box, specified by intersection points.
+// Cropping is a bounding box, specified by intersection points.
 type Cropping struct {
 	TopLeft  *point.Point
 	BotRight *point.Point
 }
 
-//FromPreset : Create a cropping box from the maxInts. Note that the integer points in the
+// FromPreset : Create a cropping box from the maxInts. Note that the integer points in the
 // crop box are 0 indexed, but maxInts is 1-indexed.  In other words, we would
 // typically expect the max ints to range from 9 to 19.
 //
 // Following the SGF covention, we consider the topleft to be 0,0
 func FromPreset(p CroppingPreset, maxInts int64) *Cropping {
 	halfInts := maxInts / 2
-	var minInts int64 = 0
+	var minInts int64
 	top := minInts
 	left := minInts
 	bot := maxInts
