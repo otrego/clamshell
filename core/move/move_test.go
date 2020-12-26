@@ -21,19 +21,34 @@ func TestFromSGFPoint(t *testing.T) {
 			exp:   NewMove(color.Black, point.New(0, 1)),
 		},
 		{
-			desc:  "Valid Placement",
-			sgfPt: "!=",
-			exp:   NewMove(color.Black, point.New(5, 1)),
-		},
-		{
 			desc:  "Pass",
 			sgfPt: "",
 			exp:   NewPass(color.Black),
 		},
 		{
-			desc:         "Out of bounds",
-			sgfPt:        "--",
-			expErrSubstr: "SGF string x and y value entries must",
+			desc:         "Invalid Characters",
+			sgfPt:        "!=",
+			expErrSubstr: "only a-zA-Z",
+		},
+		{
+			desc:         "Invalid X",
+			sgfPt:        "!b",
+			expErrSubstr: "convert coordinate for x-value",
+		},
+		{
+			desc:         "Invalid Y",
+			sgfPt:        "a=",
+			expErrSubstr: "convert coordinate for y-value",
+		},
+		{
+			desc:         "Extra Characters",
+			sgfPt:        "abc",
+			expErrSubstr: "two letter char",
+		},
+		{
+			desc:         "One Character",
+			sgfPt:        "a",
+			expErrSubstr: "two letter char",
 		},
 	}
 	for _, tc := range testCases {
@@ -66,29 +81,54 @@ func TestFromSGFPoint(t *testing.T) {
 func TestListFromSGFPoints(t *testing.T) {
 	testCases := []struct {
 		desc         string
-		sgfPt        string
-		exp          *Move
+		sgfPtList    []string
+		exp          []*Move
 		expErrSubstr string
 	}{
 		{
-			desc:  "Valid Placement",
-			sgfPt: "ab",
-			exp:   NewMove(color.Black, point.New(0, 1)),
+			desc:      "Valid List",
+			sgfPtList: []string{"ab", "cd", "ee"},
+			exp:       []*Move{NewMove(color.Black, point.New(0, 1)), NewMove(color.Black, point.New(2, 3)), NewMove(color.Black, point.New(4, 4))},
 		},
 		{
-			desc:  "Pass",
-			sgfPt: "",
-			exp:   NewPass(color.Black),
+			desc:      "Empty Move List",
+			sgfPtList: []string{},
+			exp:       []*Move{},
 		},
 		{
-			desc:         "Out of bounds",
-			sgfPt:        "--",
-			expErrSubstr: "SGF string x and y value entries must",
+			desc:         "Contains Pass",
+			sgfPtList:    []string{"ab", "", "ef"},
+			expErrSubstr: "non-empty",
+		},
+		{
+			desc:         "Invalid Characters",
+			sgfPtList:    []string{"ab", "cd", "%$"},
+			expErrSubstr: "only a-zA-Z",
+		},
+		{
+			desc:         "Invalid X",
+			sgfPtList:    []string{"ab", "cd", "(z"},
+			expErrSubstr: "convert coordinate for x-value",
+		},
+		{
+			desc:         "Invalid Y",
+			sgfPtList:    []string{"ab", "cd", "g#"},
+			expErrSubstr: "convert coordinate for y-value",
+		},
+		{
+			desc:         "Extra Characters",
+			sgfPtList:    []string{"abwegasd", "cd", "hf"},
+			expErrSubstr: "two letter char",
+		},
+		{
+			desc:         "One Character",
+			sgfPtList:    []string{"a", "cd", "hf"},
+			expErrSubstr: "two letter char",
 		},
 	}
 	for _, tc := range testCases {
 		t.Run(tc.desc, func(t *testing.T) {
-			got, err := FromSGFPoint(color.Black, tc.sgfPt)
+			got, err := ListFromSGFPoints(color.Black, tc.sgfPtList)
 
 			cerr := errcheck.CheckCases(err, tc.expErrSubstr)
 			if cerr != nil {
@@ -99,16 +139,17 @@ func TestListFromSGFPoints(t *testing.T) {
 				return
 			}
 
-			if tc.exp.point != nil {
-				if got.color != tc.exp.color || got.point.X() != tc.exp.point.X() || got.point.Y() != tc.exp.point.Y() {
-					t.Errorf("got %v%v, expected %v%v", got.color, got.point, tc.exp.color, tc.exp.point)
-				}
-			} else {
-				if got.color != tc.exp.color {
-					t.Errorf("got %v, expected %v", got.color, tc.exp.color)
+			for i, exp := range tc.exp {
+				if exp.point != nil {
+					if got[i].color != exp.color || got[i].point.X() != exp.point.X() || got[i].point.Y() != exp.point.Y() {
+						t.Errorf("got %v%v, expected %v%v", got[i].color, got[i].point, exp.color, exp.point)
+					}
+				} else {
+					if got[i].color != exp.color {
+						t.Errorf("got %v, expected %v", got[i].color, exp.color)
+					}
 				}
 			}
-
 		})
 	}
 }
