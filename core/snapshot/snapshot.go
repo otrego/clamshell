@@ -13,7 +13,9 @@ type Options struct {
 
 // New creates a new Snapshot from a given movetree and path.
 func New(mt *movetree.MoveTree, position movetree.Path, opts *Options) *Snapshot {
-	return &Snapshot{}
+	return &Snapshot{
+		OriginalSize: mt.Root.GameInfo.Size,
+	}
 }
 
 // A snapshot represents a specific board position, which can be used during
@@ -21,6 +23,16 @@ func New(mt *movetree.MoveTree, position movetree.Path, opts *Options) *Snapshot
 //
 // **Snapshots are intended to be immutable.
 type Snapshot struct {
-	// Size of the Go-Board
-	Size int
+	// OriginalSize of the Go-Board. The actual size is likely less due to
+	// cropping.
+	OriginalSize int
+}
+
+// Board is a snapshot-board representation. It is different than the game-logic
+// board in that it is frequently cropped and designed for rendering.
+type Board struct {
+	Intersections [][]*Intersection
+}
+
+type Intersection struct {
 }
