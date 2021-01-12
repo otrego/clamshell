@@ -1,6 +1,7 @@
 package movetree
 
 import (
+	"github.com/otrego/clamshell/core/color"
 	"github.com/otrego/clamshell/core/move"
 )
 
@@ -13,6 +14,9 @@ type GameInfo struct {
 	// Komi are points added to the player with the white stones as compensation for playing second.
 	// Komi must have a decimal value of .0 or .5 (ex: 6.5)
 	Komi *float64
+
+	// Initial player turn. This is traditionally the player with the black stones
+	Player color.Color
 }
 
 // Node contains Properties, Children nodes, and Parent node.
