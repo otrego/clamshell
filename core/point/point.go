@@ -42,7 +42,7 @@ func (pt *Point) String() string {
 	return fmt.Sprintf("{%d,%d}", pt.x, pt.y)
 }
 
-// Convenience helper to convert this point to a key-struct.
+// Key is a convenience helper to convert this point to a key-struct.
 func (pt *Point) Key() Key {
 	return Key{X: pt.X(), Y: pt.Y()}
 }
@@ -56,7 +56,7 @@ type Key struct {
 	Y int64
 }
 
-// ToPoint converts a point-Key back to a point.
+// Point converts a point-Key back to a point.
 func (k Key) Point() *Point {
 	return New(k.X, k.Y)
 }
