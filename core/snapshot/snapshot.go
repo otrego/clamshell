@@ -22,8 +22,7 @@ func Create(mt *movetree.MoveTree, position movetree.Path, opts *Options) *Snaps
 // A Snapshot represents a specific board position, which can be used during
 // image generation.
 type Snapshot struct {
-
-	// Comment for the position.
+	// Comment for this position.
 	Comment string
 
 	// Borad contains the symbolic representation of the display of the board.
@@ -32,7 +31,10 @@ type Snapshot struct {
 
 // Board is a snapshot-board representation. It can be cropped.
 type Board struct {
+	// Intersections contain the intersections for the board.
 	Intersections [][]*Intersection
 
+	// The CropBox for the board, specifying the original size and the cropped
+	// bounding box.
 	CropBox *bbox.CropBox
 }

@@ -5,34 +5,51 @@ package symbol
 type Symbol int
 
 const (
+	// Empty is the default symbol.
 	Empty Symbol = 0
 
-	TopLeft     Symbol = 10
-	TopRight    Symbol = 11
-	BottomLeft  Symbol = 12
+	// TopLeft corner of the board.
+	TopLeft Symbol = 10
+	// TopRight corner of the board.
+	TopRight Symbol = 11
+	// BottomLeft corner of the board.
+	BottomLeft Symbol = 12
+	// BottomRight corner of the board.
 	BottomRight Symbol = 13
-
-	TopEdge    Symbol = 14
+	// TopEdge of the board.
+	TopEdge Symbol = 14
+	// BottomEdge of the board.
 	BottomEdge Symbol = 15
-	LeftEdge   Symbol = 16
-	RightEdge  Symbol = 17
-	Center     Symbol = 18
-	Starpoint  Symbol = 19
+	// LeftEdge of the board.
+	LeftEdge Symbol = 16
+	// RightEdge of the board.
+	RightEdge Symbol = 17
+	// Center of the board.
+	Center Symbol = 18
+	// StarPoint of the board.
+	StarPoint Symbol = 19
 
+	// BlackStone is a black stone.
 	BlackStone Symbol = 20
+	// WhiteStone is a white stone.
 	WhiteStone Symbol = 21
 
+	// Triangle is a triangle-mark.
 	Triangle Symbol = 30
-	Square   Symbol = 31
-	Circle   Symbol = 32
-	Xmark    Symbol = 33
+	// Square is a square-mark.
+	Square Symbol = 31
+	// Circle is a circle-mark.
+	Circle Symbol = 32
+	// Xmark is an x-mark.
+	Xmark Symbol = 33
 
+	// TextLabel represents some arbitrary text-label mark.
 	TextLabel Symbol = 34
 )
 
-// UnicodeChar converts a symbol representation to a single char. This method is
+// UnicodeString converts a symbol representation to a single char. This method is
 // primarily for debugging.
-func (s Symbol) UnicodeChar() string {
+func (s Symbol) UnicodeString() string {
 	switch s {
 	case TopLeft:
 		return "┏"
@@ -52,7 +69,7 @@ func (s Symbol) UnicodeChar() string {
 		return "┫"
 	case Center:
 		return "╋"
-	case Starpoint:
+	case StarPoint:
 		return "✻"
 	case BlackStone:
 		return "●"

@@ -7,46 +7,36 @@ import (
 
 // Intersection contains information for a single intersection
 type Intersection struct {
-	// The Point for this intersection
-	point *point.Point
+	// The Point for this intersection.
+	Point *point.Point
 
-	// The Base symbol: The first layer of the intesection, which tells.
-	base symbol.Symbol
+	// The Base symbol is the first layer of the intesection, indicating the
+	// underlying board symbol.
+	Base symbol.Symbol
 
-	stone symbol.Symbol
+	// The Symbol symbol is the second layer of the intesection, indicating the
+	// black or white stones.
+	Stone symbol.Symbol
 
-	mark symbol.Symbol
+	// The Mark symbol is the third layer of the intesection, indicating the
+	// marks on top of the board or stones.
+	Mark symbol.Symbol
 
 	// Label for the intersection. Label should only be set when Mark == TextLabel
-	// or another
-	label string
+	// or a similar label-mark.
+	Label string
 }
 
-// Point returns the point.
-func (n *Intersection) Point() *point.Point { return n.point }
-
-// Base returns base layer.
-func (n *Intersection) Base() symbol.Symbol { return n.base }
-
-// Stone returns stone layer.
-func (n *Intersection) Stone() symbol.Symbol { return n.stone }
-
-// Mark returns the mark layer.
-func (n *Intersection) Mark() symbol.Symbol { return n.mark }
-
-// Label returns the label.
-func (n *Intersection) Label() string { return n.label }
-
-// TopLayerUnicodeChar outputs a single character for the intersection, based
+// TopLayerUnicodeString outputs a single character for the intersection, based
 // on the "Top" symbol. This method is primarily for debugging.
-func (n *Intersection) TopLayerUnicodeChar() string {
+func (n *Intersection) TopLayerUnicodeString() string {
 	switch {
-	case n.mark != symbol.Empty:
-		return n.mark.UnicodeChar()
-	case n.stone != symbol.Empty:
-		return n.stone.UnicodeChar()
-	case n.base != symbol.Empty:
-		return n.base.UnicodeChar()
+	case n.Mark != symbol.Empty:
+		return n.Mark.UnicodeString()
+	case n.Stone != symbol.Empty:
+		return n.Stone.UnicodeString()
+	case n.Base != symbol.Empty:
+		return n.Base.UnicodeString()
 	}
 	return " "
 }
