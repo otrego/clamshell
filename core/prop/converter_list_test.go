@@ -25,38 +25,6 @@ func TestConverters_From(t *testing.T) {
 		expErrSubstr string
 	}{
 		{
-			desc: "black move: pass",
-			prop: "B",
-			data: []string{},
-			makeExpNode: func(n *movetree.Node) {
-				n.Move = move.NewPass(color.Black)
-			},
-		},
-		{
-			desc: "black move: pass empty str",
-			prop: "B",
-			data: []string{""},
-			makeExpNode: func(n *movetree.Node) {
-				n.Move = move.NewPass(color.Black)
-			},
-		},
-		{
-			desc: "black move",
-			prop: "B",
-			data: []string{"ab"},
-			makeExpNode: func(n *movetree.Node) {
-				n.Move = move.NewMove(color.Black, point.New(0, 1))
-			},
-		},
-		{
-			desc: "white move",
-			prop: "W",
-			data: []string{"ab"},
-			makeExpNode: func(n *movetree.Node) {
-				n.Move = move.NewMove(color.White, point.New(0, 1))
-			},
-		},
-		{
 			desc: "black placements",
 			prop: "AB",
 			data: []string{"aa", "bb"},
@@ -190,27 +158,6 @@ func TestConverters_ConvertNode(t *testing.T) {
 		expOut       string
 		expErrSubstr string
 	}{
-		{
-			desc: "black move: pass",
-			makeNode: func(n *movetree.Node) {
-				n.Move = move.NewPass(color.Black)
-			},
-			expOut: "B[]",
-		},
-		{
-			desc: "black move: non-pass",
-			makeNode: func(n *movetree.Node) {
-				n.Move = move.NewMove(color.Black, point.New(0, 1))
-			},
-			expOut: "B[ab]",
-		},
-		{
-			desc: "white move: non-pass",
-			makeNode: func(n *movetree.Node) {
-				n.Move = move.NewMove(color.White, point.New(0, 1))
-			},
-			expOut: "W[ab]",
-		},
 		{
 			desc: "black placements",
 			makeNode: func(n *movetree.Node) {
