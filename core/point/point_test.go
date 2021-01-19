@@ -140,5 +140,20 @@ func TestSGFToPointTranslate(t *testing.T) {
 			}
 		})
 	}
+}
 
+func TestKey(t *testing.T) {
+	pt := New(12, 15)
+
+	key := pt.Key()
+	exp := Key{X: 12, Y: 15}
+
+	if key != exp {
+		t.Errorf("error converting point to key: got %v, but expected %v", key, exp)
+	}
+
+	back := exp.Point()
+	if !pt.Equals(back) {
+		t.Errorf("error converting key to point: got %v, but expected %v", back, pt)
+	}
 }
