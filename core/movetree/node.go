@@ -43,6 +43,9 @@ type Node struct {
 	// example, handicap stones will be in in placements.
 	Placements []*move.Move
 
+	// Comment is the comment for the current node.
+	Comment string
+
 	// TODO(#193): Move GameInfo property to MoveTree struct.
 
 	// GameInfo contains properties only found on the root. Should be nil on
