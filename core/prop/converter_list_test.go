@@ -75,108 +75,12 @@ func testConvertNodeCases(t *testing.T, testCases []convertNodeTestCase) {
 func TestConvertFromSGF_Collection(t *testing.T) {
 	testCases := []fromSGFTestCase{
 		{
-			desc: "black placements",
-			prop: "AB",
-			data: []string{"aa", "bb"},
+			desc: "unknown property",
+			prop: "ZZ",
+			data: []string{"Zork"},
 			makeExpNode: func(n *movetree.Node) {
-				n.Placements = []*move.Move{
-					move.NewMove(color.Black, point.New(0, 0)),
-					move.NewMove(color.Black, point.New(1, 1)),
-				}
+				n.SGFProperties["ZZ"] = []string{"Zork"}
 			},
-		},
-		{
-			desc: "white placements",
-			prop: "AW",
-			data: []string{"aa", "bb"},
-			makeExpNode: func(n *movetree.Node) {
-				n.Placements = []*move.Move{
-					move.NewMove(color.White, point.New(0, 0)),
-					move.NewMove(color.White, point.New(1, 1)),
-				}
-			},
-		},
-		{
-			desc: "size",
-			prop: "SZ",
-			data: []string{"13"},
-			makeExpNode: func(n *movetree.Node) {
-				n.GameInfo = &movetree.GameInfo{
-					Size: 13,
-				}
-			},
-		},
-		{
-			desc: "Komi",
-			prop: "KM",
-			data: []string{"3.5"},
-			makeExpNode: func(n *movetree.Node) {
-				n.GameInfo = &movetree.GameInfo{
-					Komi: new(float64),
-				}
-				*n.GameInfo.Komi = 3.5
-			},
-		},
-		{
-			desc:         "Bad Komi",
-			prop:         "KM",
-			data:         []string{"3.25"},
-			makeExpNode:  func(n *movetree.Node) {},
-			expErrSubstr: "for prop KM",
-		},
-		{
-			desc: "Initial Turn 1",
-			prop: "PL",
-			data: []string{"B"},
-			makeExpNode: func(n *movetree.Node) {
-				n.GameInfo = &movetree.GameInfo{
-					Player: color.Black,
-				}
-			},
-		},
-		{
-			desc: "Initial Turn 2",
-			prop: "PL",
-			data: []string{"b"},
-			makeExpNode: func(n *movetree.Node) {
-				n.GameInfo = &movetree.GameInfo{
-					Player: color.Black,
-				}
-			},
-		},
-		{
-			desc: "Initial Turn 3",
-			prop: "PL",
-			data: []string{"W"},
-			makeExpNode: func(n *movetree.Node) {
-				n.GameInfo = &movetree.GameInfo{
-					Player: color.White,
-				}
-			},
-		},
-		{
-			desc: "Initial Turn 4",
-			prop: "PL",
-			data: []string{"w"},
-			makeExpNode: func(n *movetree.Node) {
-				n.GameInfo = &movetree.GameInfo{
-					Player: color.White,
-				}
-			},
-		},
-		{
-			desc:         "Bad Initial Turn 1",
-			prop:         "PL",
-			data:         []string{},
-			makeExpNode:  func(n *movetree.Node) {},
-			expErrSubstr: "requires exactly 1",
-		},
-		{
-			desc:         "Bad Initial Turn 2",
-			prop:         "PL",
-			data:         []string{"f"},
-			makeExpNode:  func(n *movetree.Node) {},
-			expErrSubstr: "PL has invalid value",
 		},
 	}
 
@@ -185,26 +89,6 @@ func TestConvertFromSGF_Collection(t *testing.T) {
 
 func TestConvertNode_Collection(t *testing.T) {
 	testCases := []convertNodeTestCase{
-		{
-			desc: "black placements",
-			makeNode: func(n *movetree.Node) {
-				n.Placements = []*move.Move{
-					move.NewMove(color.Black, point.New(0, 1)),
-					move.NewMove(color.Black, point.New(0, 2)),
-				}
-			},
-			expOut: "AB[ab][ac]",
-		},
-		{
-			desc: "white placements",
-			makeNode: func(n *movetree.Node) {
-				n.Placements = []*move.Move{
-					move.NewMove(color.White, point.New(0, 1)),
-					move.NewMove(color.White, point.New(0, 2)),
-				}
-			},
-			expOut: "AW[ab][ac]",
-		},
 		{
 			desc: "black move, extra properties",
 			makeNode: func(n *movetree.Node) {
@@ -222,106 +106,6 @@ func TestConvertNode_Collection(t *testing.T) {
 				n.SGFProperties["BB"] = []string{"bark"}
 			},
 			expOut: "B[ab]AA[ark]BB[bark]ZZ[zork]",
-		},
-		{
-			desc: "size",
-			makeNode: func(n *movetree.Node) {
-				n.GameInfo = &movetree.GameInfo{
-					Size: 13,
-				}
-			},
-			expOut: "SZ[13]",
-		},
-		{
-			desc: "size, empty",
-			makeNode: func(n *movetree.Node) {
-				n.GameInfo = &movetree.GameInfo{}
-			},
-			expOut: "",
-		},
-		{
-			desc: "size, invalid",
-			makeNode: func(n *movetree.Node) {
-				n.GameInfo = &movetree.GameInfo{
-					Size: 100,
-				}
-			},
-			expErrSubstr: "invalid board size",
-		},
-		{
-			desc: "komi",
-			makeNode: func(n *movetree.Node) {
-				n.GameInfo = &movetree.GameInfo{
-					Komi: new(float64),
-				}
-				*n.GameInfo.Komi = 3.5
-			},
-			expOut: "KM[3.5]",
-		},
-		{
-			desc: "komi, nil",
-			makeNode: func(n *movetree.Node) {
-				n.GameInfo = &movetree.GameInfo{}
-			},
-			expOut: "",
-		},
-		{
-			desc: "komi, gameInfo nil",
-			makeNode: func(n *movetree.Node) {
-				n.GameInfo = nil
-			},
-			expOut: "",
-		},
-		{
-			desc: "komi, gameInfo nil",
-			makeNode: func(n *movetree.Node) {
-				n.GameInfo = nil
-			},
-			expOut: "",
-		},
-		{
-			desc: "komi, invalid",
-			makeNode: func(n *movetree.Node) {
-				n.GameInfo = &movetree.GameInfo{
-					Komi: new(float64),
-				}
-				*n.GameInfo.Komi = 3.25
-			},
-			expErrSubstr: "invalid komi",
-		},
-		{
-			desc: "Initial Turn 1",
-			makeNode: func(n *movetree.Node) {
-				n.GameInfo = &movetree.GameInfo{
-					Player: color.Black,
-				}
-			},
-			expOut: "PL[B]",
-		},
-		{
-			desc: "Initial Turn 2",
-			makeNode: func(n *movetree.Node) {
-				n.GameInfo = &movetree.GameInfo{
-					Player: color.White,
-				}
-			},
-			expOut: "PL[W]",
-		},
-		{
-			desc: "Initial Turn, gameInfo nil",
-			makeNode: func(n *movetree.Node) {
-				n.GameInfo = nil
-			},
-			expOut: "",
-		},
-		{
-			desc: "Initial Turn, gameInfo.Player invalid",
-			makeNode: func(n *movetree.Node) {
-				n.GameInfo = &movetree.GameInfo{
-					Player: "g",
-				}
-			},
-			expErrSubstr: "W or B, but was",
 		},
 	}
 
