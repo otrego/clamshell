@@ -18,9 +18,11 @@ type GameInfo struct {
 	// Initial player turn. This is traditionally the player with the black stones
 	Player color.Color
 
-	// Ranks of both players. Between 1-30k/kyu, 1-9d/dan, or 1-9p/pro
-	WhiteRank string
+	// BlackRank is the rank of the black player. Between 1-30k/kyu, 1-9d/dan, or 1-9p/pro
 	BlackRank string
+
+	// WhiteRank is the rank of the white player. Between 1-30k/kyu, 1-9d/dan, or 1-9p/pro
+	WhiteRank string
 }
 
 // Node contains Properties, Children nodes, and Parent node.

@@ -15,11 +15,11 @@ var ranksConv = &SGFConverter{
 	Scope: RootScope,
 	From: func(n *movetree.Node, prop string, data []string) error {
 		if len(data) != 1 {
-			return fmt.Errorf("%s propertie requires exactly 1 value, but had %d", prop, len(data))
+			return fmt.Errorf("%s property requires exactly 1 value, but had %d", prop, len(data))
 		}
 
 		rank := data[0]
-		err := isValid(rank)
+		err := isValidRank(rank)
 		if err != nil {
 			return err
 		}
@@ -43,7 +43,7 @@ var ranksConv = &SGFConverter{
 		var out strings.Builder
 		if n.GameInfo.BlackRank != "" {
 			rank := n.GameInfo.BlackRank
-			err := isValid(rank)
+			err := isValidRank(rank)
 			if err != nil {
 				return "", err
 			}
@@ -52,7 +52,7 @@ var ranksConv = &SGFConverter{
 
 		if n.GameInfo.WhiteRank != "" {
 			rank := n.GameInfo.WhiteRank
-			err := isValid(rank)
+			err := isValidRank(rank)
 			if err != nil {
 				return "", err
 			}
@@ -66,7 +66,7 @@ var ranksConv = &SGFConverter{
 	},
 }
 
-func isValid(rank string) error {
+func isValidRank(rank string) error {
 	// Check that rank ends with a valid string
 	r, _ := regexp.Compile("(k|kyu|d|dan|p|pro)\\b")
 	i := r.FindStringIndex(rank)
