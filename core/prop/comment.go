@@ -7,7 +7,7 @@ import (
 	"github.com/otrego/clamshell/core/movetree"
 )
 
-// commentConv is an SGF converter for moves B,W.
+// commentConv is an SGF converter for the comment property C.
 var commentConv = &SGFConverter{
 	Props: []Prop{"C"},
 	Scope: AllScope,
@@ -30,6 +30,6 @@ var commentConv = &SGFConverter{
 		if c == "" {
 			return "", nil
 		}
-		return "C[" + strings.Replace(c, "]", "\\]", -1), nil
+		return "C[" + strings.Replace(c, "]", "\\]", -1) + "]", nil
 	},
 }
