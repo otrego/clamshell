@@ -17,6 +17,9 @@ type GameInfo struct {
 
 	// Initial player turn. This is traditionally the player with the black stones
 	Player color.Color
+
+	WhiteRank string
+	BlackRank string
 }
 
 // Node contains Properties, Children nodes, and Parent node.

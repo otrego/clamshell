@@ -7,6 +7,7 @@ var converters = []*SGFConverter{
 	movesConv,
 	komiConv,
 	initPlayerConv,
+	ranksConv,
 }
 
 var propToConv = func(conv []*SGFConverter) map[Prop]*SGFConverter {
