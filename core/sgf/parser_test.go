@@ -41,10 +41,10 @@ func TestParse(t *testing.T) {
 		},
 		{
 			desc: "check parsing root: lots of whitespace",
-			sgf:  "\n   (;  C[1 \n1]   )",
+			sgf:  "\n   (;  ZZ[1 \n1]   )",
 			pathToProps: map[string]propmap{
 				"-": propmap{
-					"C": []string{"1 \n1"},
+					"ZZ": []string{"1 \n1"},
 				},
 			},
 		},
@@ -89,28 +89,28 @@ func TestParse(t *testing.T) {
 		},
 		{
 			desc: "comment with escaped rbrace",
-			sgf:  `(;C[aoeu [1k\]])`,
+			sgf:  `(;ZZ[aoeu [1k\]])`,
 			pathToProps: map[string]propmap{
 				"-": propmap{
-					"C": []string{"aoeu [1k]"},
+					"ZZ": []string{"aoeu [1k]"},
 				},
 			},
 		},
 		{
 			desc: "comment with non-escapng backslash",
-			sgf:  `(;C[aoeu \z])`,
+			sgf:  `(;ZZ[aoeu \z])`,
 			pathToProps: map[string]propmap{
 				"-": propmap{
-					"C": []string{"aoeu \\z"},
+					"ZZ": []string{"aoeu \\z"},
 				},
 			},
 		},
 		{
 			desc: "comment with lots of escaping",
-			sgf:  `(;C[\\\]])`,
+			sgf:  `(;ZZ[\\\]])`,
 			pathToProps: map[string]propmap{
 				"-": propmap{
-					"C": []string{`\\]`},
+					"ZZ": []string{`\\]`},
 				},
 			},
 		},

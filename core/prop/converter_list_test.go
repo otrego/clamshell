@@ -4,6 +4,7 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/google/go-cmp/cmp"
 	"github.com/otrego/clamshell/core/color"
 	"github.com/otrego/clamshell/core/errcheck"
 	"github.com/otrego/clamshell/core/move"
@@ -24,11 +25,13 @@ type fromSGFTestCase struct {
 }
 
 func testConvertFromSGFCases(t *testing.T, testCases []fromSGFTestCase) {
-	for _, tc := range testCases {
+	for _, tci := range testCases {
+		tc := tci
 		t.Run(tc.desc, func(t *testing.T) {
 			n := movetree.NewNode()
 			expNode := movetree.NewNode()
 			tc.makeExpNode(expNode)
+
 			err := ProcessPropertyData(n, tc.prop, tc.data)
 			cerr := errcheck.CheckCases(err, tc.expErrSubstr)
 			if cerr != nil {
@@ -38,7 +41,7 @@ func testConvertFromSGFCases(t *testing.T, testCases []fromSGFTestCase) {
 				return
 			}
 			if !reflect.DeepEqual(n, expNode) {
-				t.Errorf("got node %v, but expected node %v", n, expNode)
+				t.Errorf("got node %#v, but expected node %#v", n, expNode)
 			}
 		})
 	}
@@ -52,7 +55,8 @@ type convertNodeTestCase struct {
 }
 
 func testConvertNodeCases(t *testing.T, testCases []convertNodeTestCase) {
-	for _, tc := range testCases {
+	for _, tci := range testCases {
+		tc := tci
 		t.Run(tc.desc, func(t *testing.T) {
 			node := movetree.NewNode()
 			tc.makeNode(node)
@@ -66,7 +70,8 @@ func testConvertNodeCases(t *testing.T, testCases []convertNodeTestCase) {
 			}
 
 			if out != tc.expOut {
-				t.Errorf("ConvertNode(%v)=%v, but expected %v", node, out, tc.expOut)
+				diff := cmp.Diff(out, tc.expOut)
+				t.Errorf("ConvertNode(%#v)=%v, but expected %v. Diff=%s", node, out, tc.expOut, diff)
 			}
 		})
 	}
