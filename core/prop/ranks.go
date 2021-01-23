@@ -67,18 +67,21 @@ var ranksConv = &SGFConverter{
 }
 
 func isValid(rank string) error {
+	// Check that rank ends with a valid string
 	r, _ := regexp.Compile("(k|kyu|d|dan|p|pro)\\b")
 	i := r.FindStringIndex(rank)
 	if len(i) == 0 {
 		return fmt.Errorf("Invalid Rank: %s", rank)
 	}
 
+	// Convert everything before the rank into a number
 	s := rank[0:i[0]]
 	num, err := strconv.Atoi(s)
 	if err != nil {
 		return err
 	}
 
+	// Check that the number is valid based on the rank
 	if num > 30 || num < 1 || (num > 9 && string(rank[i[0]]) != "k") {
 		return fmt.Errorf("Invalid number %d for rank %s", num, rank[i[0]:i[1]])
 	}
