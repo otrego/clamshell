@@ -5,6 +5,9 @@ import (
 	"strconv"
 	"strings"
 	"unicode"
+
+	"github.com/otrego/clamshell/core/board"
+	"github.com/otrego/clamshell/core/move"
 )
 
 // A Path is a list of variations that says how to travel through a tree of
@@ -170,6 +173,12 @@ func (tp Path) Apply(n *Node) *Node {
 	return curNode
 }
 
+// ApplyToBoard applies a treepath to a Go-Board, returning the captured stones,
+// or an error if the application was unsuccessful. Note that the board is
+// modified in-place.
+func (tp Path) ApplyToBoard(b *board.Board) ([]*move.Move, error) {
+}
+
 // String returns the treepath as a string.
 // examples:
 //      []                  becomes "[]"
@@ -185,8 +194,11 @@ func (tp Path) String() string {
 
 // Clone makes a copy of the treepath.
 func (tp Path) Clone() Path {
-	// A shallow copy should be sufficient.
-	return tp[:]
+	newPath := make(Path, len(tp))
+	for i := range tp {
+		newPath[i] = tp[i]
+	}
+	return newPath
 }
 
 // CompactString returns the treepath as a CompactString (short-hand).
