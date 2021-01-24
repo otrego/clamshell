@@ -4,9 +4,9 @@ import "fmt"
 
 // TODO(kashomon): This whole file needs to be moved to core/sgf
 
-// pointToSgfMap is a translation reference between int64 Point
+// pointToSgfMap is a translation reference between int Point
 // and string SGF-Point (rune) values
-var pointToSgfMap = map[int64]rune{
+var pointToSgfMap = map[int]rune{
 	0: 'a', 1: 'b', 2: 'c', 3: 'd', 4: 'e', 5: 'f', 6: 'g',
 	7: 'h', 8: 'i', 9: 'j', 10: 'k', 11: 'l', 12: 'm', 13: 'n',
 	14: 'o', 15: 'p', 16: 'q', 17: 'r', 18: 's', 19: 't', 20: 'u',
@@ -18,9 +18,9 @@ var pointToSgfMap = map[int64]rune{
 }
 
 // sgfToPointMap is a translation reference between string SGF-Point
-// (rune) values and int64 Point values
-var sgfToPointMap = func(m map[int64]rune) map[rune]int64 {
-	out := make(map[rune]int64)
+// (rune) values and int Point values
+var sgfToPointMap = func(m map[int]rune) map[rune]int {
+	out := make(map[rune]int)
 	for key, val := range m {
 		out[val] = key
 	}

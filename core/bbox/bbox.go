@@ -33,19 +33,19 @@ func (b *BoundingBox) TopLeft() *point.Point { return b.tl }
 func (b *BoundingBox) BotRight() *point.Point { return b.br }
 
 // Top side of the bounding box.
-func (b *BoundingBox) Top() int64 { return b.tl.Y() }
+func (b *BoundingBox) Top() int { return b.tl.Y() }
 
 // Left side of the bounding box
-func (b *BoundingBox) Left() int64 { return b.tl.X() }
+func (b *BoundingBox) Left() int { return b.tl.X() }
 
 // Bottom side of the bounding box.
-func (b *BoundingBox) Bottom() int64 { return b.br.Y() }
+func (b *BoundingBox) Bottom() int { return b.br.Y() }
 
 // Right side of the bounding box.
-func (b *BoundingBox) Right() int64 { return b.br.X() }
+func (b *BoundingBox) Right() int { return b.br.X() }
 
 // Width of the bounding box.
-func (b *BoundingBox) Width() int64 { return b.br.X() - b.tl.X() }
+func (b *BoundingBox) Width() int { return b.br.X() - b.tl.X() }
 
 // Height of the bounding box.
-func (b *BoundingBox) Height() int64 { return b.br.Y() - b.tl.Y() }
+func (b *BoundingBox) Height() int { return b.br.Y() - b.tl.Y() }

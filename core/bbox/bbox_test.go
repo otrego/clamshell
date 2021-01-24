@@ -15,7 +15,7 @@ func TestBboxBasics(t *testing.T) {
 		t.Fatalf("error making bounding box: %v", err)
 	}
 
-	var exp int64
+	var exp int
 	exp = 1
 	if got := bbox.TopLeft().X(); got != exp {
 		t.Errorf("bbox.TopLeft().X()=%d, but expected %d", got, exp)

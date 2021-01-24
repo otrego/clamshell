@@ -8,12 +8,12 @@ import (
 // Point is a basic point. Although simple, the member variables are kept
 // private to ensure that Point remains immutable.
 type Point struct {
-	x int64
-	y int64
+	x int
+	y int
 }
 
 // New creates a new immutable Point.
-func New(x, y int64) *Point {
+func New(x, y int) *Point {
 	return &Point{
 		x: x,
 		y: y,
@@ -21,10 +21,10 @@ func New(x, y int64) *Point {
 }
 
 // X returns the x-value.
-func (pt *Point) X() int64 { return pt.x }
+func (pt *Point) X() int { return pt.x }
 
 // Y returns the y-value.
-func (pt *Point) Y() int64 { return pt.y }
+func (pt *Point) Y() int { return pt.y }
 
 // ToSGF converts a pointer-type (immutable) *Point
 // to an SGF Point (two letter string).
@@ -52,8 +52,8 @@ func (pt *Point) Key() Key {
 //
 //     Key{X:12, Y:15}
 type Key struct {
-	X int64
-	Y int64
+	X int
+	Y int
 }
 
 // Point converts a point-Key back to a point.
