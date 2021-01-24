@@ -13,7 +13,7 @@ type CropBox struct {
 }
 
 // CroppingPreset is a convenience enum for specifying a cropping direction.
-type CroppingPreset int64
+type CroppingPreset int
 
 const (
 	//TopLeft see below
@@ -69,10 +69,10 @@ const (
 //
 // Following the SGF covention, we consider the topleft to be 0,0
 func CropBoxFromPreset(p CroppingPreset, boardSize int) (*CropBox, error) {
-	bs := int64(boardSize)
+	bs := boardSize
 
 	halfInts := bs / 2
-	var minInts int64
+	var minInts int
 
 	top := minInts
 	left := minInts

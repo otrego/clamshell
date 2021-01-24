@@ -131,20 +131,20 @@ func (b *Board) capturedStones(pt *point.Point) []*point.Point {
 // inBounds returns true if x and y are in bounds
 // on the board, false otherwise.
 func (b *Board) inBounds(pt *point.Point) bool {
-	var x, y int = int(pt.X()), int(pt.Y())
+	var x, y int = pt.X(), pt.Y()
 	return x < len(b.board[0]) && y < len(b.board) &&
 		x >= 0 && y >= 0
 }
 
 // colorAt returns the color at point pt.
 func (b *Board) colorAt(pt *point.Point) color.Color {
-	var x, y int = int(pt.X()), int(pt.Y())
+	var x, y int = pt.X(), pt.Y()
 	return b.board[y][x]
 }
 
 // setColor sets the color m.Color at point m.Point.
 func (b *Board) setColor(m *move.Move) {
-	var x, y int = int(m.Point().X()), int(m.Point().Y())
+	var x, y int = m.Point().X(), m.Point().Y()
 	b.board[y][x] = m.Color()
 }
 
@@ -168,7 +168,7 @@ func (b *Board) GetFullBoardState() []*move.Move {
 		for j := 0; j < len(b.board[0]); j++ {
 			if b.board[i][j] != color.Empty {
 				moves = append(moves,
-					move.NewMove(b.board[i][j], point.New(int64(j), int64(i))))
+					move.NewMove(b.board[i][j], point.New(j, i)))
 			}
 		}
 	}
