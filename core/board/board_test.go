@@ -174,7 +174,7 @@ func TestRemoveCapturedStones(t *testing.T) {
 				{"", "", "", "", "B", "", "", "", ""}},
 				nil,
 			},
-			m: move.NewMove(color.Black, point.New(4, 4)),
+			m: move.New(color.Black, point.New(4, 4)),
 			exp: "[. . . . B . . . .]\n" +
 				"[. . . B . B . . .]\n" +
 				"[. . . B . B . . .]\n" +
@@ -204,12 +204,13 @@ func TestPlaceStone(t *testing.T) {
 		b            *Board
 		m            *move.Move
 		exp          string
+		expCaptures  []*move.Move
 		expErrSubstr string
 	}{
 		{
 			desc: "successful added stone",
 			b:    NewBoard(9),
-			m:    move.NewMove(color.Black, point.New(8, 8)),
+			m:    move.New(color.Black, point.New(8, 8)),
 			exp: "[. . . . . . . . .]\n" +
 				"[. . . . . . . . .]\n" +
 				"[. . . . . . . . .]\n" +
@@ -223,7 +224,7 @@ func TestPlaceStone(t *testing.T) {
 		{
 			desc: "successful added stone",
 			b:    NewBoard(9),
-			m:    move.NewMove(color.Black, point.New(0, 0)),
+			m:    move.New(color.Black, point.New(0, 0)),
 			exp: "[B . . . . . . . .]\n" +
 				"[. . . . . . . . .]\n" +
 				"[. . . . . . . . .]\n" +
@@ -247,7 +248,10 @@ func TestPlaceStone(t *testing.T) {
 				{"", "", "", "", "B", "", "", "", ""}},
 				nil,
 			},
-			m: move.NewMove(color.Black, point.New(4, 4)),
+			m: move.New(color.Black, point.New(4, 4)),
+			expCaptures: []*move.Move{
+				move.New(color.White, point.New(1, 4)),
+			},
 			exp: "[. . . . B . . . .]\n" +
 				"[. . . B . B . . .]\n" +
 				"[. . . B . B . . .]\n" +
@@ -271,7 +275,7 @@ func TestPlaceStone(t *testing.T) {
 				{"", "", "", "", "", "", "", "", ""}},
 				nil,
 			},
-			m:            move.NewMove(color.White, point.New(33, 4)),
+			m:            move.New(color.White, point.New(33, 4)),
 			expErrSubstr: "out of bound",
 		},
 		{
@@ -287,7 +291,7 @@ func TestPlaceStone(t *testing.T) {
 				{"", "", "", "", "", "", "", "", ""}},
 				nil,
 			},
-			m:            move.NewMove(color.White, point.New(4, 3)),
+			m:            move.New(color.White, point.New(4, 3)),
 			expErrSubstr: "occupied",
 		},
 		{
@@ -303,7 +307,7 @@ func TestPlaceStone(t *testing.T) {
 				{"", "", "", "", "", "", "", "", ""}},
 				nil,
 			},
-			m:            move.NewMove(color.White, point.New(4, 4)),
+			m:            move.New(color.White, point.New(4, 4)),
 			expErrSubstr: "suicidal",
 		},
 		{
@@ -319,13 +323,13 @@ func TestPlaceStone(t *testing.T) {
 				{"", "", "", "", "", "", "", "", ""}},
 				point.New(4, 5),
 			},
-			m:            move.NewMove(color.White, point.New(4, 4)),
+			m:            move.New(color.White, point.New(4, 4)),
 			expErrSubstr: "illegal",
 		},
 	}
 	for _, tc := range testCases {
 		t.Run(tc.desc, func(t *testing.T) {
-			_, err := tc.b.PlaceStone(tc.m)
+			capt, err := tc.b.PlaceStone(tc.m)
 			got := tc.b.String()
 
 			cerr := errcheck.CheckCases(err, tc.expErrSubstr)
@@ -335,6 +339,10 @@ func TestPlaceStone(t *testing.T) {
 			}
 			if err != nil {
 				return
+			}
+
+			if !reflect.DeepEqual(capt, tc.expCaptures) {
+				t.Errorf("Got captures %v, but expected captures %v")
 			}
 
 			if fmt.Sprintf("%s", got) != fmt.Sprintf("%s", tc.exp) {

@@ -164,7 +164,6 @@ func (tp Path) Apply(n *Node) *Node {
 	curNode := n
 	for _, v := range tp {
 		if v < len(curNode.Children) {
-			// Assume there are no gaps. If there are, parsing failed us.
 			curNode = curNode.Children[v]
 		} else {
 			break
@@ -176,7 +175,19 @@ func (tp Path) Apply(n *Node) *Node {
 // ApplyToBoard applies a treepath to a Go-Board, returning the captured stones,
 // or an error if the application was unsuccessful. Note that the board is
 // modified in-place.
-func (tp Path) ApplyToBoard(b *board.Board) ([]*move.Move, error) {
+func (tp Path) ApplyToBoard(n *Node, b *board.Board) ([]*move.Move, error) {
+	curNode := n
+	applyStones := func(n *Node, b *board.Board) ([]*move.Move, error) {
+	}
+
+	for _, v := range tp {
+		if v < len(curNode.Children) {
+			curNode = curNode.Children[v]
+		} else {
+			break
+		}
+	}
+	return nil, nil
 }
 
 // String returns the treepath as a string.

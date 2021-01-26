@@ -30,11 +30,9 @@ func NewBoard(size int) *Board {
 	return &board
 }
 
-// PlaceStone adds a stone to the board
-// and removes captured stones (if any).
-// returns the captured stones, or err
-// if any Go (baduk) rules were broken
-func (b *Board) PlaceStone(m *move.Move) ([]*point.Point, error) {
+// PlaceStone adds a stone to the board and removes captured stones (if any).
+// returns the captured stones, or err if any Go (baduk) rules were broken
+func (b *Board) PlaceStone(m *move.Move) ([]*move.Move, error) {
 	var ko *point.Point = b.ko
 	b.ko = nil
 
@@ -48,20 +46,28 @@ func (b *Board) PlaceStone(m *move.Move) ([]*point.Point, error) {
 
 	b.setColor(m)
 	capturedStones := b.findCapturedGroups(m)
+
 	if len(capturedStones) == 0 && len(b.capturedStones(m.Point())) != 0 {
-		b.setColor(move.NewMove(color.Empty, m.Point()))
+		b.setColor(move.New(color.Empty, m.Point()))
 		return nil, fmt.Errorf("move %v is suicidal", m.Point())
 	}
 	if len(capturedStones) == 1 {
 		b.ko = m.Point()
 		if ko != nil && *ko == *(capturedStones[0]) {
-			b.setColor(move.NewMove(color.Empty, m.Point()))
+			b.setColor(move.New(color.Empty, m.Point()))
 			return nil, fmt.Errorf("%v is an illegal ko move", m.Point())
 		}
 	}
 
+	// convert the captured stones into Move objects for convience.
+	var captured []*move.Move
+	opp := m.Color().Opposite()
+	for _, pt := range capturedStones {
+		captured = append(captured, move.New(opp, pt))
+	}
+
 	b.removeCapturedStones(capturedStones)
-	return capturedStones, nil
+	return captured, nil
 }
 
 // findCapturedGroups returns the groups captured by *Move m.
@@ -82,7 +88,7 @@ func (b *Board) findCapturedGroups(m *move.Move) []*point.Point {
 // the board.
 func (b *Board) removeCapturedStones(capturedStones []*point.Point) {
 	for _, point := range capturedStones {
-		b.setColor(move.NewMove(color.Empty, point))
+		b.setColor(move.New(color.Empty, point))
 	}
 }
 
@@ -168,7 +174,7 @@ func (b *Board) GetFullBoardState() []*move.Move {
 		for j := 0; j < len(b.board[0]); j++ {
 			if b.board[i][j] != color.Empty {
 				moves = append(moves,
-					move.NewMove(b.board[i][j], point.New(j, i)))
+					move.New(b.board[i][j], point.New(j, i)))
 			}
 		}
 	}
