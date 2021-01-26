@@ -15,6 +15,10 @@
 .DS_Store
 .idea
 
+# Ignore temporary katalyze output
+
+katalyze/output
+
 # Dependency directories (remove the comment below to include it)
 # vendor/
 
@@ -22,3 +26,13 @@ tmp
 
 # Ignore server binary
 /server/server
+
+
+# Terraform
+tf/.terraform
+tf/*.plan
+tf/*.state
+
+# katago analysis/gtp logs
+analysis.log
+gtp.log

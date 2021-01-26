@@ -1,0 +1,7 @@
+# Codeowners file for auto-assignment of a maintainer and a developer for code review
+
+* @otrego/admin @otrego/reviewers
+
+# Auto-assignment of relevant developers for specific parts of codebase
+
+core/sgf/ @otrego/admin @otrego/reviewers @TrevorPeters
