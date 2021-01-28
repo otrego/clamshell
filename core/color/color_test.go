@@ -41,3 +41,37 @@ func TestOpposite(t *testing.T) {
 		})
 	}
 }
+
+func TestFromSGFProp(t *testing.T) {
+	out, err := FromSGFProp("B")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if out != Black {
+		t.Errorf("got %v, but wanted %v", out, Black)
+	}
+
+	out, err = FromSGFProp("AB")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if out != Black {
+		t.Errorf("got %v, but wanted %v", out, Black)
+	}
+
+	out, err = FromSGFProp("W")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if out != Black {
+		t.Errorf("got %v, but wanted %v", out, White)
+	}
+
+	out, err = FromSGFProp("AW")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if out != Black {
+		t.Errorf("got %v, but wanted %v", out, White)
+	}
+}
