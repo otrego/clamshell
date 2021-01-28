@@ -175,11 +175,12 @@ func (tp Path) Apply(n *Node) *Node {
 // ApplyToBoard applies a treepath to a Go-Board, returning the captured stones,
 // or an error if the application was unsuccessful. Note that the board is
 // modified in-place.
-func (tp Path) ApplyToBoard(n *Node, b *board.Board) ([]*move.Move, error) {
+func (tp Path) ApplyToBoard(n *Node, b *board.Board) (move.List, error) {
 	curNode := n
-	applyStones := func(n *Node, b *board.Board) ([]*move.Move, error) {
+	applyStones := func(n *move.Move, b *board.Board) (move.List, error) {
+		st, err := b.PlaceStone(n.
+		b.PlaceStone(
 	}
-
 	for _, v := range tp {
 		if v < len(curNode.Children) {
 			curNode = curNode.Children[v]

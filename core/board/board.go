@@ -30,9 +30,42 @@ func NewBoard(size int) *Board {
 	return &board
 }
 
+// ForcePlace force moves on the go-board, without performing capture logic. If
+// an illegal board position results, return an error.
+func (b *Board) SetStones(ml move.List) error {
+	for _, m := range ml {
+		b.setColor(m)
+	}
+
+	// Loop over the whole board and make sure there aren't any captures on the
+	// board. If there are, the position is invalid.
+	seen := make(map[point.Point]bool)
+	for i := 0; i < len(b.board); i++ {
+		for j := 0; j < len(b.board[0]); j++ {
+			pt := point.New(j, i)
+			if seen[*pt] {
+				continue
+			}
+			seen[*pt] = true
+
+			// Ignore empty intersections
+			c := b.colorAt(pt)
+			if c == color.Empty {
+				continue
+			}
+
+			captures := b.capturedStones(pt)
+			if len(captures) > 0 {
+				return fmt.Errorf("illegal board state after placing stones")
+			}
+		}
+	}
+	return nil
+}
+
 // PlaceStone adds a stone to the board and removes captured stones (if any).
 // returns the captured stones, or err if any Go (baduk) rules were broken
-func (b *Board) PlaceStone(m *move.Move) ([]*move.Move, error) {
+func (b *Board) PlaceStone(m *move.Move) (move.List, error) {
 	var ko *point.Point = b.ko
 	b.ko = nil
 
@@ -60,11 +93,12 @@ func (b *Board) PlaceStone(m *move.Move) ([]*move.Move, error) {
 	}
 
 	// convert the captured stones into Move objects for convience.
-	var captured []*move.Move
+	var captured move.List
 	opp := m.Color().Opposite()
 	for _, pt := range capturedStones {
 		captured = append(captured, move.New(opp, pt))
 	}
+	captured.Sort()
 
 	b.removeCapturedStones(capturedStones)
 	return captured, nil
@@ -92,7 +126,7 @@ func (b *Board) removeCapturedStones(capturedStones []*point.Point) {
 	}
 }
 
-// CapturedStones returns the captured stones in group containing Point pt.
+// capturedStones returns the captured stones in group containing Point pt.
 // returns nil if no stones were captured.
 func (b *Board) capturedStones(pt *point.Point) []*point.Point {
 	expanded := make(map[point.Point]bool)
