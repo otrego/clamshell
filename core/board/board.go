@@ -30,36 +30,14 @@ func NewBoard(size int) *Board {
 	return &board
 }
 
-// ForcePlace force moves on the go-board, without performing capture logic. If
-// an illegal board position results, return an error.
-func (b *Board) SetStones(ml move.List) error {
+// SetPlacements force-places moves on the go-board, without performing capture
+// logic. If an illegal board position results, return an error.
+func (b *Board) SetPlacements(ml move.List) error {
 	for _, m := range ml {
 		b.setColor(m)
 	}
-
-	// Loop over the whole board and make sure there aren't any captures on the
-	// board. If there are, the position is invalid.
-	seen := make(map[point.Point]bool)
-	for i := 0; i < len(b.board); i++ {
-		for j := 0; j < len(b.board[0]); j++ {
-			pt := point.New(j, i)
-			if seen[*pt] {
-				continue
-			}
-			seen[*pt] = true
-
-			// Ignore empty intersections
-			c := b.colorAt(pt)
-			if c == color.Empty {
-				continue
-			}
-
-			captures := b.capturedStones(pt)
-			if len(captures) > 0 {
-				return fmt.Errorf("illegal board state after placing stones")
-			}
-		}
-	}
+	// TODO(kashomon): Validate we have a valid board position -- i.e., one
+	// without captures lying on the board.
 	return nil
 }
 
@@ -78,6 +56,7 @@ func (b *Board) PlaceStone(m *move.Move) (move.List, error) {
 	}
 
 	b.setColor(m)
+
 	capturedStones := b.findCapturedGroups(m)
 
 	if len(capturedStones) == 0 && len(b.capturedStones(m.Point())) != 0 {

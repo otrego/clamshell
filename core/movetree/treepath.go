@@ -177,15 +177,39 @@ func (tp Path) Apply(n *Node) *Node {
 // modified in-place.
 func (tp Path) ApplyToBoard(n *Node, b *board.Board) (move.List, error) {
 	curNode := n
-	applyStones := func(n *move.Move, b *board.Board) (move.List, error) {
-		st, err := b.PlaceStone(n.
-		b.PlaceStone(
+
+	applyStones := func(n *Node, b *board.Board) (move.List, error) {
+		err := b.SetPlacements(n.Placements)
+		if err != nil {
+			return nil, err
+		}
+		if n.Move != nil {
+			return b.PlaceStone(n.Move)
+		}
+		return nil, nil
 	}
-	for _, v := range tp {
-		if v < len(curNode.Children) {
-			curNode = curNode.Children[v]
+
+	var traversed Path
+	var captures move.List
+	i := 0
+
+	for n != nil {
+		ml, err := applyStones(n, b)
+		if err != nil {
+			return nil, fmt.Errorf("error while applying stones at path %v: %v", traversed, err)
+		}
+		captures = append(captures, ml...)
+		if i >= len(tp) {
+			n = nil
+			continue
+		}
+		nextVar := tp[i]
+		i++
+
+		if nextVar < len(curNode.Children) {
+			n = curNode.Children[nextVar]
 		} else {
-			break
+			n = nil
 		}
 	}
 	return nil, nil
