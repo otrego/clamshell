@@ -1,6 +1,7 @@
 package color
 
 import (
+	"errors"
 	"testing"
 )
 
@@ -43,35 +44,59 @@ func TestOpposite(t *testing.T) {
 }
 
 func TestFromSGFProp(t *testing.T) {
-	out, err := FromSGFProp("B")
-	if err != nil {
-		t.Fatal(err)
-	}
-	if out != Black {
-		t.Errorf("got %v, but wanted %v", out, Black)
+	testCases := []struct {
+		desc       string
+		in         string
+		want       Color
+		expErrType error
+	}{
+		{
+			desc:       "B=>Black",
+			in:         "B",
+			want:       Black,
+			expErrType: nil,
+		},
+		{
+			desc:       "AB=>Black",
+			in:         "AB",
+			want:       Black,
+			expErrType: nil,
+		},
+		{
+			desc:       "W=>White",
+			in:         "W",
+			want:       White,
+			expErrType: nil,
+		},
+		{
+			desc:       "AW=>White",
+			in:         "AW",
+			want:       White,
+			expErrType: nil,
+		},
+		{
+			desc:       "empty=>empty",
+			in:         "",
+			want:       Empty,
+			expErrType: ErrColorConversion,
+		},
+		{
+			desc:       "any=>any",
+			in:         "any",
+			want:       Empty,
+			expErrType: ErrColorConversion,
+		},
 	}
 
-	out, err = FromSGFProp("AB")
-	if err != nil {
-		t.Fatal(err)
-	}
-	if out != Black {
-		t.Errorf("got %v, but wanted %v", out, Black)
-	}
-
-	out, err = FromSGFProp("W")
-	if err != nil {
-		t.Fatal(err)
-	}
-	if out != Black {
-		t.Errorf("got %v, but wanted %v", out, White)
-	}
-
-	out, err = FromSGFProp("AW")
-	if err != nil {
-		t.Fatal(err)
-	}
-	if out != Black {
-		t.Errorf("got %v, but wanted %v", out, White)
+	for _, tc := range testCases {
+		t.Run(tc.desc, func(t *testing.T) {
+			out, err := FromSGFProp(tc.in)
+			if out != tc.want {
+				t.Errorf("%v was passed, got %v, wanted %v", tc.in, out, tc.want)
+			}
+			if !errors.Is(err, tc.expErrType) {
+				t.Errorf("Got err %v, but  expected error of type %v", err, tc.expErrType)
+			}
+		})
 	}
 }
