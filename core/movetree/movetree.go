@@ -17,5 +17,6 @@ func New() *MoveTree {
 	g.Root.GameInfo = &GameInfo{}
 	g.Root.GameInfo.Size = 19
 	g.Root.SGFProperties["GM"] = []string{"1"} // GM[1]=go
+	g.Root.SGFProperties["FF"] = []string{"4"} // FF[4]=SGF file format 4
 	return g
 }
