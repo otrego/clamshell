@@ -17,8 +17,8 @@ func TestConvertFromSGF_Placements(t *testing.T) {
 			data: []string{"aa", "bb"},
 			makeExpNode: func(n *movetree.Node) {
 				n.Placements = []*move.Move{
-					move.NewMove(color.Black, point.New(0, 0)),
-					move.NewMove(color.Black, point.New(1, 1)),
+					move.New(color.Black, point.New(0, 0)),
+					move.New(color.Black, point.New(1, 1)),
 				}
 			},
 		},
@@ -28,8 +28,8 @@ func TestConvertFromSGF_Placements(t *testing.T) {
 			data: []string{"aa", "bb"},
 			makeExpNode: func(n *movetree.Node) {
 				n.Placements = []*move.Move{
-					move.NewMove(color.White, point.New(0, 0)),
-					move.NewMove(color.White, point.New(1, 1)),
+					move.New(color.White, point.New(0, 0)),
+					move.New(color.White, point.New(1, 1)),
 				}
 			},
 		},
@@ -44,8 +44,8 @@ func TestConvertNode_Placements(t *testing.T) {
 			desc: "black placements",
 			makeNode: func(n *movetree.Node) {
 				n.Placements = []*move.Move{
-					move.NewMove(color.Black, point.New(0, 1)),
-					move.NewMove(color.Black, point.New(0, 2)),
+					move.New(color.Black, point.New(0, 1)),
+					move.New(color.Black, point.New(0, 2)),
 				}
 			},
 			expOut: "AB[ab][ac]",
@@ -54,8 +54,8 @@ func TestConvertNode_Placements(t *testing.T) {
 			desc: "white placements",
 			makeNode: func(n *movetree.Node) {
 				n.Placements = []*move.Move{
-					move.NewMove(color.White, point.New(0, 1)),
-					move.NewMove(color.White, point.New(0, 2)),
+					move.New(color.White, point.New(0, 1)),
+					move.New(color.White, point.New(0, 2)),
 				}
 			},
 			expOut: "AW[ab][ac]",
