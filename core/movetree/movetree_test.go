@@ -18,4 +18,9 @@ func TestDefaults(t *testing.T) {
 	if got := g.Root.SGFProperties["GM"]; !cmp.Equal(got, expGM) {
 		t.Errorf("g.Root.SGFProperties[GM] was %v; expected %v", got, expGM)
 	}
+
+	expFF := []string{"4"}
+	if got := g.Root.SGFProperties["FF"]; !cmp.Equal(got, expFF) {
+		t.Errorf("g.Root.SGFProperties[FF] was %v; expected %v", got, expFF)
+	}
 }
