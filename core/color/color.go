@@ -29,6 +29,21 @@ func (c Color) Opposite() Color {
 	return c
 }
 
+// Ordinal returns an ordinal number for the color, for the purposes of sorting.
+func (c Color) Ordinal() int {
+	switch c {
+	case Black:
+		return 1
+	case White:
+		return 2
+	case Empty:
+		return 3
+	default:
+		// This shouldn't happen normally, but here for good measure.
+		return 4
+	}
+}
+
 // ErrColorConversion is an err
 var ErrColorConversion = errors.New("color conversion error")
 

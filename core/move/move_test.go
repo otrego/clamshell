@@ -20,7 +20,7 @@ func TestFromSGFPoint(t *testing.T) {
 			desc:  "Valid Placement",
 			sgfPt: "ab",
 			col:   color.Black,
-			exp:   NewMove(color.Black, point.New(0, 1)),
+			exp:   New(color.Black, point.New(0, 1)),
 		},
 		{
 			desc:  "Pass",
@@ -32,7 +32,7 @@ func TestFromSGFPoint(t *testing.T) {
 			desc:  "Valid Placement White",
 			sgfPt: "ab",
 			col:   color.White,
-			exp:   NewMove(color.White, point.New(0, 1)),
+			exp:   New(color.White, point.New(0, 1)),
 		},
 		{
 			desc:  "Pass White",
@@ -110,13 +110,13 @@ func TestListFromSGFPoints(t *testing.T) {
 			desc:      "Valid List",
 			sgfPtList: []string{"ab", "cd", "ee"},
 			col:       color.Black,
-			exp:       []*Move{NewMove(color.Black, point.New(0, 1)), NewMove(color.Black, point.New(2, 3)), NewMove(color.Black, point.New(4, 4))},
+			exp:       []*Move{New(color.Black, point.New(0, 1)), New(color.Black, point.New(2, 3)), New(color.Black, point.New(4, 4))},
 		},
 		{
 			desc:      "Valid List White",
 			sgfPtList: []string{"ab", "cd", "ee"},
 			col:       color.White,
-			exp:       []*Move{NewMove(color.White, point.New(0, 1)), NewMove(color.White, point.New(2, 3)), NewMove(color.White, point.New(4, 4))},
+			exp:       []*Move{New(color.White, point.New(0, 1)), New(color.White, point.New(2, 3)), New(color.White, point.New(4, 4))},
 		},
 		{
 			desc:      "Empty Move List",

@@ -97,7 +97,7 @@ func TestConvertNode_Collection(t *testing.T) {
 		{
 			desc: "black move, extra properties",
 			makeNode: func(n *movetree.Node) {
-				n.Move = move.NewMove(color.Black, point.New(0, 1))
+				n.Move = move.New(color.Black, point.New(0, 1))
 				n.SGFProperties["ZZ"] = []string{"zork"}
 			},
 			expOut: "B[ab]ZZ[zork]",
@@ -105,7 +105,7 @@ func TestConvertNode_Collection(t *testing.T) {
 		{
 			desc: "extra properties, sorting",
 			makeNode: func(n *movetree.Node) {
-				n.Move = move.NewMove(color.Black, point.New(0, 1))
+				n.Move = move.New(color.Black, point.New(0, 1))
 				n.SGFProperties["ZZ"] = []string{"zork"}
 				n.SGFProperties["AA"] = []string{"ark"}
 				n.SGFProperties["BB"] = []string{"bark"}
