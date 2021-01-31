@@ -32,7 +32,7 @@ func TestConvertFromSGF_Moves(t *testing.T) {
 			prop: "B",
 			data: []string{"ab"},
 			makeExpNode: func(n *movetree.Node) {
-				n.Move = move.NewMove(color.Black, point.New(0, 1))
+				n.Move = move.New(color.Black, point.New(0, 1))
 			},
 		},
 		{
@@ -40,7 +40,7 @@ func TestConvertFromSGF_Moves(t *testing.T) {
 			prop: "W",
 			data: []string{"ab"},
 			makeExpNode: func(n *movetree.Node) {
-				n.Move = move.NewMove(color.White, point.New(0, 1))
+				n.Move = move.New(color.White, point.New(0, 1))
 			},
 		},
 	}
@@ -60,14 +60,14 @@ func TestConvertNode_Moves(t *testing.T) {
 		{
 			desc: "black move: non-pass",
 			makeNode: func(n *movetree.Node) {
-				n.Move = move.NewMove(color.Black, point.New(0, 1))
+				n.Move = move.New(color.Black, point.New(0, 1))
 			},
 			expOut: "B[ab]",
 		},
 		{
 			desc: "white move: non-pass",
 			makeNode: func(n *movetree.Node) {
-				n.Move = move.NewMove(color.White, point.New(0, 1))
+				n.Move = move.New(color.White, point.New(0, 1))
 			},
 			expOut: "W[ab]",
 		},
