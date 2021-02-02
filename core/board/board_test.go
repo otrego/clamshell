@@ -252,7 +252,7 @@ func TestPlaceStone(t *testing.T) {
 					{"", "", "", "", "", "", "", "", ""}},
 			},
 			m: move.New(color.Black, point.New(0, 0)),
-			exp: "[B . B . . . . . .]\n" +
+			exp: "[B * B . . . . . .]\n" +
 				"[. B . . . . . . .]\n" +
 				"[. . . . . . . . .]\n" +
 				"[. . . . . . . . .]\n" +
@@ -365,7 +365,7 @@ func TestPlaceStone(t *testing.T) {
 					{"", "", "", "", "W", "", "", "", ""},
 					{"", "", "", "", "", "", "", "", ""},
 					{"", "", "", "", "", "", "", "", ""}},
-				ko: point.New(4, 5),
+				ko: point.New(4, 4),
 			},
 			m:            move.New(color.White, point.New(4, 4)),
 			expErrSubstr: "illegal",
@@ -386,13 +386,34 @@ func TestPlaceStone(t *testing.T) {
 			}
 
 			if !reflect.DeepEqual(capt, tc.expCaptures) {
-				t.Errorf("Got captures %v, but expected captures %v; diff=%v", capt, tc.expCaptures,
+				t.Errorf("Got captures:%v, but expected captures:%v; diff=%v", capt, tc.expCaptures,
 					cmp.Diff(capt.String(), tc.expCaptures.String()))
 			}
 
-			if fmt.Sprintf("%s", got) != fmt.Sprintf("%s", tc.exp) {
-				t.Errorf("got %v, but expected %v", got, tc.exp)
+			if got != tc.exp {
+				t.Errorf("got board:\n%v, but expected board:\n%v", got, tc.exp)
 			}
 		})
+	}
+}
+
+func TestClone(t *testing.T) {
+	b := &Board{
+		board: [][]color.Color{{"", "", "", "", "", "", "", "", ""},
+			{"", "", "", "", "", "", "", "", ""},
+			{"", "", "", "", "", "", "", "", ""},
+			{"", "", "", "", "B", "", "", "", ""},
+			{"", "", "", "B", "", "B", "", "", ""},
+			{"", "", "", "W", "B", "W", "", "", ""},
+			{"", "", "", "", "W", "", "", "", ""},
+			{"", "", "", "", "", "", "", "", ""},
+			{"", "", "", "", "", "", "", "", ""}},
+		ko: point.New(4, 5),
+	}
+
+	newb := b.Clone()
+
+	if !reflect.DeepEqual(b, newb) {
+		t.Fatalf("b.Clone()=%v, but expected %v. diff=%v", b.String(), newb.String(), cmp.Diff(b.String(), newb.String()))
 	}
 }

@@ -7,6 +7,7 @@ import (
 	"unicode"
 
 	"github.com/otrego/clamshell/core/board"
+	"github.com/otrego/clamshell/core/color"
 	"github.com/otrego/clamshell/core/move"
 )
 
@@ -173,30 +174,29 @@ func (tp Path) Apply(n *Node) *Node {
 }
 
 // ApplyToBoard applies a treepath to a Go-Board, returning the captured stones,
-// or an error if the application was unsuccessful. Note that the board is
-// modified in-place.
-func (tp Path) ApplyToBoard(n *Node, b *board.Board) (move.List, error) {
-	curNode := n
+// or an error if the application was unsuccessful.
+//
+// A board copy, and the relevant captures are returned
+func (tp Path) ApplyToBoard(n *Node, b *board.Board) (*board.Board, move.List, error) {
+	b = b.Clone()
 
-	applyStones := func(n *Node, b *board.Board) (move.List, error) {
-		err := b.SetPlacements(n.Placements)
+	applyStones := func(n *Node, bb *board.Board) (move.List, error) {
+		err := bb.SetPlacements(n.Placements)
 		if err != nil {
 			return nil, err
 		}
-		if n.Move != nil {
-			return b.PlaceStone(n.Move)
+		if n.Move != nil && n.Move.Color() != color.Empty {
+			return bb.PlaceStone(n.Move)
 		}
 		return nil, nil
 	}
 
 	var traversed Path
 	var captures move.List
-	i := 0
-
-	for n != nil {
+	for i := 0; n != nil; i++ {
 		ml, err := applyStones(n, b)
 		if err != nil {
-			return nil, fmt.Errorf("error while applying stones at path %v: %v", traversed, err)
+			return nil, nil, fmt.Errorf("error while applying stones at traversed path %v: %v", traversed, err)
 		}
 		captures = append(captures, ml...)
 		if i >= len(tp) {
@@ -204,15 +204,15 @@ func (tp Path) ApplyToBoard(n *Node, b *board.Board) (move.List, error) {
 			continue
 		}
 		nextVar := tp[i]
-		i++
 
-		if nextVar < len(curNode.Children) {
-			n = curNode.Children[nextVar]
+		if nextVar < len(n.Children) {
+			n = n.Children[nextVar]
 		} else {
 			n = nil
 		}
 	}
-	return nil, nil
+	captures.Sort()
+	return b, captures, nil
 }
 
 // String returns the treepath as a string.

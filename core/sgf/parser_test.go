@@ -58,7 +58,7 @@ func TestParse(t *testing.T) {
 			},
 			pathToNodeCheck: map[string]nodeCheck{
 				"-": func(n *movetree.Node) error {
-					expPlacements := []*move.Move{
+					expPlacements := move.List{
 						move.New(color.White, point.New(0, 1)),
 						move.New(color.White, point.New(1, 2)),
 					}
@@ -361,7 +361,7 @@ func TestPropertyPostProcessing(t *testing.T) {
 			getter: func(n *movetree.Node) interface{} {
 				return n.Placements
 			},
-			want: []*move.Move{
+			want: move.List{
 				move.New(color.Black, point.New(0, 1)),
 				move.New(color.Black, point.New(0, 2)),
 				move.New(color.White, point.New(1, 1)),
