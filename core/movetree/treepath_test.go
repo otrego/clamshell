@@ -304,6 +304,28 @@ func TestApplyToBoard(t *testing.T) {
 				move.New(color.White, point.New(0, 1)),
 			},
 		},
+		{
+			desc: "apply with captures & Placements",
+			sgf:  "(;GM[1]AB[ad][ae]AW[bd][be];B[aa];W[ab];B[ac];W[dd];B[bb])",
+			b:    makeBoard(move.List{}),
+			tp:   "0x5",
+			expBoard: makeBoard(move.List{
+				move.New(color.Black, point.New(0, 0)),
+				move.New(color.Black, point.New(0, 2)),
+				move.New(color.Black, point.New(0, 3)),
+				move.New(color.Black, point.New(0, 4)),
+
+				move.New(color.White, point.New(0, 1)),
+				move.New(color.White, point.New(3, 3)),
+				move.New(color.White, point.New(1, 3)),
+				move.New(color.White, point.New(1, 4)),
+
+				move.New(color.Black, point.New(1, 1)),
+			}),
+			expCaptures: move.List{
+				move.New(color.White, point.New(0, 1)),
+			},
+		},
 	}
 
 	for _, tci := range testCases {
