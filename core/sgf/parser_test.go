@@ -58,9 +58,9 @@ func TestParse(t *testing.T) {
 			},
 			pathToNodeCheck: map[string]nodeCheck{
 				"-": func(n *movetree.Node) error {
-					expPlacements := []*move.Move{
-						move.NewMove(color.White, point.New(0, 1)),
-						move.NewMove(color.White, point.New(1, 2)),
+					expPlacements := move.List{
+						move.New(color.White, point.New(0, 1)),
+						move.New(color.White, point.New(1, 2)),
 					}
 					if !reflect.DeepEqual(n.Placements, expPlacements) {
 						return fmt.Errorf("incorrect placements; got %v, but wanted %v", n.Placements, expPlacements)
@@ -79,7 +79,7 @@ func TestParse(t *testing.T) {
 			},
 			pathToNodeCheck: map[string]nodeCheck{
 				"0": func(n *movetree.Node) error {
-					expMove := move.NewMove(color.Black, point.New(2, 2))
+					expMove := move.New(color.Black, point.New(2, 2))
 					if !reflect.DeepEqual(n.Move, expMove) {
 						return fmt.Errorf("incorrect move; got %v, but wanted %v", n.Move, expMove)
 					}
@@ -119,14 +119,14 @@ func TestParse(t *testing.T) {
 			sgf:  `(;GM[1](;B[aa];W[ab])(;B[ab];W[ac]))`,
 			pathToNodeCheck: map[string]nodeCheck{
 				"0-0": func(n *movetree.Node) error {
-					expMove := move.NewMove(color.White, point.New(0, 1))
+					expMove := move.New(color.White, point.New(0, 1))
 					if !reflect.DeepEqual(n.Move, expMove) {
 						return fmt.Errorf("incorrect move; got %v, but wanted %v", n.Move, expMove)
 					}
 					return nil
 				},
 				"1-0": func(n *movetree.Node) error {
-					expMove := move.NewMove(color.White, point.New(0, 2))
+					expMove := move.New(color.White, point.New(0, 2))
 					if !reflect.DeepEqual(n.Move, expMove) {
 						return fmt.Errorf("incorrect move; got %v, but wanted %v", n.Move, expMove)
 					}
@@ -211,7 +211,7 @@ AB[na][ra][mb][rb][lc][qc][ld][od][qd][le][pe][qe][mf][nf][of][pg]
 			},
 			pathToNodeCheck: map[string]nodeCheck{
 				"0-0": func(n *movetree.Node) error {
-					expMove := move.NewMove(color.White, point.New(13, 2))
+					expMove := move.New(color.White, point.New(13, 2))
 					if !reflect.DeepEqual(n.Move, expMove) {
 						return fmt.Errorf("incorrect move; got %v, but wanted %v", n.Move, expMove)
 					}
@@ -219,14 +219,14 @@ AB[na][ra][mb][rb][lc][qc][ld][od][qd][le][pe][qe][mf][nf][of][pg]
 				},
 				// should be same, since treepath terminates
 				"0-0-0": func(n *movetree.Node) error {
-					expMove := move.NewMove(color.White, point.New(13, 2))
+					expMove := move.New(color.White, point.New(13, 2))
 					if !reflect.DeepEqual(n.Move, expMove) {
 						return fmt.Errorf("incorrect move; got %v, but wanted %v", n.Move, expMove)
 					}
 					return nil
 				},
 				"1-1-0": func(n *movetree.Node) error {
-					expMove := move.NewMove(color.Black, point.New(14, 0))
+					expMove := move.New(color.Black, point.New(14, 0))
 					if !reflect.DeepEqual(n.Move, expMove) {
 						return fmt.Errorf("incorrect move; got %v, but wanted %v", n.Move, expMove)
 					}
@@ -343,7 +343,7 @@ func TestPropertyPostProcessing(t *testing.T) {
 			getter: func(n *movetree.Node) interface{} {
 				return n.Move
 			},
-			want: move.NewMove(color.Black, point.New(0, 1)),
+			want: move.New(color.Black, point.New(0, 1)),
 		},
 		{
 			desc: "white move",
@@ -352,7 +352,7 @@ func TestPropertyPostProcessing(t *testing.T) {
 			getter: func(n *movetree.Node) interface{} {
 				return n.Move
 			},
-			want: move.NewMove(color.White, point.New(0, 1)),
+			want: move.New(color.White, point.New(0, 1)),
 		},
 		{
 			desc: "black & white placements",
@@ -361,11 +361,11 @@ func TestPropertyPostProcessing(t *testing.T) {
 			getter: func(n *movetree.Node) interface{} {
 				return n.Placements
 			},
-			want: []*move.Move{
-				move.NewMove(color.Black, point.New(0, 1)),
-				move.NewMove(color.Black, point.New(0, 2)),
-				move.NewMove(color.White, point.New(1, 1)),
-				move.NewMove(color.White, point.New(1, 2)),
+			want: move.List{
+				move.New(color.Black, point.New(0, 1)),
+				move.New(color.Black, point.New(0, 2)),
+				move.New(color.White, point.New(1, 1)),
+				move.New(color.White, point.New(1, 2)),
 			},
 		},
 	}

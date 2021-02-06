@@ -1,11 +1,16 @@
 package movetree_test
 
 import (
+	"reflect"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
+	"github.com/otrego/clamshell/core/board"
+	"github.com/otrego/clamshell/core/color"
 	"github.com/otrego/clamshell/core/errcheck"
+	"github.com/otrego/clamshell/core/move"
 	"github.com/otrego/clamshell/core/movetree"
+	"github.com/otrego/clamshell/core/point"
 	"github.com/otrego/clamshell/core/sgf"
 )
 
@@ -242,6 +247,117 @@ func TestCompactString(t *testing.T) {
 			got := tc.tp.CompactString()
 			if got != tc.exp {
 				t.Errorf("got %s, expected %s", got, tc.exp)
+			}
+		})
+	}
+}
+func makeBoard(ml move.List) *board.Board {
+	b := board.NewBoard(9)
+	for _, mv := range ml {
+		_, err := b.PlaceStone(mv)
+		if err != nil {
+			panic(err)
+		}
+	}
+	return b
+}
+
+func TestApplyToBoard(t *testing.T) {
+	testCases := []struct {
+		desc string
+		sgf  string
+		tp   string
+		b    *board.Board
+
+		expBoard     *board.Board
+		expCaptures  move.List
+		expErrSubstr string
+	}{
+		{
+			desc:     "empty apply case",
+			sgf:      "(;GM[1];B[aa];W[ab];B[ac];W[dd];B[bb])",
+			b:        makeBoard(move.List{}),
+			expBoard: makeBoard(move.List{}),
+		},
+		{
+			desc: "basic apply case",
+			sgf:  "(;GM[1];B[aa];W[ab];B[ac];W[dd];B[bb])",
+			b:    makeBoard(move.List{}),
+			tp:   "0",
+			expBoard: makeBoard(move.List{
+				move.New(color.Black, point.New(0, 0)),
+			}),
+		},
+		{
+			desc: "apply with captures",
+			sgf:  "(;GM[1];B[aa];W[ab];B[ac];W[dd];B[bb])",
+			b:    makeBoard(move.List{}),
+			tp:   "0x5",
+			expBoard: makeBoard(move.List{
+				move.New(color.Black, point.New(0, 0)),
+				move.New(color.Black, point.New(0, 2)),
+				move.New(color.White, point.New(0, 1)),
+				move.New(color.White, point.New(3, 3)),
+				move.New(color.Black, point.New(1, 1)),
+			}),
+			expCaptures: move.List{
+				move.New(color.White, point.New(0, 1)),
+			},
+		},
+		{
+			desc: "apply with captures & Placements",
+			sgf:  "(;GM[1]AB[ad][ae]AW[bd][be];B[aa];W[ab];B[ac];W[dd];B[bb])",
+			b:    makeBoard(move.List{}),
+			tp:   "0x5",
+			expBoard: makeBoard(move.List{
+				move.New(color.Black, point.New(0, 0)),
+				move.New(color.Black, point.New(0, 2)),
+				move.New(color.Black, point.New(0, 3)),
+				move.New(color.Black, point.New(0, 4)),
+
+				move.New(color.White, point.New(0, 1)),
+				move.New(color.White, point.New(3, 3)),
+				move.New(color.White, point.New(1, 3)),
+				move.New(color.White, point.New(1, 4)),
+
+				move.New(color.Black, point.New(1, 1)),
+			}),
+			expCaptures: move.List{
+				move.New(color.White, point.New(0, 1)),
+			},
+		},
+	}
+
+	for _, tci := range testCases {
+		tc := tci
+		t.Run(tc.desc, func(t *testing.T) {
+			mt, err := sgf.FromString(tc.sgf).Parse()
+			if err != nil {
+				t.Fatal(err)
+			}
+			tp, err := movetree.ParsePath(tc.tp)
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			b, capt, err := tp.ApplyToBoard(mt.Root, tc.b)
+			cerr := errcheck.CheckCases(err, tc.expErrSubstr)
+			if cerr != nil {
+				t.Error(cerr)
+			}
+			if err != nil {
+				return
+			}
+
+			if tc.expBoard == nil {
+				t.Fatal("expected board was nil")
+			}
+			if !reflect.DeepEqual(b, tc.expBoard) {
+				t.Errorf("After apply, got board:\n%v, but expected:\n%v. Diff=%v", b, tc.expBoard, cmp.Diff(b.String(), tc.expBoard.String()))
+			}
+
+			if !reflect.DeepEqual(capt, tc.expCaptures) {
+				t.Errorf("After apply, got captures %v, but expected %v. Diff=%v", capt, tc.expCaptures, cmp.Diff(capt.String(), tc.expCaptures.String()))
 			}
 		})
 	}
