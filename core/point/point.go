@@ -32,9 +32,9 @@ func (pt *Point) ToSGF() (string, error) {
 	return toSGF(pt)
 }
 
-// Equals returns whether this point is equal to another point.
-func (pt *Point) Equals(other *Point) bool {
-	return pt.X() == other.X() && pt.Y() == other.Y()
+// Equal returns whether this point is equal to another point.
+func (pt *Point) Equal(other *Point) bool {
+	return other != nil && pt.X() == other.X() && pt.Y() == other.Y()
 }
 
 // String converts to string representation of a Point.
