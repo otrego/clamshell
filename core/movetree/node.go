@@ -46,8 +46,6 @@ type Node struct {
 	// Comment is the comment for the current node.
 	Comment string
 
-	// TODO(#193): Move GameInfo property to MoveTree struct.
-
 	// GameInfo contains properties only found on the root. Should be nil on
 	// non-root nodes.
 	GameInfo *GameInfo
