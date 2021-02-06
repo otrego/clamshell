@@ -153,7 +153,7 @@ func TestKey(t *testing.T) {
 	}
 
 	back := exp.Point()
-	if !pt.Equals(back) {
+	if !pt.Equal(back) {
 		t.Errorf("error converting key to point: got %v, but expected %v", back, pt)
 	}
 }
