@@ -5,6 +5,10 @@ import (
 	"strconv"
 	"strings"
 	"unicode"
+
+	"github.com/otrego/clamshell/core/board"
+	"github.com/otrego/clamshell/core/color"
+	"github.com/otrego/clamshell/core/move"
 )
 
 // A Path is a list of variations that says how to travel through a tree of
@@ -161,13 +165,54 @@ func (tp Path) Apply(n *Node) *Node {
 	curNode := n
 	for _, v := range tp {
 		if v < len(curNode.Children) {
-			// Assume there are no gaps. If there are, parsing failed us.
 			curNode = curNode.Children[v]
 		} else {
 			break
 		}
 	}
 	return curNode
+}
+
+// ApplyToBoard applies a treepath to a Go-Board, returning the captured stones,
+// or an error if the application was unsuccessful.
+//
+// A board copy, and the relevant captures are returned
+func (tp Path) ApplyToBoard(n *Node, b *board.Board) (*board.Board, move.List, error) {
+	b = b.Clone()
+
+	applyStones := func(n *Node, bb *board.Board) (move.List, error) {
+		err := bb.SetPlacements(n.Placements)
+		if err != nil {
+			return nil, err
+		}
+		if n.Move != nil && n.Move.Color() != color.Empty {
+			return bb.PlaceStone(n.Move)
+		}
+		return nil, nil
+	}
+
+	var traversed Path
+	var captures move.List
+	for i := 0; n != nil; i++ {
+		ml, err := applyStones(n, b)
+		if err != nil {
+			return nil, nil, fmt.Errorf("error while applying stones at traversed path %v: %v", traversed, err)
+		}
+		captures = append(captures, ml...)
+		if i >= len(tp) {
+			n = nil
+			continue
+		}
+		nextVar := tp[i]
+
+		if nextVar < len(n.Children) {
+			n = n.Children[nextVar]
+		} else {
+			n = nil
+		}
+	}
+	captures.Sort()
+	return b, captures, nil
 }
 
 // String returns the treepath as a string.
@@ -185,8 +230,11 @@ func (tp Path) String() string {
 
 // Clone makes a copy of the treepath.
 func (tp Path) Clone() Path {
-	// A shallow copy should be sufficient.
-	return tp[:]
+	newPath := make(Path, len(tp))
+	for i := range tp {
+		newPath[i] = tp[i]
+	}
+	return newPath
 }
 
 // CompactString returns the treepath as a CompactString (short-hand).

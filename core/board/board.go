@@ -13,6 +13,7 @@ import (
 // Board Contains the board, capturesStones, and ko
 // ko contains a point that is illegal to recapture due to Ko.
 type Board struct {
+	// The board, arranged in rows (rather than columns).
 	board [][]color.Color
 	ko    *point.Point
 }
@@ -30,14 +31,9 @@ func NewBoard(size int) *Board {
 	return &board
 }
 
-// PlaceStone adds a stone to the board
-// and removes captured stones (if any).
-// returns the captured stones, or err
-// if any Go (baduk) rules were broken
-func (b *Board) PlaceStone(m *move.Move) ([]*point.Point, error) {
-	var ko *point.Point = b.ko
-	b.ko = nil
-
+// PlaceStone adds a stone to the board and removes captured stones (if any).
+// returns the captured stones, or err if any Go (baduk) rules were broken
+func (b *Board) PlaceStone(m *move.Move) (move.List, error) {
 	if !b.inBounds(m.Point()) {
 		return nil, fmt.Errorf("move %v out of bounds for %dx%d board",
 			m.Point(), len(b.board[0]), len(b.board))
@@ -47,21 +43,32 @@ func (b *Board) PlaceStone(m *move.Move) ([]*point.Point, error) {
 	}
 
 	b.setColor(m)
+
 	capturedStones := b.findCapturedGroups(m)
 	if len(capturedStones) == 0 && len(b.capturedStones(m.Point())) != 0 {
 		b.setColor(move.New(color.Empty, m.Point()))
 		return nil, fmt.Errorf("move %v is suicidal", m.Point())
 	}
 	if len(capturedStones) == 1 {
-		b.ko = m.Point()
-		if ko != nil && *ko == *(capturedStones[0]) {
+		if b.ko != nil && *(b.ko) == *(m.Point()) {
 			b.setColor(move.New(color.Empty, m.Point()))
 			return nil, fmt.Errorf("%v is an illegal ko move", m.Point())
 		}
+		b.ko = capturedStones[0]
+	} else {
+		b.ko = nil
 	}
 
+	// convert the captured stones into Move objects for convience.
+	var captured move.List
+	opp := m.Color().Opposite()
+	for _, pt := range capturedStones {
+		captured = append(captured, move.New(opp, pt))
+	}
+	captured.Sort()
+
 	b.removeCapturedStones(capturedStones)
-	return capturedStones, nil
+	return captured, nil
 }
 
 // findCapturedGroups returns the groups captured by *Move m.
@@ -86,7 +93,7 @@ func (b *Board) removeCapturedStones(capturedStones []*point.Point) {
 	}
 }
 
-// CapturedStones returns the captured stones in group containing Point pt.
+// capturedStones returns the captured stones in group containing Point pt.
 // returns nil if no stones were captured.
 func (b *Board) capturedStones(pt *point.Point) []*point.Point {
 	expanded := make(map[point.Point]bool)
@@ -160,6 +167,34 @@ func (b *Board) getNeighbors(pt *point.Point) []*point.Point {
 	return points
 }
 
+// SetPlacements force-places moves on the go-board, without performing capture
+// logic. If an illegal board position results, return an error.
+func (b *Board) SetPlacements(ml move.List) error {
+	for _, m := range ml {
+		b.setColor(m)
+	}
+
+	// TODO(kashomon): Validate we have a valid board position -- i.e., one
+	// without captures lying on the board.
+	return nil
+}
+
+// Clone makes a board copy.
+func (b *Board) Clone() *Board {
+	newb := &Board{
+		ko:    b.ko,
+		board: make([][]color.Color, len(b.board)),
+	}
+	for i, row := range b.board {
+		newRow := make([]color.Color, len(row))
+		for j, col := range row {
+			newRow[j] = col
+		}
+		newb.board[i] = newRow
+	}
+	return newb
+}
+
 // GetFullBoardState returns an array of all the current stone positions.
 func (b *Board) GetFullBoardState() []*move.Move {
 	moves := make([]*move.Move, 0)
@@ -195,7 +230,9 @@ func (b *Board) String() string {
 		// color.Empty is converted from "" to ".".
 		str := make([]string, len(b.board[0]))
 		for j := 0; j < len(b.board[0]); j++ {
-			if b.board[i][j] == color.Empty {
+			if b.ko != nil && b.ko.X() == j && b.ko.Y() == i {
+				str[j] = "*"
+			} else if b.board[i][j] == color.Empty {
 				str[j] = "."
 			} else {
 				str[j] = string(b.board[i][j])
