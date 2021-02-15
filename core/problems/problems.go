@@ -34,7 +34,7 @@ func PopulateBoard(tp movetree.Path, g *movetree.MoveTree) (*board.Board, error)
 	n := g.Root
 	i := n.GameInfo.Size
 
-	b := board.NewBoard(i)
+	b := board.New(i)
 	for _, move := range n.Placements {
 		b.PlaceStone(move)
 	}
