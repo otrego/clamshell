@@ -15,7 +15,8 @@ type Options struct {
 }
 
 // Create a new Snapshot from a given movetree and path.
-func Create(mt *movetree.MoveTree, position movetree.Path, opts *Options) *Snapshot {
+func Create(mt *movetree.MoveTree, pos movetree.Path, opts *Options) *Snapshot {
+
 	return &Snapshot{}
 }
 
