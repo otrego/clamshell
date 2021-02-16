@@ -18,8 +18,8 @@ type Board struct {
 	ko    *point.Point
 }
 
-// NewBoard creates a new size x size board.
-func NewBoard(size int) *Board {
+// New creates a new size x size board.
+func New(size int) *Board {
 	board := Board{
 		make([][]color.Color, size),
 		nil,
