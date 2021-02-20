@@ -252,7 +252,7 @@ func TestCompactString(t *testing.T) {
 	}
 }
 func makeBoard(ml move.List) *board.Board {
-	b := board.NewBoard(9)
+	b := board.New(9)
 	for _, mv := range ml {
 		_, err := b.PlaceStone(mv)
 		if err != nil {
