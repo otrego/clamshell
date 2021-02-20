@@ -417,3 +417,49 @@ func TestClone(t *testing.T) {
 		t.Fatalf("b.Clone()=%v, but expected %v. diff=%v", b.String(), newb.String(), cmp.Diff(b.String(), newb.String()))
 	}
 }
+
+func TestStoneState(t *testing.T) {
+	b := New(5)
+	err := b.SetPlacements(move.List{
+		move.New(color.Black, point.New(2, 3)),
+		move.New(color.White, point.New(2, 4)),
+		move.New(color.White, point.New(1, 1)),
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	fbstate := b.StoneState()
+	expState := move.List{
+		move.New(color.White, point.New(1, 1)),
+		move.New(color.Black, point.New(2, 3)),
+		move.New(color.White, point.New(2, 4)),
+	}
+	if !reflect.DeepEqual(fbstate, expState) {
+		t.Errorf("got stone state %v, but expected %v", fbstate, expState)
+	}
+}
+
+func TestFullBoardState(t *testing.T) {
+	b := New(5)
+	err := b.SetPlacements(move.List{
+		move.New(color.Black, point.New(2, 3)),
+		move.New(color.White, point.New(2, 4)),
+		move.New(color.White, point.New(1, 1)),
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	fbstate := b.FullBoardState()
+	expState := [][]color.Color{
+		[]color.Color{color.Empty, color.Empty, color.Empty, color.Empty, color.Empty},
+		[]color.Color{color.Empty, color.White, color.Empty, color.Empty, color.Empty},
+		[]color.Color{color.Empty, color.Empty, color.Empty, color.Empty, color.Empty},
+		[]color.Color{color.Empty, color.Empty, color.Black, color.Empty, color.Empty},
+		[]color.Color{color.Empty, color.Empty, color.White, color.Empty, color.Empty},
+	}
+	if !cmp.Equal(fbstate, expState) {
+		t.Errorf("got full stone state %v, but expected %v. diff=%v", fbstate, expState, cmp.Diff(fbstate, expState))
+	}
+}
