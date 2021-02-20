@@ -173,10 +173,14 @@ func (b *Board) SetPlacements(ml move.List) error {
 	for _, m := range ml {
 		b.setColor(m)
 	}
-
 	// TODO(kashomon): Validate we have a valid board position -- i.e., one
 	// without captures lying on the board.
 	return nil
+}
+
+// Ko returns the ko point.
+func (b *Board) Ko() *point.Point {
+	return b.ko
 }
 
 // Clone makes a board copy.
@@ -195,10 +199,9 @@ func (b *Board) Clone() *Board {
 	return newb
 }
 
-// GetFullBoardState returns an array of all the current stone positions.
-func (b *Board) GetFullBoardState() []*move.Move {
-	moves := make([]*move.Move, 0)
-
+// StoneState returns an array of all the current stone positions.
+func (b *Board) StoneState() move.List {
+	var moves move.List
 	for i := 0; i < len(b.board); i++ {
 		for j := 0; j < len(b.board[0]); j++ {
 			if b.board[i][j] != color.Empty {
@@ -207,8 +210,19 @@ func (b *Board) GetFullBoardState() []*move.Move {
 			}
 		}
 	}
-
 	return moves
+}
+
+// FullBoardState returns the full board state.
+func (b *Board) FullBoardState() [][]color.Color {
+	out := make([][]color.Color, len(b.board))
+	for i, row := range b.board {
+		out[i] = make([]color.Color, len(row))
+		for j, col := range row {
+			out[i][j] = col
+		}
+	}
+	return out
 }
 
 // String returns a string representation of this board.
