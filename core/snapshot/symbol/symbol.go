@@ -8,7 +8,7 @@ import (
 // Symbol represents an intersection on the board.
 type Symbol int
 
-// Return the Stone symbol from
+// StoneFromColor returns the appropriate Stone symbol from a color.
 func StoneFromColor(c color.Color) Symbol {
 	switch c {
 	case color.Black:
