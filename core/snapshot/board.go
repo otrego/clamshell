@@ -6,7 +6,7 @@ import (
 )
 
 // createBoard creates a Board snapshot from some board state
-func createBoard(b *board.Board) (*Board, error) {
+func createBoard(b *board.Board, cbox *bbox.CropBox) (*Board, error) {
 	// TODO(kashomon): Add support for this
 	return nil, nil
 }
