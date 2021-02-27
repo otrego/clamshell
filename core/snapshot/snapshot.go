@@ -6,12 +6,15 @@
 package snapshot
 
 import (
+	"github.com/otrego/clamshell/core/bbox"
 	"github.com/otrego/clamshell/core/board"
 	"github.com/otrego/clamshell/core/movetree"
 )
 
 // Options contains options for creating flattened snapshots.
 type Options struct {
+	// CropBox allows users to specify a crop-specification.
+	CropBox *bbox.CropBox
 }
 
 // Create a new Snapshot from a given movetree and path.
