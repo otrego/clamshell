@@ -7,7 +7,7 @@ import (
 )
 
 // createBoard creates a Board snapshot from some board state
-func createBoard(b *board.Board) (*Board, error) {
+func createBoard(b *board.Board, cbox *bbox.CropBox) (*Board, error) {
 	fb := b.FullBoardState()
 	intz := make([][]*Intersection, len(fb))
 	for i, row := range fb {
