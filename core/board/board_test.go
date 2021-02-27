@@ -200,6 +200,73 @@ func TestRemoveCapturedStones(t *testing.T) {
 	}
 }
 
+func TestSetPlacements(t *testing.T) {
+	testCases := []struct {
+		desc         string
+		ml           move.List
+		expErrSubstr string
+	}{
+		{
+			desc: "current placements",
+			ml: move.List{
+				move.New(color.White, point.New(1, 4)),
+				move.New(color.White, point.New(2, 4)),
+				move.New(color.White, point.New(3, 4)),
+
+				move.New(color.White, point.New(4, 1)),
+				move.New(color.White, point.New(4, 2)),
+				move.New(color.White, point.New(4, 3)),
+
+				move.New(color.White, point.New(4, 5)),
+				move.New(color.White, point.New(4, 6)),
+				move.New(color.White, point.New(4, 7)),
+
+				move.New(color.White, point.New(5, 4)),
+				move.New(color.White, point.New(6, 4)),
+				move.New(color.White, point.New(7, 4)),
+			},
+		},
+		{
+			desc: "current placements",
+			ml: move.List{
+				move.New(color.White, point.New(1, 4)),
+				move.New(color.White, point.New(2, 4)),
+				move.New(color.White, point.New(3, 4)),
+
+				move.New(color.White, point.New(4, 1)),
+				move.New(color.White, point.New(4, 2)),
+				move.New(color.White, point.New(4, 3)),
+
+				move.New(color.White, point.New(4, 5)),
+				move.New(color.White, point.New(4, 6)),
+				move.New(color.White, point.New(4, 7)),
+
+				move.New(color.White, point.New(5, 4)),
+				move.New(color.White, point.New(6, 4)),
+				move.New(color.White, point.New(7, 4)),
+
+				move.New(color.Black, point.New(4, 4)),
+			},
+			expErrSubstr: "invalid board state",
+		},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.desc, func(t *testing.T) {
+			b := New(19)
+			err := b.SetPlacements(tc.ml)
+
+			cerr := errcheck.CheckCases(err, tc.expErrSubstr)
+			if cerr != nil {
+				t.Error(cerr)
+				return
+			}
+			if err != nil {
+				return
+			}
+
+		})
+	}
+}
 func TestPlaceStone(t *testing.T) {
 	testCases := []struct {
 		desc         string
