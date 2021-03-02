@@ -186,17 +186,17 @@ func (b *Board) SetPlacements(ml move.List) error {
 
 	// Validate we have a valid board position -- i.e., one
 	// without captures lying on the board.
-	expanded := make(map[point.Point]bool)
+	explored := make(map[point.Point]bool)
 	for _, m := range ml {
 		pt := m.Point()
 
-		if !expanded[*pt] {
-			stoneGroup, Captured := b.getStoneGroup(pt)
-			if Captured {
+		if !explored[*pt] {
+			stoneGroup, captured := b.getStoneGroup(pt)
+			if captured {
 				return fmt.Errorf("invalid board state. stones at points %v are captured", stoneGroup)
 			}
 			for _, point := range stoneGroup {
-				expanded[*point] = true
+				explored[*point] = true
 			}
 		}
 	}
