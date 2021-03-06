@@ -96,8 +96,18 @@ func (b *Board) removeCapturedStones(capturedStones []*point.Point) {
 // capturedStones returns the captured stones in group containing Point pt.
 // returns nil if no stones were captured.
 func (b *Board) capturedStones(pt *point.Point) []*point.Point {
-	expanded := make(map[point.Point]bool)
+	stoneGroup, captured := b.getStoneGroup(pt)
+	if captured {
+		return stoneGroup
+	}
+	return nil
+}
 
+// getStoneGroup returns all the points in a stone group containing point pt
+// and true if the group is captured
+func (b *Board) getStoneGroup(pt *point.Point) ([]*point.Point, bool) {
+	expanded := make(map[point.Point]bool)
+	captured := true
 	// current group color
 	c := b.colorAt(pt)
 
@@ -114,8 +124,7 @@ func (b *Board) capturedStones(pt *point.Point) []*point.Point {
 		if !b.inBounds(pt1) {
 			continue
 		} else if b.colorAt(pt1) == color.Empty {
-			// Liberty has been found, no need to continue search
-			return nil
+			captured = false
 		} else if b.colorAt(pt1) == c && !expanded[*pt1] {
 			expanded[*pt1] = true
 			points := b.getNeighbors(pt1)
@@ -125,14 +134,14 @@ func (b *Board) capturedStones(pt *point.Point) []*point.Point {
 		}
 	}
 
-	// The stones that were captured
+	// The stones in this group
 	stoneGroup := make([]*point.Point, len(expanded))
 	i := 0
 	for key := range expanded {
 		stoneGroup[i] = point.New(key.X(), key.Y())
 		i++
 	}
-	return stoneGroup
+	return stoneGroup, captured
 }
 
 // inBounds returns true if x and y are in bounds
@@ -170,11 +179,27 @@ func (b *Board) getNeighbors(pt *point.Point) []*point.Point {
 // SetPlacements force-places moves on the go-board, without performing capture
 // logic. If an illegal board position results, return an error.
 func (b *Board) SetPlacements(ml move.List) error {
+
 	for _, m := range ml {
 		b.setColor(m)
 	}
-	// TODO(kashomon): Validate we have a valid board position -- i.e., one
+
+	// Validate we have a valid board position -- i.e., one
 	// without captures lying on the board.
+	explored := make(map[point.Point]bool)
+	for _, m := range ml {
+		pt := m.Point()
+
+		if !explored[*pt] {
+			stoneGroup, captured := b.getStoneGroup(pt)
+			if captured {
+				return fmt.Errorf("invalid board state. stones at points %v are captured", stoneGroup)
+			}
+			for _, point := range stoneGroup {
+				explored[*point] = true
+			}
+		}
+	}
 	return nil
 }
 
