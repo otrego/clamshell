@@ -1,6 +1,7 @@
 package point
 
 import (
+	"encoding/json"
 	"fmt"
 	"testing"
 )
@@ -142,18 +143,17 @@ func TestSGFToPointTranslate(t *testing.T) {
 	}
 }
 
-func TestKey(t *testing.T) {
-	pt := New(12, 15)
-
-	key := pt.Key()
-	exp := Key{X: 12, Y: 15}
-
-	if key != exp {
-		t.Errorf("error converting point to key: got %v, but expected %v", key, exp)
+func TestJSON(t *testing.T) {
+	pt := New(1, 2)
+	by, err := json.Marshal(pt)
+	if err != nil {
+		t.Fatal(err)
 	}
-
-	back := exp.Point()
-	if !pt.Equal(back) {
-		t.Errorf("error converting key to point: got %v, but expected %v", back, pt)
+	var back Point
+	if err := json.Unmarshal(by, &back); err != nil {
+		t.Fatal(err)
+	}
+	if !back.Equal(pt) {
+		t.Fatalf("got point %v, but expected point %v", back, pt)
 	}
 }

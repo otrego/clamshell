@@ -2,6 +2,7 @@
 package point
 
 import (
+	"encoding/json"
 	"fmt"
 )
 
@@ -42,21 +43,26 @@ func (pt *Point) String() string {
 	return fmt.Sprintf("{%d,%d}", pt.x, pt.y)
 }
 
-// Key is a convenience helper to convert this point to a key-struct.
-func (pt *Point) Key() Key {
-	return Key{X: pt.X(), Y: pt.Y()}
+// pointInternal is an internal struct for the purposes of JSON Conversion.
+type pointInternal struct {
+	X int `json:"x"`
+	Y int `json:"y"`
 }
 
-// Key is a point-struct that is used for keys in maps. As such, it's intended
-// to be used like the following:
-//
-//     Key{X:12, Y:15}
-type Key struct {
-	X int
-	Y int
+// MarshalJSON indicates to the JSON library how to marshal a Point.
+func (pt *Point) MarshalJSON() ([]byte, error) {
+	return json.Marshal(&pointInternal{
+		X: pt.x,
+		Y: pt.y,
+	})
 }
 
-// Point converts a point-Key back to a point.
-func (k Key) Point() *Point {
-	return New(k.X, k.Y)
+func (pt *Point) UnmarshalJSON(data []byte) error {
+	var pti pointInternal
+	if err := json.Unmarshal(data, &pti); err != nil {
+		return err
+	}
+	pt.x = pti.X
+	pt.y = pti.Y
+	return nil
 }
