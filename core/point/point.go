@@ -57,6 +57,7 @@ func (pt *Point) MarshalJSON() ([]byte, error) {
 	})
 }
 
+// UnmarshalJSON indicates to the JSON library how to unmarshal a Point.
 func (pt *Point) UnmarshalJSON(data []byte) error {
 	var pti pointInternal
 	if err := json.Unmarshal(data, &pti); err != nil {
