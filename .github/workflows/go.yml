@@ -48,6 +48,7 @@ jobs:
     name: Docker Build
     runs-on: ubuntu-latest
     needs: [test, lint, shadow]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master' && github.repository == 'otrego/clamshell'
     steps:
       - uses: actions/checkout@v2
       - name: docker-build
@@ -68,6 +69,7 @@ jobs:
     name: Deploy Dev
     runs-on: ubuntu-latest
     needs: DockerBuild
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master' && github.repository == 'otrego/clamshell'
     steps:
       - uses: actions/checkout@v2
       - uses: hashicorp/setup-terraform@v1
@@ -83,7 +85,7 @@ jobs:
 
       - name: Terraform Init
         id: init
-        run: terraform init -input=false ./tf/dev
+        run: terraform init -input=false tf/dev
 
       - name: Terraform Plan
         id: plan
