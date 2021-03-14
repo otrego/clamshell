@@ -89,7 +89,7 @@ jobs:
 
       - name: Terraform Plan
         id: plan
-        run: terraform plan -out=plan.tfplan -var="api_docker_image=us.gcr.io/otrego-dev/apiserver:${GITHUB_RUN_NUMBER}" $GITHUB_WORKSPACE/tf/
+        run: terraform plan -out=plan.tfplan -var="api_docker_image=us.gcr.io/otrego-dev/apiserver:${GITHUB_RUN_NUMBER}" $GITHUB_WORKSPACE/tf/dev
 
       - name: Terraform Apply
         id: tf-apply
