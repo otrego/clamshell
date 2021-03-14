@@ -29,8 +29,8 @@ tmp
 
 
 # Terraform
-tf/.terraform
-tf/*.plan
+.terraform
+*.plan
 tf/*.state
 
 # katago analysis/gtp logs

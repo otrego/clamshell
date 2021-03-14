@@ -1,6 +1,8 @@
 variable "dns_managed_zone" {
-  description = "The dns managed zone in GCP Cloud DNS. This is where DNS entries should be writable."
-  default = "otrego-dev"
+  description = "The dns managed zone in GCP Cloud DNS. This is where DNS entries should be writable. Example: otrego-dev"
+}
+variable "dns_name" {
+  description = "A record entry within the DNS Manged Zone. Eg: dev.otrego.com."
 }
 
 variable "project_id" {
@@ -18,11 +20,6 @@ variable "subnetwork" {
   default     = "default"
 }
 
-variable "instance_name" {
-  description = "The desired name to assign to the deployed instance"
-  default     = "hello-world-container-vm"
-}
-
 variable "zone" {
   description = "The GCP zone to deploy instances into"
   type        = string
@@ -36,8 +33,7 @@ variable "client_email" {
 }
 
 variable "cos_image_name" {
-  description = "The forced COS image to use instead of latest"
-  default     = "cos-stable-77-12371-89-0"
+  description = "The container optimized image. This is the base image for the machine on which docker is run. Should be updated regularly. Example: cos-stable-77-12371-89-0"
 }
 
 variable "api_docker_image" {

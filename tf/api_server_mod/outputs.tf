@@ -24,6 +24,6 @@ output "ipv4" {
 }
 
 output "cos_image_name" {
-  description = "The cos image used"
+  description = "The conatiner optimized image used"
   value       = var.cos_image_name
 }
