@@ -83,15 +83,12 @@ jobs:
 
       - name: Terraform Init
         id: init
-        working_directory: ./tf/dev
-        run: terraform init -input=false
+        run: terraform init -input=false ./tf/dev
 
       - name: Terraform Plan
         id: plan
-        working_directory: ./tf/dev
         run: terraform plan -out=plan.tfplan -var="api_docker_image=us.gcr.io/otrego-dev/apiserver:${GITHUB_RUN_NUMBER}" $GITHUB_WORKSPACE/tf/
 
       - name: Terraform Apply
         id: tf-apply
-        working_directory: ./tf/dev
         run: terraform apply plan.tfplan
