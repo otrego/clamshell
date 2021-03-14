@@ -1,15 +1,8 @@
-terraform {
-  backend "gcs" {
-    bucket  = "otrego-dev-infrastructure"
-    prefix  = "terraform/dev/api"
-  }
-}
-
 provider "google" {
 }
 
 locals {
-  instance_name = format("%s-%s", var.instance_name, substr(md5(module.gce-container.container.image), 0, 8))
+  instance_name = format("%s-container-%s", var.project_id, substr(md5(module.gce-container.container.image), 0, 8))
 }
 
 module "gce-container" {
@@ -18,9 +11,9 @@ module "gce-container" {
   container = {
     image = var.api_docker_image
     env = [
-      {
-        name = "TEST_VAR"
-        value = "Hello World!"
+      { 
+        name = "OTREGO_PORT",
+        value =  "80"
       }
     ],
 
@@ -98,7 +91,7 @@ resource "google_compute_firewall" "default" {
 }
 
 resource "google_dns_record_set" "frontend" {
-  name = "dev.otrego.com."
+  name = var.dns_name
   type = "A"
   ttl  = 300
 

@@ -4,8 +4,11 @@ Our infrastructure is managed with Terraform.
 
 ## Install terraform.
 Note: version 0.12 is required at this time. 
-`brew install terraform`
+`brew install tfenv`
 `brew install google-cloud-sdk`
+`tfenv install 0.14.8`
+`tfenv use 0.14.8`
+`brew install tflint`
 
 ## Credentials
 
