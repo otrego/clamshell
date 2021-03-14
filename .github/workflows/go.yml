@@ -69,7 +69,8 @@ jobs:
     name: Deploy Dev
     runs-on: ubuntu-latest
     needs: DockerBuild
-    if: github.event_name == 'push' && github.ref == 'refs/heads/master' && github.repository == 'otrego/clamshell'
+    # if: github.event_name == 'push' && github.ref == 'refs/heads/master' && github.repository == 'otrego/clamshell'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
     steps:
       - uses: actions/checkout@v2
       - uses: hashicorp/setup-terraform@v1
@@ -86,7 +87,7 @@ jobs:
       - name: Terraform Init
         id: init
         working_directory: ./tf/dev
-        run: terraform init -input=false 
+        run: terraform init -input=false
 
       - name: Terraform Plan
         id: plan
