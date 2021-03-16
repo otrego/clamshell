@@ -52,7 +52,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: docker-build
-        run: docker build -t us.gcr.io/otrego-dev/apiserver:${GITHUB_RUN_NUMBER} -t us.gcr.io/otrego-prod/apiserver:${GITHUB_RUN_NUMBER}.
+        run: docker build -t us.gcr.io/otrego-dev/apiserver:${GITHUB_RUN_NUMBER} -t us.gcr.io/otrego-prod/apiserver:${GITHUB_RUN_NUMBER} .
       - name: Login to GCP
         uses: google-github-actions/setup-gcloud@master
         with:
