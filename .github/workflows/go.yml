@@ -66,7 +66,7 @@ jobs:
       - name: Login to GCP Prod
         uses: google-github-actions/setup-gcloud@master
         with:
-          project_id: ${{ secrets.PROD_GCP_PROJECT_ID }}
+          project_id: otrego-prod
           service_account_key: ${{ secrets.PROD_GA_SA_KEY }}
           export_default_credentials: true
       - name: Log into GCP Registry
