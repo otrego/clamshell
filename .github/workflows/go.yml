@@ -48,7 +48,7 @@ jobs:
     name: Docker Build
     runs-on: ubuntu-latest
     needs: [test, lint, shadow]
-    if: github.event_name == 'push' && github.ref == 'refs/heads/master' && github.repository == 'otrego/clamshell'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master' && github.repository == 'mhoak/clamshell'
     steps:
       - uses: actions/checkout@v2
       - name: docker-build
