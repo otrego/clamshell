@@ -17,6 +17,7 @@ func serveOneFile(f []byte) func(w http.ResponseWriter, req *http.Request) {
 	}
 }
 
+// Run creates an HTTP server.
 func Run(opts *config.Spec) {
 	http.HandleFunc("/", serveOneFile(assets.Index))
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.FS(assets.Assets))))
