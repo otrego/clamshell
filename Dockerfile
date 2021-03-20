@@ -1,7 +1,7 @@
 # This uses the distroless images as the base:
 # https://github.com/GoogleContainerTools/distroless
 
-FROM golang:1.14 as build-env
+FROM golang:1.16 as build-env
 
 WORKDIR /go/src/github.com/otrego/clamshell
 ADD . /go/src/github.com/otrego/clamshell
