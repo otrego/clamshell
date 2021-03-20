@@ -5,7 +5,7 @@ import (
 
 	glog "github.com/golang/glog"
 	"github.com/otrego/clamshell/server/config"
-	"github.com/otrego/clamshell/server/grpc"
+	"github.com/otrego/clamshell/server/serve"
 )
 
 func main() {
@@ -19,5 +19,5 @@ func main() {
 		glog.Exit(err)
 	}
 
-	grpc.Run(spec)
+	serve.Run(spec)
 }
