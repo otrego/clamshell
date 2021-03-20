@@ -3,8 +3,8 @@ package assets
 
 import "embed"
 
-//go:embed index.html
 // Assets embeds the assets into the go binary.
+//go:embed index.html
 var Assets embed.FS
 
 // Index is the embedded index page.
