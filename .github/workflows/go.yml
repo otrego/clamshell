@@ -32,18 +32,6 @@ jobs:
         run: lint
         token: ${{ secrets.GITHUB_TOKEN }}
 
-  shadow:
-    name: Shadow
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v2
-    - name: check
-      uses: grandcolline/golang-github-actions@v1.1.0
-      with:
-        run: shadow
-        token: ${{ secrets.GITHUB_TOKEN }}
-
-
   DockerBuild:
     name: Docker Build
     runs-on: ubuntu-latest
