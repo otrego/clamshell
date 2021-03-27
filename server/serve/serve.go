@@ -24,5 +24,7 @@ func Run(opts *config.Spec) {
 
 	addr := fmt.Sprintf("0.0.0.0:%d", opts.Port)
 
+	log.Infof("Serving on %v", addr)
+
 	log.Fatal(http.ListenAndServe(addr, nil))
 }
