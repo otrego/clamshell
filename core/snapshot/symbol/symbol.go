@@ -1,8 +1,24 @@
 // Package symbol contains an inventory of intersection symbol.
 package symbol
 
+import (
+	"github.com/otrego/clamshell/core/color"
+)
+
 // Symbol represents an intersection on the board.
 type Symbol int
+
+// StoneFromColor returns the appropriate Stone symbol from a color.
+func StoneFromColor(c color.Color) Symbol {
+	switch c {
+	case color.Black:
+		return BlackStone
+	case color.White:
+		return WhiteStone
+	default:
+		return Empty
+	}
+}
 
 const (
 	// Empty is the default symbol.
