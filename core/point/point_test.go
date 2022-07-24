@@ -3,6 +3,8 @@ package point
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/google/go-cmp/cmp"
+
 	"testing"
 )
 
@@ -140,6 +142,20 @@ func TestSGFToPointTranslate(t *testing.T) {
 					pointY, tc.want.y)
 			}
 		})
+	}
+}
+
+func TestEquality(t *testing.T) {
+	pt := New(1, 2)
+	another := New(1, 2)
+	if pt == another {
+		t.Errorf("expected point references to differ")
+	}
+	if !pt.Equal(another) {
+		t.Errorf("expected pt %v to equal %v", pt, another)
+	}
+	if !cmp.Equal(pt, another) {
+		t.Errorf("expected pt %v to equal %v using the cmp library", pt, another)
 	}
 }
 
