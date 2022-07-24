@@ -10,7 +10,7 @@ import (
 // New creates a new bounding box.
 func New(tl, br *point.Point) (*BoundingBox, error) {
 	if tl.X() >= br.X() || tl.Y() >= br.Y() {
-		return nil, fmt.Errorf("bottom right must be greater than topleft "+
+		return nil, fmt.Errorf("bottom right must be strictly greater than topleft "+
 			"but top left was %v and bottom right was %v", tl, br)
 	}
 	return &BoundingBox{
