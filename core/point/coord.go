@@ -25,7 +25,12 @@ func (pt *Coord) X() float64 { return pt.x }
 // Y returns the y-value.
 func (pt *Coord) Y() float64 { return pt.y }
 
-// String() method to represent and print a Coord, useful for debugging and test purposes
-func (pt Coord) String() string {
+// String method to represent and print a Coord.
+func (pt *Coord) String() string {
 	return fmt.Sprintf("{%v,%v}", pt.x, pt.y)
+}
+
+// Equal returns whether this point is equal to another point.
+func (pt *Coord) Equal(other *Coord) bool {
+	return other != nil && pt.X() == other.X() && pt.Y() == other.Y()
 }
