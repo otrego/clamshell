@@ -35,8 +35,8 @@ import (
 	"strings"
 
 	"github.com/golang/glog"
-	"github.com/otrego/clamshell/core/katago"
-	"github.com/otrego/clamshell/core/storage"
+	"github.com/otrego/clamshell/katago"
+	"github.com/otrego/clamshell/storage"
 )
 
 var (

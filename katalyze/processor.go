@@ -8,12 +8,12 @@ import (
 	"strings"
 
 	"github.com/golang/glog"
-	"github.com/otrego/clamshell/core/katago"
-	"github.com/otrego/clamshell/core/katago/kataprob"
-	"github.com/otrego/clamshell/core/movetree"
-	"github.com/otrego/clamshell/core/problems"
-	"github.com/otrego/clamshell/core/sgf"
-	"github.com/otrego/clamshell/core/storage"
+	"github.com/otrego/clamshell/go/movetree"
+	"github.com/otrego/clamshell/go/problems"
+	"github.com/otrego/clamshell/go/sgf"
+	"github.com/otrego/clamshell/katago"
+	"github.com/otrego/clamshell/katago/kataprob"
+	"github.com/otrego/clamshell/storage"
 )
 
 // problemProcessor creates problems
