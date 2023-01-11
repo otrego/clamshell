@@ -39,7 +39,7 @@ func findBlunders(g *movetree.MoveTree, opt *FindBlunderOptions) ([]movetree.Pat
 		glog.V(3).Infof("VarNum %v\n", n.VarNum())
 		glog.V(3).Infof("MoveNum %v\n", n.MoveNum())
 		if n.Move != nil {
-			glog.V(3).Infof("Move %v\n", n.Move.GoString())
+			glog.V(3).Info(n.Move.GoString())
 		}
 
 		delta, ok := computeDelta(n, n.Parent)
@@ -52,7 +52,6 @@ func findBlunders(g *movetree.MoveTree, opt *FindBlunderOptions) ([]movetree.Pat
 
 		if delta <= -opt.PointThreshold {
 			found = append(found, cur.Clone())
-			glog.V(3).Infof("Added to paths: %#v\n", found)
 		}
 	}
 
@@ -64,13 +63,13 @@ func findBlunders(g *movetree.MoveTree, opt *FindBlunderOptions) ([]movetree.Pat
 
 func getScoreLead(n *movetree.Node) (float64, bool) {
 	if n == nil {
-		glog.Info("nil node")
+		glog.V(2).Info("nil node")
 		return 0, false
 	}
 
 	d := n.AnalysisData()
 	if d == nil {
-		glog.Info("nil analysis data")
+		glog.V(2).Info("nil analysis data")
 		return 0, false
 	}
 
