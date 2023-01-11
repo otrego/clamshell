@@ -10,13 +10,17 @@ import (
 	"github.com/otrego/clamshell/katago"
 )
 
+// FindBlunderOptions contains options for blunder detection
 type FindBlunderOptions struct {
+	// Sets the minimum point delta beyond which a move is considered a blunder
 	PointThreshold float64
+	// Determines which color's blunders we are searching. Can be Empty as well
+	Color color.Color
 }
 
 // FindBlunders finds positions (paths) that result from big swings in points.
 func FindBlunders(g *movetree.MoveTree) ([]movetree.Path, error) {
-	return findBlunders(g, &FindBlunderOptions{PointThreshold: 3.0})
+	return findBlunders(g, &FindBlunderOptions{PointThreshold: 3.0, Color: color.Empty})
 }
 
 func FindBlundersWithOptions(g *movetree.MoveTree, opt *FindBlunderOptions) ([]movetree.Path, error) {
@@ -34,20 +38,27 @@ func findBlunders(g *movetree.MoveTree, opt *FindBlunderOptions) ([]movetree.Pat
 	for n := g.Root; n != nil; n = n.Next(0) {
 		glog.V(3).Infof("VarNum %v\n", n.VarNum())
 		glog.V(3).Infof("MoveNum %v\n", n.MoveNum())
-
-		cur = append(cur, n.VarNum())
+		if n.Move != nil {
+			glog.V(3).Infof("Move %v\n", n.Move.GoString())
+		}
 
 		delta, ok := computeDelta(n, n.Parent)
+		glog.V(3).Infof("Delta: %f\n", delta)
 		if !ok {
 			glog.V(3).Info("No ScoreLead for current node, skipping")
 			continue
 		}
+		cur = append(cur, n.VarNum())
 
 		if delta <= -opt.PointThreshold {
 			found = append(found, cur.Clone())
+			glog.V(3).Infof("Added to paths: %#v\n", found)
 		}
 	}
 
+	if opt.Color != color.Empty {
+		return filterColor(g, &found, opt.Color), nil
+	}
 	return found, nil
 }
 
@@ -97,4 +108,14 @@ func computeDelta(n, p *movetree.Node) (float64, bool) {
 	}
 	glog.V(3).Infof("Delta: %v:", delta)
 	return delta, true
+}
+
+func filterColor(g *movetree.MoveTree, paths *[]movetree.Path, c color.Color) []movetree.Path {
+	var filtered []movetree.Path
+	for _, p := range *paths {
+		if p.Apply(g.Root).Move.Color() == c {
+			filtered = append(filtered, p)
+		}
+	}
+	return filtered
 }
