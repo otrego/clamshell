@@ -4,9 +4,8 @@
 package kataprob
 
 import (
-	"math"
-
 	"github.com/golang/glog"
+	"github.com/otrego/clamshell/go/color"
 	"github.com/otrego/clamshell/go/movetree"
 	"github.com/otrego/clamshell/katago"
 )
@@ -28,7 +27,6 @@ func FindBlunders(g *movetree.MoveTree) ([]movetree.Path, error) {
 		glog.V(3).Infof("MoveNum %v\n", n.MoveNum())
 
 		// We assume alternating moves. Lead is always presented as
-		pl := prevLead
 		cur = append(cur, n.VarNum())
 		glog.V(3).Infof("PrevLead %v\n", prevLead)
 
@@ -50,17 +48,20 @@ func FindBlunders(g *movetree.MoveTree) ([]movetree.Path, error) {
 		}
 
 		lead := katad.RootInfo.ScoreLead
-		nextLead := -1 * lead
-		glog.V(3).Infof("Next ScoreLead: %v:", nextLead)
-		delta := nextLead - pl
+		glog.V(3).Infof("Next ScoreLead: %v:", lead)
+
+		// A positive ScoreLead means black is winning. Negative means white is winning.
+		delta := lead - prevLead
+		if n.Move.Color() == color.White {
+			delta *= -1
+		}
 		glog.V(3).Infof("Delta: %v:", delta)
 
-		if delta >= math.Abs(blunderAmt) {
+		if delta <= -blunderAmt {
 			found = append(found, cur.Clone())
 		}
 
-		// prevLead is always with respect to current player
-		prevLead = nextLead
+		prevLead = lead
 	}
 
 	return found, nil
