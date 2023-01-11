@@ -1,0 +1,550 @@
+[
+  {
+    "id": "d389d54e-403e-41b9-89e2-e4a44de16d90",
+    "turnNumber": 1,
+    "moveInfos": [
+      {
+        "move": "D16",
+        "visits": 6,
+        "winrate": 0.480138624,
+        "scoreStdev": 15.05085,
+        "scoreLead": -0.270559694,
+        "scoreSelfPlay": -0.31815297,
+        "prior": 0.487751454,
+        "utility": -0.0350626204,
+        "lcb": 0.55364955,
+        "utilityLcb": 0.170767971,
+        "order": 0,
+        "pv": [
+          "D16",
+          "C17",
+          "C16"
+        ]
+      },
+      {
+        "move": "D4",
+        "visits": 3,
+        "winrate": 0.472761707,
+        "scoreStdev": 15.3307089,
+        "scoreLead": -0.17693729,
+        "scoreSelfPlay": -0.387985307,
+        "prior": 0.179083616,
+        "utility": -0.0518637814,
+        "lcb": 0.613848364,
+        "utilityLcb": 0.343178859,
+        "order": 1,
+        "pv": [
+          "D4",
+          "D16",
+          "Q16"
+        ]
+      },
+      {
+        "move": "Q16",
+        "visits": 3,
+        "winrate": 0.472761707,
+        "scoreStdev": 15.3307089,
+        "scoreLead": -0.17693729,
+        "scoreSelfPlay": -0.387985307,
+        "prior": 0.179083616,
+        "utility": -0.0518637814,
+        "lcb": 0.613848364,
+        "utilityLcb": 0.343178859,
+        "order": 2,
+        "pv": [
+          "Q16",
+          "D16",
+          "D4"
+        ]
+      }
+    ],
+    "rootInfo": {
+      "winrate": 0.478300031,
+      "scoreLead": -0.236248503,
+      "scoreSelfPlay": -0.351599628,
+      "utility": -0.0396983289,
+      "visits": 10
+    }
+  },
+  {
+    "id": "d389d54e-403e-41b9-89e2-e4a44de16d90",
+    "turnNumber": 2,
+    "moveInfos": [
+      {
+        "move": "D16",
+        "visits": 2,
+        "winrate": 0.951148133,
+        "scoreStdev": 16.5963395,
+        "scoreLead": 8.16814443,
+        "scoreSelfPlay": 11.3456726,
+        "prior": 0.292701125,
+        "utility": 0.930917032,
+        "lcb": -0.0488518674,
+        "utilityLcb": -2.8,
+        "order": 0,
+        "pv": [
+          "D16",
+          "Q16"
+        ]
+      },
+      {
+        "move": "Q16",
+        "visits": 2,
+        "winrate": 0.954698978,
+        "scoreStdev": 16.6348816,
+        "scoreLead": 8.38136126,
+        "scoreSelfPlay": 11.5239709,
+        "prior": 0.147755414,
+        "utility": 0.938090425,
+        "lcb": -0.0453010224,
+        "utilityLcb": -2.8,
+        "order": 1,
+        "pv": [
+          "Q16",
+          "D17"
+        ]
+      },
+      {
+        "move": "D4",
+        "visits": 2,
+        "winrate": 0.950950467,
+        "scoreStdev": 16.6812343,
+        "scoreLead": 8.13130195,
+        "scoreSelfPlay": 11.2243489,
+        "prior": 0.0954912677,
+        "utility": 0.921932819,
+        "lcb": -0.0490495335,
+        "utilityLcb": -2.8,
+        "order": 2,
+        "pv": [
+          "D4",
+          "C16"
+        ]
+      },
+      {
+        "move": "D17",
+        "visits": 1,
+        "winrate": 0.953459851,
+        "scoreStdev": 17.530755,
+        "scoreLead": 8.61698818,
+        "scoreSelfPlay": 11.224515,
+        "prior": 0.100957423,
+        "utility": 0.941684845,
+        "lcb": -0.0465401486,
+        "utilityLcb": -2.8,
+        "order": 3,
+        "pv": [
+          "D17"
+        ]
+      },
+      {
+        "move": "Q17",
+        "visits": 1,
+        "winrate": 0.957231697,
+        "scoreStdev": 17.6933715,
+        "scoreLead": 8.81806374,
+        "scoreSelfPlay": 11.3506212,
+        "prior": 0.071659483,
+        "utility": 0.950262592,
+        "lcb": -0.0427683033,
+        "utilityLcb": -2.8,
+        "order": 4,
+        "pv": [
+          "Q17"
+        ]
+      },
+      {
+        "move": "C16",
+        "visits": 1,
+        "winrate": 0.945286151,
+        "scoreStdev": 17.2317527,
+        "scoreLead": 7.84409666,
+        "scoreSelfPlay": 10.4058418,
+        "prior": 0.0770296976,
+        "utility": 0.9179235,
+        "lcb": -0.054713849,
+        "utilityLcb": -2.8,
+        "order": 5,
+        "pv": [
+          "C16"
+        ]
+      }
+    ],
+    "rootInfo": {
+      "winrate": 0.951256834,
+      "scoreLead": 8.28642625,
+      "scoreSelfPlay": 11.2530607,
+      "utility": 0.931947364,
+      "visits": 10
+    }
+  },
+  {
+    "id": "d389d54e-403e-41b9-89e2-e4a44de16d90",
+    "turnNumber": 3,
+    "moveInfos": [
+      {
+        "move": "D4",
+        "visits": 5,
+        "winrate": 0.470723252,
+        "scoreStdev": 15.8239091,
+        "scoreLead": -0.302256712,
+        "scoreSelfPlay": -0.533496881,
+        "prior": 0.275591373,
+        "utility": -0.0609463407,
+        "lcb": 0.520035263,
+        "utilityLcb": 0.0771272881,
+        "order": 0,
+        "pv": [
+          "D4",
+          "D16",
+          "R16",
+          "P17"
+        ]
+      },
+      {
+        "move": "Q16",
+        "visits": 2,
+        "winrate": 0.481221266,
+        "scoreStdev": 15.7928872,
+        "scoreLead": -0.128351008,
+        "scoreSelfPlay": -0.254388395,
+        "prior": 0.188304409,
+        "utility": -0.0402997557,
+        "lcb": 1.48122127,
+        "utilityLcb": 2.8,
+        "order": 1,
+        "pv": [
+          "Q16",
+          "C4"
+        ]
+      },
+      {
+        "move": "D16",
+        "visits": 2,
+        "winrate": 0.482324253,
+        "scoreStdev": 15.8670387,
+        "scoreLead": -0.150619364,
+        "scoreSelfPlay": -0.307404481,
+        "prior": 0.137766436,
+        "utility": -0.0210855754,
+        "lcb": 1.48232425,
+        "utilityLcb": 2.8,
+        "order": 2,
+        "pv": [
+          "D16",
+          "C4"
+        ]
+      }
+    ],
+    "rootInfo": {
+      "winrate": 0.475980372,
+      "scoreLead": -0.239989087,
+      "scoreSelfPlay": -0.433972638,
+      "utility": -0.0484423191,
+      "visits": 10
+    }
+  },
+  {
+    "id": "d389d54e-403e-41b9-89e2-e4a44de16d90",
+    "turnNumber": 4,
+    "moveInfos": [
+      {
+        "move": "D4",
+        "visits": 4,
+        "winrate": 0.625779791,
+        "scoreStdev": 15.886645,
+        "scoreLead": 1.26106182,
+        "scoreSelfPlay": 2.30498039,
+        "prior": 0.316846699,
+        "utility": 0.249203259,
+        "lcb": 0.491033769,
+        "utilityLcb": -0.128085602,
+        "order": 0,
+        "pv": [
+          "D4",
+          "C16",
+          "Q17"
+        ]
+      },
+      {
+        "move": "D16",
+        "visits": 4,
+        "winrate": 0.618617067,
+        "scoreStdev": 15.6257509,
+        "scoreLead": 1.18210408,
+        "scoreSelfPlay": 2.21651101,
+        "prior": 0.330112576,
+        "utility": 0.239048353,
+        "lcb": 0.462016215,
+        "utilityLcb": -0.199434032,
+        "order": 1,
+        "pv": [
+          "D16",
+          "C4",
+          "E3"
+        ]
+      },
+      {
+        "move": "Q16",
+        "visits": 1,
+        "winrate": 0.612874746,
+        "scoreStdev": 15.6459828,
+        "scoreLead": 0.944121242,
+        "scoreSelfPlay": 1.96060443,
+        "prior": 0.117935382,
+        "utility": 0.227150355,
+        "lcb": -0.387125254,
+        "utilityLcb": -2.8,
+        "order": 2,
+        "pv": [
+          "Q16"
+        ]
+      }
+    ],
+    "rootInfo": {
+      "winrate": 0.621624495,
+      "scoreLead": 1.19640454,
+      "scoreSelfPlay": 2.25154129,
+      "utility": 0.2435947,
+      "visits": 10
+    }
+  },
+  {
+    "id": "d389d54e-403e-41b9-89e2-e4a44de16d90",
+    "turnNumber": 5,
+    "moveInfos": [
+      {
+        "move": "Q16",
+        "visits": 2,
+        "winrate": 0.0690046847,
+        "scoreStdev": 16.9192572,
+        "scoreLead": -6.91933802,
+        "scoreSelfPlay": -10.147169,
+        "prior": 0.212476462,
+        "utility": -0.888894812,
+        "lcb": 1.06900468,
+        "utilityLcb": 2.8,
+        "order": 0,
+        "pv": [
+          "Q16",
+          "D4"
+        ]
+      },
+      {
+        "move": "C16",
+        "visits": 2,
+        "winrate": 0.0800317861,
+        "scoreStdev": 16.9679364,
+        "scoreLead": -6.90283835,
+        "scoreSelfPlay": -9.75888728,
+        "prior": 0.150962934,
+        "utility": -0.862397767,
+        "lcb": 1.08003179,
+        "utilityLcb": 2.8,
+        "order": 1,
+        "pv": [
+          "C16",
+          "Q16"
+        ]
+      },
+      {
+        "move": "D4",
+        "visits": 1,
+        "winrate": 0.0659813955,
+        "scoreStdev": 17.2433899,
+        "scoreLead": -6.75111628,
+        "scoreSelfPlay": -9.45975399,
+        "prior": 0.139890835,
+        "utility": -0.886242185,
+        "lcb": 1.0659814,
+        "utilityLcb": 2.8,
+        "order": 2,
+        "pv": [
+          "D4"
+        ]
+      },
+      {
+        "move": "D17",
+        "visits": 1,
+        "winrate": 0.08267067,
+        "scoreStdev": 17.2289707,
+        "scoreLead": -6.29486752,
+        "scoreSelfPlay": -8.93756676,
+        "prior": 0.109587342,
+        "utility": -0.847972354,
+        "lcb": 1.08267067,
+        "utilityLcb": 2.8,
+        "order": 3,
+        "pv": [
+          "D17"
+        ]
+      },
+      {
+        "move": "C4",
+        "visits": 1,
+        "winrate": 0.0934126191,
+        "scoreStdev": 16.7660171,
+        "scoreLead": -5.94286823,
+        "scoreSelfPlay": -8.54506302,
+        "prior": 0.0856807381,
+        "utility": -0.822834791,
+        "lcb": 1.09341262,
+        "utilityLcb": 2.8,
+        "order": 4,
+        "pv": [
+          "C4"
+        ]
+      },
+      {
+        "move": "D16",
+        "visits": 1,
+        "winrate": 0.0799551979,
+        "scoreStdev": 17.2589361,
+        "scoreLead": -6.32925653,
+        "scoreSelfPlay": -8.89127922,
+        "prior": 0.0662089437,
+        "utility": -0.852963502,
+        "lcb": 1.0799552,
+        "utilityLcb": 2.8,
+        "order": 5,
+        "pv": [
+          "D16"
+        ]
+      },
+      {
+        "move": "R16",
+        "visits": 1,
+        "winrate": 0.070447091,
+        "scoreStdev": 17.0688046,
+        "scoreLead": -6.94080639,
+        "scoreSelfPlay": -9.57549095,
+        "prior": 0.0648016632,
+        "utility": -0.878456008,
+        "lcb": 1.07044709,
+        "utilityLcb": 2.8,
+        "order": 6,
+        "pv": [
+          "R16"
+        ]
+      }
+    ],
+    "rootInfo": {
+      "winrate": 0.0743780749,
+      "scoreLead": -6.74055811,
+      "scoreSelfPlay": -9.6583646,
+      "utility": -0.872243263,
+      "visits": 10
+    }
+  },
+  {
+    "id": "d389d54e-403e-41b9-89e2-e4a44de16d90",
+    "turnNumber": 6,
+    "moveInfos": [
+      {
+        "move": "D16",
+        "visits": 4,
+        "winrate": 0.641184066,
+        "scoreStdev": 15.9696548,
+        "scoreLead": 1.48139807,
+        "scoreSelfPlay": 2.61100279,
+        "prior": 0.415372998,
+        "utility": 0.280217262,
+        "lcb": 0.416154784,
+        "utilityLcb": -0.349864727,
+        "order": 0,
+        "pv": [
+          "D16",
+          "R16",
+          "C4"
+        ]
+      },
+      {
+        "move": "Q16",
+        "visits": 1,
+        "winrate": 0.634422287,
+        "scoreStdev": 16.223572,
+        "scoreLead": 1.32189918,
+        "scoreSelfPlay": 2.49568653,
+        "prior": 0.131728023,
+        "utility": 0.269056711,
+        "lcb": -0.365577713,
+        "utilityLcb": -2.8,
+        "order": 1,
+        "pv": [
+          "Q16"
+        ]
+      },
+      {
+        "move": "D17",
+        "visits": 1,
+        "winrate": 0.617820725,
+        "scoreStdev": 15.9562857,
+        "scoreLead": 1.05354452,
+        "scoreSelfPlay": 2.04046273,
+        "prior": 0.106885158,
+        "utility": 0.231387528,
+        "lcb": -0.382179275,
+        "utilityLcb": -2.8,
+        "order": 2,
+        "pv": [
+          "D17"
+        ]
+      },
+      {
+        "move": "D4",
+        "visits": 1,
+        "winrate": 0.622410685,
+        "scoreStdev": 16.4829131,
+        "scoreLead": 0.942656875,
+        "scoreSelfPlay": 2.09918857,
+        "prior": 0.105433784,
+        "utility": 0.241233517,
+        "lcb": -0.377589315,
+        "utilityLcb": -2.8,
+        "order": 3,
+        "pv": [
+          "D4"
+        ]
+      },
+      {
+        "move": "C16",
+        "visits": 1,
+        "winrate": 0.596109137,
+        "scoreStdev": 15.954414,
+        "scoreLead": 0.923714757,
+        "scoreSelfPlay": 1.74542785,
+        "prior": 0.0687412024,
+        "utility": 0.185080866,
+        "lcb": -0.403890863,
+        "utilityLcb": -2.8,
+        "order": 4,
+        "pv": [
+          "C16"
+        ]
+      },
+      {
+        "move": "R16",
+        "visits": 1,
+        "winrate": 0.585215375,
+        "scoreStdev": 16.2532702,
+        "scoreLead": 0.703373134,
+        "scoreSelfPlay": 1.61277521,
+        "prior": 0.0528603494,
+        "utility": 0.162091835,
+        "lcb": -0.414784625,
+        "utilityLcb": -2.8,
+        "order": 5,
+        "pv": [
+          "R16"
+        ]
+      }
+    ],
+    "rootInfo": {
+      "winrate": 0.63942338,
+      "scoreLead": 1.43122422,
+      "scoreSelfPlay": 2.58822299,
+      "utility": 0.27788112,
+      "visits": 10
+    }
+  }
+]

@@ -4,64 +4,117 @@
 package kataprob
 
 import (
-	"math"
-
 	"github.com/golang/glog"
+	"github.com/otrego/clamshell/go/color"
 	"github.com/otrego/clamshell/go/movetree"
 	"github.com/otrego/clamshell/katago"
 )
 
+// FindBlunderOptions contains options for blunder detection
+type FindBlunderOptions struct {
+	// Sets the minimum point delta beyond which a move is considered a blunder
+	PointThreshold float64
+	// Determines which color's blunders we are searching. Can be Empty as well
+	Color color.Color
+}
+
 // FindBlunders finds positions (paths) that result from big swings in points.
 func FindBlunders(g *movetree.MoveTree) ([]movetree.Path, error) {
-	blunderAmt := 3.0
+	return findBlunders(g, &FindBlunderOptions{PointThreshold: 3.0, Color: color.Empty})
+}
 
+func FindBlundersWithOptions(g *movetree.MoveTree, opt *FindBlunderOptions) ([]movetree.Path, error) {
+	return findBlunders(g, opt)
+}
+
+func findBlunders(g *movetree.MoveTree, opt *FindBlunderOptions) ([]movetree.Path, error) {
+	glog.V(3).Infof("Finding blunders with options: %v:\n", opt)
 	var cur movetree.Path
 	var found []movetree.Path
 	if g.Root == nil {
 		return found, nil
 	}
 
-	var prevLead float64
-
 	for n := g.Root; n != nil; n = n.Next(0) {
 		glog.V(3).Infof("VarNum %v\n", n.VarNum())
 		glog.V(3).Infof("MoveNum %v\n", n.MoveNum())
-
-		// We assume alternating moves. Lead is always presented as
-		pl := prevLead
-		cur = append(cur, n.VarNum())
-		glog.V(3).Infof("PrevLead %v\n", prevLead)
-
-		d := n.AnalysisData()
-		if d == nil {
-			glog.Infof("nil analysis data")
-			continue
+		if n.Move != nil {
+			glog.V(3).Info(n.Move.GoString())
 		}
 
-		katad, ok := d.(*katago.AnalysisResult)
+		delta, ok := computeDelta(n, n.Parent)
+		glog.V(3).Infof("Delta: %f\n", delta)
 		if !ok {
-			glog.V(2).Infof("not analysisResult")
+			glog.V(3).Info("No ScoreLead for current node, skipping")
 			continue
 		}
-		if katad.RootInfo == nil {
-			// This
-			glog.Errorf("no RootInfo for at move %v", n.MoveNum())
-			continue
-		}
+		cur = append(cur, n.VarNum())
 
-		lead := katad.RootInfo.ScoreLead
-		nextLead := -1 * lead
-		glog.V(3).Infof("Next ScoreLead: %v:", nextLead)
-		delta := nextLead - pl
-		glog.V(3).Infof("Delta: %v:", delta)
-
-		if delta >= math.Abs(blunderAmt) {
+		if delta <= -opt.PointThreshold {
 			found = append(found, cur.Clone())
 		}
-
-		// prevLead is always with respect to current player
-		prevLead = nextLead
 	}
 
+	if opt.Color != color.Empty {
+		return filterColor(g, &found, opt.Color), nil
+	}
 	return found, nil
+}
+
+func getScoreLead(n *movetree.Node) (float64, bool) {
+	if n == nil {
+		glog.V(2).Info("nil node")
+		return 0, false
+	}
+
+	d := n.AnalysisData()
+	if d == nil {
+		glog.V(2).Info("nil analysis data")
+		return 0, false
+	}
+
+	nData, ok := d.(*katago.AnalysisResult)
+	if !ok {
+		glog.V(2).Info("not analysisResult")
+		return 0, false
+	}
+
+	if nData.RootInfo == nil {
+		glog.Errorf("no RootInfo for at move %v", n.MoveNum())
+		return 0, false
+	}
+
+	return nData.RootInfo.ScoreLead, true
+}
+
+func computeDelta(n, p *movetree.Node) (float64, bool) {
+	previousLead, ok := getScoreLead(p)
+	if !ok {
+		glog.V(3).Info("Defaulting score to 0")
+	}
+	glog.V(3).Infof("Previous Lead %v\n", previousLead)
+
+	currentLead, ok := getScoreLead(n)
+	if !ok {
+		return 0, false
+	}
+	glog.V(3).Infof("Current Lead %v\n", currentLead)
+
+	// A positive ScoreLead means black is winning. Negative means white is winning.
+	delta := currentLead - previousLead
+	if n.Move.Color() == color.White {
+		delta *= -1
+	}
+	glog.V(3).Infof("Delta: %v:", delta)
+	return delta, true
+}
+
+func filterColor(g *movetree.MoveTree, paths *[]movetree.Path, c color.Color) []movetree.Path {
+	var filtered []movetree.Path
+	for _, p := range *paths {
+		if p.Apply(g.Root).Move.Color() == c {
+			filtered = append(filtered, p)
+		}
+	}
+	return filtered
 }
