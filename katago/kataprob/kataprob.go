@@ -10,10 +10,21 @@ import (
 	"github.com/otrego/clamshell/katago"
 )
 
+type FindBlunderOptions struct {
+	PointThreshold float64
+}
+
 // FindBlunders finds positions (paths) that result from big swings in points.
 func FindBlunders(g *movetree.MoveTree) ([]movetree.Path, error) {
-	blunderAmt := 3.0
+	return findBlunders(g, &FindBlunderOptions{PointThreshold: 3.0})
+}
 
+func FindBlundersWithOptions(g *movetree.MoveTree, opt *FindBlunderOptions) ([]movetree.Path, error) {
+	return findBlunders(g, opt)
+}
+
+func findBlunders(g *movetree.MoveTree, opt *FindBlunderOptions) ([]movetree.Path, error) {
+	glog.V(3).Infof("Finding blunders with options: %v:\n", opt)
 	var cur movetree.Path
 	var found []movetree.Path
 	if g.Root == nil {
@@ -57,7 +68,7 @@ func FindBlunders(g *movetree.MoveTree) ([]movetree.Path, error) {
 		}
 		glog.V(3).Infof("Delta: %v:", delta)
 
-		if delta <= -blunderAmt {
+		if delta <= -opt.PointThreshold {
 			found = append(found, cur.Clone())
 		}
 
