@@ -11,7 +11,7 @@ import (
 )
 
 func TestBlunderComprehensiveness(t *testing.T) {
-	game, err := MakeGameWithAnalysis(t)
+	game, err := makeGameWithAnalysis(t)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -29,7 +29,7 @@ func TestBlunderComprehensiveness(t *testing.T) {
 }
 
 func TestBlunderPointThreshold(t *testing.T) {
-	game, err := MakeGameWithAnalysis(t)
+	game, err := makeGameWithAnalysis(t)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -47,7 +47,7 @@ func TestBlunderPointThreshold(t *testing.T) {
 	}
 }
 
-func MakeGameWithAnalysis(t *testing.T) (*movetree.MoveTree, error) {
+func makeGameWithAnalysis(t *testing.T) (*movetree.MoveTree, error) {
 	content, err := os.ReadFile("../../test-database/blunders.sgf")
 	if err != nil {
 		t.Fatal(err)
